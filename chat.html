@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Koboweb v02 Book Requests</title>
+    <title>Online Chat!!</title>
     <link rel="stylesheet" href="style.css">
     <style>
         body { font-family: monospace, Courier, serif; background-color: #fff; color: #000; margin: 4%; font-size: 16px; line-height: 1.4; }
@@ -35,25 +35,25 @@
 
     <!-- LIVE CONVERSATION STREAM FEED -->
     <div class="message-feed" id="chat-stream">
-        Loading recent board messages...
+        Loading recent messages...
     </div>
 
     <!-- TRANSMIT REQUEST FORM INTERFACE -->
     <div class="input-row">
-        <span class="input-label">&gt; PILOT ALIAS:</span>
+        <span class="input-label">&gt; Name:</span>
         <input type="text" id="user-name" class="field-box" placeholder="KoboUser77" maxlength="15">
     </div>
     
     <div class="input-row">
-        <span class="input-label">&gt; BOOK REQUEST DETAILS:</span>
+        <span class="input-label">&gt; Message:</span>
         <input type="text" id="user-msg" class="field-box" placeholder="Please add Percy Jackson Vol 1!" maxlength="80">
     </div>
 
-    <button class="btn-submit" onclick="submitRequestMessage()">🛰️ TRANSMIT MESSAGE</button>
+    <button class="btn-submit" onclick="submitRequestMessage()">Send</button>
 
     <!-- Navigation Footer -->
     <div>
-        <a href="index.html" class="btn-back">🏠 BACK TO CABINET</a>
+        <a href="index.html" class="btn-back">Back to home</a>
     </div>
 </div>
 <script>
@@ -66,7 +66,7 @@
         
         var xhr = new XMLHttpRequest();
         // This sets up the direct pipeline connection path
-        xhr.open("GET", SUPABASE_URL + "/rest/v1/book_requests?select=*&order=created_at.desc&limit=15", true);
+        xhr.open("GET", SUPABASE_URL + "/rest/v1/online_chat?select=*&order=created_at.desc&limit=15", true);
         
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
         
@@ -112,7 +112,7 @@
         }
 
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", SUPABASE_URL + "/rest/v1/book_requests", true);
+        xhr.open("POST", SUPABASE_URL + "/rest/v1/online_chat", true);
         
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
         xhr.setRequestHeader("Content-Type", "application/json");
