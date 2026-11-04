@@ -120,7 +120,7 @@ function enforceGatekeeperCheck() {
     function fetchRequestMessages() {
         var feed = document.getElementById("chat-stream");
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", SUPABASE_URL + "/rest/v1/online_chat?select=*&order=created_at.desc&limit=15", true);
+        xhr.open("GET", SUPABASE_URL + "/rest/v1/online_chat_test?select=*&order=created_at.desc&limit=15", true);
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
         
         xhr.onreadystatechange = function() {
@@ -157,7 +157,7 @@ function enforceGatekeeperCheck() {
         if (!nameInput || !msgInput) return alert("Fill all fields!");
 
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", SUPABASE_URL + "/rest/v1/online_chat", true);
+        xhr.open("POST", SUPABASE_URL + "/rest/v1/online_chat_test", true);
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
         xhr.setRequestHeader("Content-Type", "application/json");
         
