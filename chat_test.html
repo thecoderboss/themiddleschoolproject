@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koboweb v02 Book Requests</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { font-family: monospace, Courier, serif; background-color: #fff; color: #000; margin: 4%; font-size: 16px; line-height: 1.4; }
+        .board-container { max-width: 500px; margin: 0 auto; text-align: center; }
+        .board-title { font-weight: bold; font-size: 16px; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; }
+        
+        /* 🔐 Account System Auth Box Styles */
+        .auth-container { border: 2px solid #000; padding: 12px; margin-bottom: 15px; text-align: left; background: #fff; }
+        .auth-toggle-btn { background: none; border: none; text-decoration: underline; cursor: pointer; font-family: monospace; font-size: 12px; padding: 0; color: #555; }
+        .user-status { font-size: 13px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #000; padding-bottom: 5px; text-transform: uppercase; }
+
+        /* Chat Feed Box Layout */
+        .message-feed { border: 2px solid #000; height: 260px; overflow-y: scroll; text-align: left; padding: 8px; background: #fff; margin-bottom: 15px; }
+        .msg-bubble { border-bottom: 1px dashed #000; padding: 6px 0; margin-bottom: 4px; font-size: 14px; }
+        .msg-user { font-weight: bold; text-decoration: underline; }
+        .msg-time { font-size: 11px; color: #555; float: right; }
+        
+        /* Form Field Layout Inputs */
+        .input-row { margin-bottom: 10px; text-align: left; }
+        .input-label { font-size: 13px; font-weight: bold; display: block; margin-bottom: 3px; }
+        .field-box { width: 95%; padding: 8px; border: 2px solid #000; font-family: monospace; font-size: 15px; background: #fff; }
+        
+        /* Buttons */
+        .btn-submit { display: block; width: 100%; text-align: center; padding: 12px 0; background-color: #000; color: #fff; font-weight: bold; font-size: 15px; text-decoration: none; border: 2px solid #000; cursor: pointer; }
+        .btn-submit:active { background-color: #fff; color: #000; }
+        .btn-small { padding: 5px 10px; background: #000; color: #fff; border: 2px solid #000; font-family: monospace; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .btn-small:active { background: #fff; color: #000; }
+        .btn-small-outline { padding: 5px 10px; background: #fff; color: #000; border: 2px solid #000; font-family: monospace; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .btn-small-outline:active { background: #000; color: #fff; }
+        
+        .btn-back { display: inline-block; margin-top: 20px; padding: 10px 16px; background: #fff; border: 2px solid #000; font-weight: bold; text-decoration: none; color: #000; font-size: 14px; }
+    </style>
+</head>
+<body>
+<div class="board-container">
+    <div class="board-title">Online chat!</div>
+
+    <!-- 🔐 ACCOUNT & AUTH SYSTEM CONTAINER -->
+    <div class="auth-container">
+        <!-- Logged Out Interface -->
+        <div id="auth-logged-out">
+            <div class="user-status" id="auth-mode-title">&gt; Sign in</div>
+            <div class="input-row">
+                <input type="email" id="auth-email" class="field-box" placeholder="email@domain.com" style="margin-bottom: 5px; width:95%;">
+                <input type="password" id="auth-password" class="field-box" placeholder="password" style="width:95%;">
+            </div>
+            <button class="btn-small" onclick="handleAuthAction()" id="btn-auth-submit">Login</button>
+            <button class="auth-toggle-btn" onclick="toggleAuthMode()" id="btn-auth-toggle" style="float: right; margin-top: 5px;">Need an account? Sign Up</button>
+        </div>
+        
+        <!-- Logged In Interface -->
+        <div id="auth-logged-in" style="display: none;">
+            <div class="user-status">
+                &gt; Online: <span id="current-user-display">---</span>
+            </div>
+            <button class="btn-small-outline" onclick="logoutUser()">SIGN OUT</button>
+        </div>
+    </div>
+    <p style="font-size: 13px; font-style: italic; margin-bottom: 15px;">Congrats on making it into the chat! You can now chat with people!</p>
+
+    <!-- LIVE CONVERSATION STREAM FEED -->
+    <div class="message-feed" id="chat-stream">
+        Loading recent messages...
+    </div>
+
+    <!-- TRANSMIT REQUEST FORM INTERFACE -->
+    <div class="input-row">
+        <span class="input-label">&gt; Username:</span>
+        <input type="text" id="user-name" class="field-box" placeholder="ChatUser1234" maxlength="15">
+    </div>
+    
+    <div class="input-row">
+        <span class="input-label">&gt; Message:</span>
+        <input type="text" id="user-msg" class="field-box" placeholder="Hi everyone!" maxlength="80">
+    </div>
+
+    <button class="btn-submit" onclick="submitRequestMessage()">Send</button>
+
+    <!-- Navigation Footer -->
+    <div>
+        <a href="index.html" class="btn-back">Back to homepage</a>
+    </div>
+</div>
+<script>
+    var SUPABASE_URL = "https://supabase.co"; 
+    var SUPABASE_KEY = "sb_publishable_mEl59NFDbz1V7YS_kO_OTw_4PnkhrNT"; 
+
+    // 🛠️ ADMIN CONFIGURATION LIST
+    // Add your admin emails here. Their role remains completely invisible on the feed.
+    var ADMIN_EMAILS = [
+        "thecoderboss@chat.com",
+        "yourname@domain.com"
+    ];
+
+    // Session tracking variables stored locally in the browser
+    var isSignUpMode = false;
+    var SESSION_TOKEN = localStorage.getItem("supabase_session_token") || null;
+    var USER_EMAIL = localStorage.getItem("supabase_user_email") || null;
+
+    function toggleAuthMode() {
+        isSignUpMode = !isSignUpMode;
+        document.getElementById("auth-mode-title").innerText = isSignUpMode ? "> Create new account" : "> Sign in";
+        document.getElementById("btn-auth-submit").innerText = isSignUpMode ? "Register account" : "Login";
+        document.getElementById("btn-auth-toggle").innerText = isSignUpMode ? "Already have an account? Login" : "Need an account? Sign Up";
+    }
+
+    function updateAuthUI() {
+        if (SESSION_TOKEN && USER_EMAIL) {
+            document.getElementById("auth-logged-out").style.display = "none";
+            document.getElementById("auth-logged-in").style.display = "block";
+            document.getElementById("current-user-display").innerText = USER_EMAIL;
+        } else {
+            document.getElementById("auth-logged-out").style.display = "block";
+            document.getElementById("auth-logged-in").style.display = "none";
+            document.getElementById("auth-email").value = "";
+            document.getElementById("auth-password").value = "";
+        }
+    }
+
+    function logoutUser() {
+        SESSION_TOKEN = null;
+        USER_EMAIL = null;
+        localStorage.removeItem("supabase_session_token");
+        localStorage.removeItem("supabase_user_email");
+        updateAuthUI();
+        fetchRequestMessages();
+    }
+
+    function checkIsAdmin(emailField) {
+        if (!emailField) return false;
+        return ADMIN_EMAILS.includes(emailField.toLowerCase());
+    }
+      function handleAuthAction() {
+        var email = document.getElementById("auth-email").value.trim();
+        var password = document.getElementById("auth-password").value.trim();
+
+        if (!email || !password) {
+            return alert("Fill out both email and password boxes.");
+        }
+
+        var endpoint = isSignUpMode ? "/auth/v1/signup" : "/auth/v1/token?grant_type=password";
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", SUPABASE_URL + endpoint, true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status >= 200 && xhr.status <= 299) {
+                    var response = JSON.parse(xhr.responseText);
+                    
+                    if (isSignUpMode) {
+                        alert("Registration successful! Check your email or try signing in.");
+                        toggleAuthMode();
+                    } else {
+                        SESSION_TOKEN = response.access_token;
+                        USER_EMAIL = response.user.email;
+                        
+                        localStorage.setItem("supabase_session_token", SESSION_TOKEN);
+                        localStorage.setItem("supabase_user_email", USER_EMAIL);
+                        
+                        document.getElementById("user-name").value = USER_EMAIL.split('@')[0];
+                        
+                        updateAuthUI();
+                        fetchRequestMessages();
+                    }
+                } else {
+                    var errorData = JSON.parse(xhr.responseText || "{}");
+                    alert("Auth Failure: " + (errorData.error_description || errorData.msg || "Status Code " + xhr.status));
+                }
+            }
+        };
+        xhr.send(JSON.stringify({ "email": email, "password": password }));
+    }
+
+    function fetchRequestMessages() {
+        var feed = document.getElementById("chat-stream");
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", SUPABASE_URL + "/rest/v1/online_chat?select=*&order=created_at.desc&limit=15", true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && (xhr.status === 200 || xhr.status === 201)) {
+                var data = JSON.parse(xhr.responseText);
+                var htmlBuffer = "";
+                if (data.length === 0) {
+                    feed.innerHTML = "<div style='text-align:center; padding-top:40px; font-style:italic;'>The board is empty.</div>";
+                    return;
+                }
+                for (var i = 0; i < data.length; i++) {
+                    var timeStr = "--:--";
+                    try {
+                        var dateObj = new Date(data[i].created_at);
+                        timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    } catch(e) {}
+
+                    htmlBuffer += "<div class='msg-bubble'>" +
+                        "<span class='msg-time'>" + timeStr + "</span>" +
+                        "<span class='msg-user'>" + escapeHtml(data[i].name) + "</span>: " +
+                        "<span>" + escapeHtml(data[i].message) + "</span>" +
+                        "</div>";
+                }
+                feed.innerHTML = htmlBuffer;
+            }
+        };
+        xhr.send();
+    }
+
+    function submitRequestMessage() {
+        var nameInput = document.getElementById("user-name").value.trim();
+        var msgInput = document.getElementById("user-msg").value.trim();
+
+        if (!nameInput || !msgInput) return alert("Fill all fields!");
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", SUPABASE_URL + "/rest/v1/online_chat", true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        
+        if (SESSION_TOKEN) xhr.setRequestHeader("Authorization", "Bearer " + SESSION_TOKEN);
+
+        var payloadData = { "name": nameInput, "message": msgInput };
+        if (USER_EMAIL) {
+            payloadData.email = USER_EMAIL;
+            if (checkIsAdmin(USER_EMAIL)) payloadData.is_admin = true;
+        }
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status <= 299) {
+                document.getElementById("user-msg").value = "";
+                fetchRequestMessages(); 
+            }
+        };
+        xhr.send(JSON.stringify(payloadData));
+    }
+
+    function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // Run initialization checks on startup
+    updateAuthUI();
+    if(USER_EMAIL && document.getElementById("user-name").value === "") {
+        document.getElementById("user-name").value = USER_EMAIL.split('@')[0];
+    }
+    fetchRequestMessages();
+</script>
+</body>
+</html>
