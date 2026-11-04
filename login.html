@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Chat System</title>
+    <style>
+        body { font-family: monospace, Courier, serif; background-color: #fff; color: #000; margin: 10% auto; max-width: 400px; padding: 20px; font-size: 16px; line-height: 1.4; border: 2px solid #000; }
+        .board-title { font-weight: bold; font-size: 16px; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; text-align: center; }
+        .input-row { margin-bottom: 10px; text-align: left; }
+        .field-box { width: 94%; padding: 8px; border: 2px solid #000; font-family: monospace; font-size: 15px; background: #fff; }
+        .btn-submit { display: block; width: 100%; text-align: center; padding: 12px 0; background-color: #000; color: #fff; font-weight: bold; font-size: 15px; text-decoration: none; border: 2px solid #000; cursor: pointer; }
+        .btn-submit:active { background-color: #fff; color: #000; }
+        .auth-toggle-btn { background: none; border: none; text-decoration: underline; cursor: pointer; font-family: monospace; font-size: 13px; padding: 0; color: #555; display: block; margin: 15px auto 0 auto; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div class="board-title" id="auth-mode-title">&gt; SIGN IN</div>
+    
+    <div class="input-row">
+        <input type="email" id="auth-email" class="field-box" placeholder="email@domain.com" style="margin-bottom: 5px;">
+        <input type="password" id="auth-password" class="field-box" placeholder="password">
+    </div>
+    
+    <button class="btn-submit" onclick="handleAuthAction()" id="btn-auth-submit">LOGIN</button>
+    <button class="auth-toggle-btn" onclick="toggleAuthMode()" id="btn-auth-toggle">Need an account? Sign Up</button>
+
+<script>
+    // Replace with your real project domain!
+    var SUPABASE_URL = "https://hzcnqfzyehoctkviyfwf.supabase.co"; 
+    var SUPABASE_KEY = "sb_publishable_mEl59NFDbz1V7YS_kO_OTw_4PnkhrNT"; 
+
+    var isSignUpMode = false;
+
+    function toggleAuthMode() {
+        isSignUpMode = !isSignUpMode;
+        document.getElementById("auth-mode-title").innerText = isSignUpMode ? "> Create new account" : "> Sign in";
+        document.getElementById("btn-auth-submit").innerText = isSignUpMode ? "Register account" : "Login";
+        document.getElementById("btn-auth-toggle").innerText = isSignUpMode ? "Already have an account? Login" : "Need an account? Sign Up";
+    }
+
+    function handleAuthAction() {
+        var email = document.getElementById("auth-email").value.trim();
+        var password = document.getElementById("auth-password").value.trim();
+
+        if (!email || !password) {
+            return alert("Fill out both email and password boxes.");
+        }
+
+        var endpoint = isSignUpMode ? "/auth/v1/signup" : "/auth/v1/token?grant_type=password";
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", SUPABASE_URL + endpoint, true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status >= 200 && xhr.status <= 299) {
+                    var response = JSON.parse(xhr.responseText);
+                    
+                    if (isSignUpMode) {
+                        alert("Registration successful! Go ahead and sign in!.");
+                        toggleAuthMode();
+                    } else {
+                        // Persist credentials globally across pages
+                        localStorage.setItem("supabase_session_token", response.access_token);
+                        localStorage.setItem("supabase_user_email", response.user.email);
+                        
+                        // Bounce over into your chat arena
+                        window.location.href = "chat.html"; 
+                    }
+                } else {
+                    var errorData = JSON.parse(xhr.responseText || "{}");
+                    alert("Auth Failure: " + (errorData.error_description || errorData.msg || "Status Code " + xhr.status));
+                }
+            }
+        };
+        xhr.send(JSON.stringify({ "email": email, "password": password }));
+    }
+</script>
+</body>
+</html>
