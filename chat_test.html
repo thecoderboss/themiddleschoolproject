@@ -86,6 +86,27 @@
         updateAuthUI();
         fetchRequestMessages();
     }
+// 🔐 GATEKEEPER CHECK: Protect page from unauthorized sessions
+function enforceGatekeeperCheck() {
+    var sessionToken = localStorage.getItem("supabase_session_token");
+    var userEmail = localStorage.getItem("supabase_user_email");
+
+    if (!sessionToken || !userEmail) {
+        // Not logged in -> boot them to your new login page
+        window.location.href = "login.html";
+    } else {
+        // Logged in -> extract the prefix before the '@' to use as the username
+        var automaticallyDerivedUsername = userEmail.split('@')[0];
+        
+        // Auto-fill and lock down the input element so it cannot be manually changed
+        var usernameInput = document.getElementById("user-name");
+        if (usernameInput) {
+            usernameInput.value = automaticallyDerivedUsername;
+            usernameInput.disabled = true; // Prevents manual editing
+            usernameInput.style.backgroundColor = "#eee"; // Visual indicator it is locked
+        }
+    }
+}
 
     function checkIsAdmin(emailField) {
         if (!emailField) return false;
@@ -166,6 +187,8 @@
         document.getElementById("user-name").value = USER_EMAIL.split('@')[0];
     }
     fetchRequestMessages();
+    // Call this right at the very bottom of your script area to protect the page immediately on load
+enforceGatekeeperCheck();
 </script>
 </body>
 </html>
