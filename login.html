@@ -46,6 +46,26 @@
 
         if (!email || !password) {
             return alert("Fill out both email and password boxes.");
+            
+            // Ensure this error handling check exists inside the handleAuthAction() routine of login.html
+        xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status >= 200 && xhr.status <= 299) {
+                        // ... handling success routes ...
+                    } else {
+                        var errorData = JSON.parse(xhr.responseText || "{}");
+                        var errorMessage = errorData.error_description || errorData.msg || "Authentication failed.";
+            
+                        // Specifically catches email duplication conflicts thrown by Supabase
+                        if (errorMessage.toLowerCase().includes("already registered") || errorMessage.toLowerCase().includes("exists")) {
+                            alert("Registration Error: An account with this email address already exists.");
+                        } else {
+                            alert("Auth Failure: " + errorMessage);
+                        }
+                    }
+                }
+            };
+
         }
 
         var endpoint = isSignUpMode ? "/auth/v1/signup" : "/auth/v1/token?grant_type=password";
