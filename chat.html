@@ -111,6 +111,7 @@
 
         if (token && userEmail) {
             document.getElementById("auth-gate").classList.add("hidden");
+            document.getElementById("login-instructions").classList.add("hidden");
             document.getElementById("app-interface").classList.remove("hidden");
             document.getElementById("current-user-display").innerText = userEmail;
             
