@@ -105,7 +105,7 @@
     var isSignUpMode = false;
     var pollIntervalId = null;
 
-        function checkCurrentSession() {
+                function checkCurrentSession() {
         var token = localStorage.getItem("sb_token");
         var userEmail = localStorage.getItem("sb_user_email");
 
@@ -114,30 +114,56 @@
             document.getElementById("app-interface").classList.remove("hidden");
             document.getElementById("current-user-display").innerText = userEmail;
             
-                // Fetches the user role from public.user_roles
-        function fetchUserPrivilege(email) {
+            var savedRole = localStorage.getItem("sb_user_role") || "user";
+            document.getElementById("user-role-display").innerText = savedRole;
+            applyRoleUIChanges(savedRole);
+
+            fetchUserPrivilege(userEmail);
+            fetchRequestMessages();
+            
+            if (!pollIntervalId) {
+                pollIntervalId = setInterval(fetchRequestMessages, 3000);
+            }
+        } else {
+            document.getElementById("auth-gate").classList.remove("hidden");
+            document.getElementById("app-interface").classList.add("hidden");
+            document.getElementById("admin-controls").classList.add("hidden");
+            document.getElementById("owner-only-tools").classList.add("hidden");
+            if (pollIntervalId) {
+                clearInterval(pollIntervalId);
+                pollIntervalId = null;
+            }
+        }
+    }
+    function fetchUserPrivilege(email) {
         var xhr = new XMLHttpRequest();
         xhr.open("GET", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(email) + "&select=role", true);
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 var res = JSON.parse(xhr.responseText);
-                
-                // FIX: Added the [0] to correctly extract the object from the array response
                 var assignedRole = (res && res.length > 0) ? res[0].role : "user";
                 
                 document.getElementById("user-role-display").innerText = assignedRole;
                 localStorage.setItem("sb_user_role", assignedRole);
-
-                if (assignedRole === "owner" || assignedRole === "admin") {
-                    document.getElementById("admin-controls").classList.remove("hidden");
-                }
-                if (assignedRole === "owner") {
-                    document.getElementById("owner-only-tools").classList.remove("hidden");
-                }
+                applyRoleUIChanges(assignedRole);
             }
         };
         xhr.send();
+    }
+
+    function applyRoleUIChanges(role) {
+        if (role === "owner" || role === "admin") {
+            document.getElementById("admin-controls").classList.remove("hidden");
+        } else {
+            document.getElementById("admin-controls").classList.add("hidden");
+        }
+        
+        if (role === "owner") {
+            document.getElementById("owner-only-tools").classList.remove("hidden");
+        } else {
+            document.getElementById("owner-only-tools").classList.add("hidden");
+        }
     }
 
 
