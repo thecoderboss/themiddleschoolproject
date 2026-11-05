@@ -40,7 +40,7 @@
 
     <!-- AUTHENTICATION GATEWAY -->
     <div id="auth-gate" class="auth-container">
-        <div id="auth-title" style="font-weight: bold; margin-bottom: 10px;">SIGN IN TO YOUR ACCOUNT</div>
+        <div id="auth-title" style="font-weight: bold; margin-bottom: 10px;">Sign in to your account</div>
         
         <div class="input-row">
             <span class="input-label">Email:</span>
@@ -51,14 +51,14 @@
             <input type="password" id="auth-password" class="field-box" placeholder="******">
         </div>
         
-        <button id="btn-auth-action" class="btn-submit" onclick="handleAuthSubmit()">LOG IN</button>
+        <button id="btn-auth-action" class="btn-submit" onclick="handleAuthSubmit()">Log in</button>
         <span id="auth-toggle-link" class="auth-toggle" onclick="toggleAuthMode()">Don't have an account? Sign up here</span>
     </div>
         <!-- MAIN APPLICATION INTERFACE -->
     <div id="app-interface" class="hidden">
         <div class="user-status-bar">
             <span>Logged in as: <strong id="current-user-display"></strong></span>
-            <button class="btn-logout" onclick="handleLogout()">LOGOUT</button>
+            <button class="btn-logout" onclick="handleLogout()">Log out</button>
         </div>
 
         <!-- LIVE CONVERSATION STREAM FEED -->
@@ -68,15 +68,15 @@
         
         <div class="input-row">
             <span class="input-label">&gt; Message:</span>
-            <input type="text" id="user-msg" class="field-box" placeholder="Hi! This is my first authenticated message!" maxlength="80">
+            <input type="text" id="user-msg" class="field-box" placeholder="Hi! This is my first message!" maxlength="80">
         </div>
 
-        <button class="btn-submit" onclick="submitRequestMessage()">TRANSMIT MESSAGE</button>
+        <button class="btn-submit" onclick="submitRequestMessage()">Send</button>
     </div>
 
     <!-- Navigation Footer -->
     <div>
-        <a href="index.html" class="btn-back"><span style="color: #0000FF">BACK TO HOMEPAGE</span></a>
+        <a href="index.html" class="btn-back">Back to homepage!</a>
     </div>
 </div>
 
