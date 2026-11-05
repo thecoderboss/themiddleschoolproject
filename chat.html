@@ -37,11 +37,9 @@
 
 <div class="board-container">
     <div class="board-title">REAL-TIME CHAT WITH AUTH!</div>
-    To sign in, please end your email with "@chat.com". Also, the part of the email <u>before</u> the "@chat.com" will be the Username.
-
     <!-- AUTHENTICATION GATEWAY -->
+    <div id="login-instructions">To sign in, please end your email with "@chat.com". Also, the part of the email <u>before</u> the "@chat.com" will be the Username.</div>
     <div id="auth-gate" class="auth-container">
-        To sign in, please end your email with "@chat.com". Also, the part of the email <u>before</u> the "@chat.com" will be the Username.
         <div id="auth-title" style="font-weight: bold; margin-bottom: 10px;">Sign in to your account</div>
         
         <div class="input-row">
@@ -96,6 +94,7 @@
 
         if (token && userEmail) {
             document.getElementById("auth-gate").classList.add("hidden");
+            document.getElementById("login-instructions").classList.add("hidden");
             document.getElementById("app-interface").classList.remove("hidden");
             document.getElementById("current-user-display").innerText = userEmail;
             
