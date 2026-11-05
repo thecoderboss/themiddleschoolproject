@@ -1,102 +1,86 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Chat!!</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        body { font-family: monospace, Courier, serif; background-color: #fff; color: #000; margin: 4%; font-size: 16px; line-height: 1.4; }
-        .board-container { max-width: 500px; margin: 0 auto; text-align: center; }
-        .board-title { font-weight: bold; font-size: 16px; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; }
+    // Send form data to Supabase signup or login endpoint
+    function handleAuthSubmit() {
+        var email = document.getElementById("auth-email").value.trim();
+        var password = document.getElementById("auth-password").value.trim();
+
+        if (!email || !password) {
+            return alert("Fill out both input boxes!");
+        }
+
+        var endpoint = isSignUpMode ? "/auth/v1/signup" : "/auth/v1/token?grant_type=password";
         
-        /* Chat Feed Box Layout */
-        .message-feed { border: 2px solid #000; height: 260px; overflow-y: scroll; text-align: left; padding: 8px; background: #fff; margin-bottom: 15px; }
-        .msg-bubble { border-bottom: 1px dashed #000; padding: 6px 0; margin-bottom: 4px; font-size: 14px; }
-        .msg-user { font-weight: bold; text-decoration: underline; }
-        .msg-time { font-size: 11px; color: #555; float: right; }
-        
-        /* Form Field Layout Inputs */
-        .input-row { margin-bottom: 10px; text-align: left; }
-        .input-label { font-size: 13px; font-weight: bold; display: block; margin-bottom: 3px; }
-        .field-box { width: 95%; padding: 8px; border: 2px solid #000; font-family: monospace; font-size: 15px; background: #fff; }
-        
-        .btn-submit { display: block; width: 100%; text-align: center; padding: 12px 0; background-color: #000; color: #fff; font-weight: bold; font-size: 15px; text-decoration: none; border: 2px solid #000; cursor: pointer; }
-        .btn-submit:active { background-color: #fff; color: #000; }
-        
-        .btn-back { display: inline-block; margin-top: 20px; padding: 10px 16px; background: #fff; border: 2px solid #000; font-weight: bold; text-decoration: none; color: #000; font-size: 14px; }
-    </style>
-</head>
-<body>
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", SUPABASE_URL + endpoint, true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Content-Type", "application/json");
 
-<div class="board-container">
-    <div class="board-title">💬 REAL-TIME REQUEST BOARD</div>
-    <p style="font-size: 13px; font-style: italic; margin-bottom: 15px;">Ask for new book additions or series updates below. Feed refreshes on submission.</p>
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status >= 200 && xhr.status <= 299) {
+                    var data = JSON.parse(xhr.responseText);
+                    
+                    if (isSignUpMode) {
+                        alert("Registration successful! You can now log in using these credentials.");
+                        toggleAuthMode();
+                    } else {
+                        localStorage.setItem("sb_token", data.access_token);
+                        localStorage.setItem("sb_user_email", data.user.email);
+                        
+                        document.getElementById("auth-email").value = "";
+                        document.getElementById("auth-password").value = "";
+                        
+                        checkCurrentSession();
+                    }
+                } else {
+                    var err = JSON.parse(xhr.responseText || "{}");
+                    alert("Authentication Error: " + (err.error_description || err.msg || xhr.status));
+                }
+            }
+        };
+        xhr.send(JSON.stringify({ "email": email, "password": password }));
+    }
 
-    <!-- LIVE CONVERSATION STREAM FEED -->
-    <div class="message-feed" id="chat-stream">
-        Loading recent messages...
-    </div>
-
-    <!-- TRANSMIT REQUEST FORM INTERFACE -->
-    <div class="input-row">
-        <span class="input-label">&gt; Name:</span>
-        <input type="text" id="user-name" class="field-box" placeholder="KoboUser77" maxlength="15">
-    </div>
-    
-    <div class="input-row">
-        <span class="input-label">&gt; Message:</span>
-        <input type="text" id="user-msg" class="field-box" placeholder="Please add Percy Jackson Vol 1!" maxlength="80">
-    </div>
-
-    <button class="btn-submit" onclick="submitRequestMessage()">Send</button>
-
-    <!-- Navigation Footer -->
-    <div>
-        <a href="index.html" class="btn-back">Back to home</a>
-    </div>
-</div>
-<script>
-        // 🌐 PASTE YOUR UNIQUE SUPABASE CREDS HERE!
-    var SUPABASE_URL = "https://hzcnqfzyehoctkviyfwf.supabase.co"; 
-    var SUPABASE_KEY = "sb_publishable_mEl59NFDbz1V7YS_kO_OTw_4PnkhrNT"; 
+    function handleLogout() {
+        localStorage.removeItem("sb_token");
+        localStorage.removeItem("sb_user_email");
+        checkCurrentSession();
+    }
 
     function fetchRequestMessages() {
         var feed = document.getElementById("chat-stream");
-        
         var xhr = new XMLHttpRequest();
-        // This sets up the direct pipeline connection path
-        xhr.open("GET", SUPABASE_URL + "/rest/v1/online_chat?select=*&order=created_at.desc&limit=15", true);
         
+        xhr.open("GET", SUPABASE_URL + "/rest/v1/online_chat?select=*&order=created_at.asc&limit=15", true);
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
         
         xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200 || xhr.status === 201) {
-                    var data = JSON.parse(xhr.responseText);
-                    var htmlBuffer = "";
-                    
-                    if (data.length === 0) {
-                        feed.innerHTML = "<div style='text-align:center; padding-top:40px; font-style:italic;'>The board is entirely empty. Be the first to type a message!</div>";
-                        return;
-                    }
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var data = JSON.parse(xhr.responseText);
+                var htmlBuffer = "";
+                
+                if (data.length === 0) {
+                    feed.innerHTML = "<div style='text-align:center; padding-top:40px; font-style:italic;'>The board is empty.</div>";
+                    return;
+                }
 
-                    for (var i = 0; i < data.length; i++) {
-                        var timeStr = "";
-                        try {
-                            var dateObj = new Date(data[i].created_at);
-                            timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                        } catch(e) { timeStr = "--:--"; }
+                for (var i = 0; i < data.length; i++) {
+                    var timeStr = "";
+                    try {
+                        var dateObj = new Date(data[i].created_at);
+                        timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    } catch(e) { timeStr = "--:--"; }
 
-                        htmlBuffer += "<div class='msg-bubble'>" +
-                            "<span class='msg-time'>" + timeStr + "</span>" +
-                            "<span class='msg-user'>" + escapeHtml(data[i].name) + "</span>: " +
-                            "<span>" + escapeHtml(data[i].message) + "</span>" +
-                            "</div>";
-                    }
-                    feed.innerHTML = htmlBuffer;
-                } else {
-                    feed.innerHTML = "Gateway Status Code: " + xhr.status + " (Check URL spelling layout)";
+                    htmlBuffer += "<div class='msg-bubble'>" +
+                        "<span class='msg-time'>" + timeStr + "</span>" +
+                        "<span class='msg-user'>" + escapeHtml(data[i].name) + "</span>: " +
+                        "<span>" + escapeHtml(data[i].message) + "</span>" +
+                        "</div>";
+                }
+                feed.innerHTML = htmlBuffer;
+                
+                var isAtBottom = (feed.scrollHeight - feed.clientHeight - feed.scrollTop) < 40;
+                if (isAtBottom) {
+                    feed.scrollTop = feed.scrollHeight;
                 }
             }
         };
@@ -104,23 +88,20 @@
     }
 
     function submitRequestMessage() {
-        var nameInput = document.getElementById("user-name").value.trim();
         var msgInput = document.getElementById("user-msg").value.trim();
+        var userEmail = localStorage.getItem("sb_user_email");
+        var jwtToken = localStorage.getItem("sb_token");
 
-        if (!nameInput || !msgInput) {
-            return alert("Both alias and request fields must be filled!");
-        }
+        if (!msgInput) return alert("Write something first!");
+        
+        var parsedUsername = userEmail.split('@')[0];
 
         var xhr = new XMLHttpRequest();
         xhr.open("POST", SUPABASE_URL + "/rest/v1/online_chat", true);
         
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Authorization", "Bearer " + jwtToken);
         xhr.setRequestHeader("Content-Type", "application/json");
-
-        var payload = JSON.stringify({
-            "name": nameInput,
-            "message": msgInput
-        });
 
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
@@ -128,11 +109,15 @@
                     document.getElementById("user-msg").value = "";
                     fetchRequestMessages(); 
                 } else {
-                    alert("Transmission failure. Code: " + xhr.status);
+                    alert("Transmission failure. Status code: " + xhr.status);
                 }
             }
         };
-        xhr.send(payload);
+
+        xhr.send(JSON.stringify({
+            "name": parsedUsername,
+            "message": msgInput
+        }));
     }
 
     function escapeHtml(str) {
@@ -140,5 +125,8 @@
         return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
-    fetchRequestMessages();
+    // Trigger state check on bootup
+    checkCurrentSession();
 </script>
+</body>
+</html>
