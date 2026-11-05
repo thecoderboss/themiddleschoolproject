@@ -21,6 +21,11 @@
         .msg-user { font-weight: bold; text-decoration: underline; }
         .msg-time { font-size: 11px; color: #555; float: right; }
         
+        /* Admin & Owner Panel */
+        .admin-panel { border: 2px dashed red; padding: 15px; background: #fff5f5; text-align: left; margin-bottom: 15px; font-size: 13px; }
+        .admin-title { font-weight: bold; color: red; margin-bottom: 10px; text-transform: uppercase; }
+        .btn-delete { color: red; cursor: pointer; font-weight: bold; margin-left: 8px; text-decoration: underline; font-size: 12px; }
+
         /* Form Field Layout Inputs */
         .input-row { margin-bottom: 10px; text-align: left; }
         .input-label { font-size: 13px; font-weight: bold; display: block; margin-bottom: 3px; }
@@ -60,6 +65,19 @@
             <span>Logged in as: <strong id="current-user-display"></strong></span>
             <button class="btn-logout" onclick="handleLogout()">Log out</button>
         </div>
+        <!-- CO-OWNER & ADMIN CONTROL SETTINGS PANEL -->
+        <div id="admin-controls" class="admin-panel hidden">
+            <div class="admin-title">⚡ Administration Management Console</div>
+            <div id="owner-only-tools" class="hidden">
+                <div class="input-row">
+                    <span class="input-label">Promote user email to Admin:</span>
+                    <input type="text" id="target-admin-email" class="field-box" placeholder="targetuser@chat.com" style="width: 65%; display: inline-block;">
+                    <button class="btn-logout" style="padding: 8px; vertical-align: top;" onclick="assignAdminPrivilege()">Grant Admin</button>
+                </div>
+            </div>
+            <div style="font-size:12px; color: #bd0000; font-weight: bold;">You have chat moderation access. You can delete any message below.</div>
+        </div>
+
 
         <!-- LIVE CONVERSATION STREAM FEED -->
         <div class="message-feed" id="chat-stream">
@@ -87,18 +105,18 @@
     var isSignUpMode = false;
     var pollIntervalId = null;
 
-    // Check if user session credentials exist in local memory
-    function checkCurrentSession() {
+        function checkCurrentSession() {
         var token = localStorage.getItem("sb_token");
         var userEmail = localStorage.getItem("sb_user_email");
 
         if (token && userEmail) {
             document.getElementById("auth-gate").classList.add("hidden");
-            document.getElementById("login-instructions").classList.add("hidden");
             document.getElementById("app-interface").classList.remove("hidden");
             document.getElementById("current-user-display").innerText = userEmail;
             
-            // Activate live feed retrieval loops
+            // Look up permissions
+            fetchUserPrivilege(userEmail);
+
             fetchRequestMessages();
             if (!pollIntervalId) {
                 pollIntervalId = setInterval(fetchRequestMessages, 3000);
@@ -106,6 +124,8 @@
         } else {
             document.getElementById("auth-gate").classList.remove("hidden");
             document.getElementById("app-interface").classList.add("hidden");
+            document.getElementById("admin-controls").classList.add("hidden");
+            document.getElementById("owner-only-tools").classList.add("hidden");
             if (pollIntervalId) {
                 clearInterval(pollIntervalId);
                 pollIntervalId = null;
@@ -179,10 +199,12 @@
         checkCurrentSession();
     }
 
-    function fetchRequestMessages() {
+        function fetchRequestMessages() {
         var feed = document.getElementById("chat-stream");
-        var xhr = new XMLHttpRequest();
+        var wasAtBottom = (feed.scrollHeight - feed.clientHeight - feed.scrollTop) < 40;
+        var userRole = localStorage.getItem("sb_user_role") || "user";
         
+        var xhr = new XMLHttpRequest();
         xhr.open("GET", SUPABASE_URL + "/rest/v1/online_chat?select=*&order=created_at.asc&limit=15", true);
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
         
@@ -203,16 +225,22 @@
                         timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                     } catch(e) { timeStr = "--:--"; }
 
+                    // Only render delete button snippet if role matches privilege limits
+                    var deleteBtnHtml = "";
+                    if (userRole === "admin" || userRole === "owner") {
+                        deleteBtnHtml = " <span class='btn-delete' onclick='deleteChatMessage(" + data[i].id + ")'>[Delete]</span>";
+                    }
+
                     htmlBuffer += "<div class='msg-bubble'>" +
-                        "<span class='msg-time'>" + timeStr + "</span>" +
                         "<span class='msg-user'>" + escapeHtml(data[i].name) + "</span>: " +
                         "<span>" + escapeHtml(data[i].message) + "</span>" +
+                        "<span class='msg-time'>" + timeStr + "</span>" +
+                        deleteBtnHtml +
                         "</div>";
                 }
                 feed.innerHTML = htmlBuffer;
                 
-                var isAtBottom = (feed.scrollHeight - feed.clientHeight - feed.scrollTop) < 40;
-                if (isAtBottom) {
+                if (wasAtBottom) {
                     feed.scrollTop = feed.scrollHeight;
                 }
             }
@@ -253,6 +281,84 @@
         }));
     }
 
+    // Fetches the user role from public.user_roles
+    function fetchUserPrivilege(email) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(email) + "&select=role", true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var res = JSON.parse(xhr.responseText);
+                var assignedRole = (res.length > 0) ? res.role : "user";
+                
+                document.getElementById("user-role-display").innerText = assignedRole;
+                localStorage.setItem("sb_user_role", assignedRole);
+
+                // Open Admin Tools
+                if (assignedRole === "owner" || assignedRole === "admin") {
+                    document.getElementById("admin-controls").classList.remove("hidden");
+                }
+                // Open Owner-only features (promoting others)
+                if (assignedRole === "owner") {
+                    document.getElementById("owner-only-tools").classList.remove("hidden");
+                }
+            }
+        };
+        xhr.send();
+    }
+
+    // Owner action: patches a user's role status to admin
+    function assignAdminPrivilege() {
+        var targetEmail = document.getElementById("target-admin-email").value.trim();
+        var currentRole = localStorage.getItem("sb_user_role");
+        var jwtToken = localStorage.getItem("sb_token");
+
+        if (currentRole !== "owner") {
+            return alert("Denied: Only the Owner can promote users.");
+        }
+        if (!targetEmail) return alert("Enter a target email address.");
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("PATCH", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(targetEmail), true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Authorization", "Bearer " + jwtToken);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status >= 200 && xhr.status <= 299) {
+                    alert("Success! " + targetEmail + " has been promoted to Admin.");
+                    document.getElementById("target-admin-email").value = "";
+                } else {
+                    alert("Failed to modify permissions. Check if user is registered.");
+                }
+            }
+        };
+        xhr.send(JSON.stringify({ "role": "admin" }));
+    }
+
+    // Admin/Owner action: Deletes a message row from the database
+    function deleteChatMessage(messageId) {
+        var jwtToken = localStorage.getItem("sb_token");
+        if (!confirm("Are you sure you want to delete this message?")) return;
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("DELETE", SUPABASE_URL + "/rest/v1/online_chat?id=eq." + messageId, true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Authorization", "Bearer " + jwtToken);
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status >= 200 && xhr.status <= 299) {
+                    fetchRequestMessages(); 
+                } else {
+                    alert("Failed to delete message. Code: " + xhr.status);
+                }
+            }
+        };
+        xhr.send();
+    }
+    
     function escapeHtml(str) {
         if (!str) return "";
         return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
