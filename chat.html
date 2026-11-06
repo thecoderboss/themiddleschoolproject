@@ -249,7 +249,7 @@
         checkCurrentSession();
     }
 
-    function fetchRequestMessages() {
+        function fetchRequestMessages() {
         var feed = document.getElementById("chat-stream");
         var wasAtBottom = (feed.scrollHeight - feed.clientHeight - feed.scrollTop) < 40;
         var userRole = localStorage.getItem("sb_user_role") || "user";
@@ -281,8 +281,18 @@
                         deleteBtnHtml = " <span class='btn-delete' onclick='deleteChatMessage(" + data[i].id + ")'>[Delete]</span>";
                     }
 
+                    // Format the message sender's role tag nicely
+                    var senderRole = data[i].role || "user";
+                    var roleTagHtml = "";
+                    if (senderRole === "owner") {
+                        roleTagHtml = " <span style='color: #ff4757; font-weight: bold; font-size: 0.8em;'>[Owner]</span>";
+                    } else if (senderRole === "admin") {
+                        roleTagHtml = " <span style='color: #2ed573; font-weight: bold; font-size: 0.8em;'>[Admin]</span>";
+                    }
+
+                    // Added roleTagHtml right next to the username below:
                     htmlBuffer += "<div class='msg-bubble'>" +
-                        "<span class='msg-user'>" + escapeHtml(data[i].name) + "</span>: " +
+                        "<span class='msg-user'>" + escapeHtml(data[i].name) + roleTagHtml + "</span>: " +
                         "<span>" + escapeHtml(data[i].message) + "</span>" +
                         "<span class='msg-time'>" + timeStr + "</span>" +
                         deleteBtnHtml +
@@ -298,10 +308,12 @@
         xhr.send();
     }
 
-    function submitRequestMessage() {
+
+        function submitRequestMessage() {
         var msgInput = document.getElementById("user-msg").value.trim();
         var userEmail = localStorage.getItem("sb_user_email");
         var jwtToken = localStorage.getItem("sb_token");
+        var userRole = localStorage.getItem("sb_user_role") || "user"; // Grab the role!
 
         if (!msgInput) return alert("Write something first!");
         
@@ -325,9 +337,11 @@
             }
         };
 
+        // Added "role" to the database payload below:
         xhr.send(JSON.stringify({
             "name": parsedUsername,
-            "message": msgInput
+            "message": msgInput,
+            "role": userRole 
         }));
     }
 
