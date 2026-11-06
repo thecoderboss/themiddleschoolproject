@@ -101,11 +101,11 @@
 <script>
     var SUPABASE_URL = "https://hzcnqfzyehoctkviyfwf.supabase.co"; 
     var SUPABASE_KEY = "sb_publishable_mEl59NFDbz1V7YS_kO_OTw_4PnkhrNT"; 
-    
-    var isSignUpMode = false;
+
+        var isSignUpMode = false;
     var pollIntervalId = null;
 
-                function checkCurrentSession() {
+    function checkCurrentSession() {
         var token = localStorage.getItem("sb_token");
         var userEmail = localStorage.getItem("sb_user_email");
 
@@ -116,7 +116,14 @@
             document.getElementById("current-user-display").innerText = userEmail;
             
             var savedRole = localStorage.getItem("sb_user_role") || "user";
-            document.getElementById("user-role-display").innerText = savedRole;
+            
+            // Format the saved role for display
+            var initialDisplayRole = savedRole;
+            if (savedRole === "owner") initialDisplayRole = "Owner";
+            if (savedRole === "admin") initialDisplayRole = "Admin";
+            if (savedRole === "user") initialDisplayRole = "User";
+            
+            document.getElementById("user-role-display").innerText = initialDisplayRole;
             applyRoleUIChanges(savedRole);
 
             fetchUserPrivilege(userEmail);
@@ -136,7 +143,9 @@
             }
         }
     }
-        function fetchUserPrivilege(email) {
+
+    // Fetches the user role from public.user_roles
+    function fetchUserPrivilege(email) {
         var xhr = new XMLHttpRequest();
         xhr.open("GET", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(email) + "&select=role", true);
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
@@ -144,17 +153,22 @@
             if (xhr.readyState === 4 && xhr.status === 200) {
                 var res = JSON.parse(xhr.responseText);
                 
-                // FIXED LINE: Changed res.role to res[0].role to correctly target the first entry
+                // FIXED: Targets the first object in the list using [0]
                 var assignedRole = (res && res.length > 0) ? res[0].role : "user";
                 
-                document.getElementById("user-role-display").innerText = assignedRole;
+                // Formats the lowercase string to look nice in the UI
+                var displayRole = assignedRole;
+                if (assignedRole === "owner") displayRole = "Owner";
+                if (assignedRole === "admin") displayRole = "Admin";
+                if (assignedRole === "user") displayRole = "User";
+                
+                document.getElementById("user-role-display").innerText = displayRole;
                 localStorage.setItem("sb_user_role", assignedRole);
                 applyRoleUIChanges(assignedRole);
             }
         };
         xhr.send();
     }
-
 
     function applyRoleUIChanges(role) {
         if (role === "owner" || role === "admin") {
@@ -169,7 +183,6 @@
             document.getElementById("owner-only-tools").classList.add("hidden");
         }
     }
-
 
     // Toggle between Sign In and Sign Up visual interfaces
     function toggleAuthMode() {
@@ -188,7 +201,6 @@
             toggleLink.innerText = "Don't have an account? Sign up here";
         }
     }
-
     // Send form data to Supabase signup or login endpoint
     function handleAuthSubmit() {
         var email = document.getElementById("auth-email").value.trim();
@@ -234,10 +246,11 @@
     function handleLogout() {
         localStorage.removeItem("sb_token");
         localStorage.removeItem("sb_user_email");
+        localStorage.removeItem("sb_user_role"); // Clear role on logout
         checkCurrentSession();
     }
 
-        function fetchRequestMessages() {
+    function fetchRequestMessages() {
         var feed = document.getElementById("chat-stream");
         var wasAtBottom = (feed.scrollHeight - feed.clientHeight - feed.scrollTop) < 40;
         var userRole = localStorage.getItem("sb_user_role") || "user";
@@ -319,32 +332,6 @@
         }));
     }
 
-    // Fetches the user role from public.user_roles
-    function fetchUserPrivilege(email) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(email) + "&select=role", true);
-        xhr.setRequestHeader("apikey", SUPABASE_KEY);
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                var res = JSON.parse(xhr.responseText);
-                var assignedRole = (res.length > 0) ? res.role : "user";
-                
-                document.getElementById("user-role-display").innerText = assignedRole;
-                localStorage.setItem("sb_user_role", assignedRole);
-
-                // Open Admin Tools
-                if (assignedRole === "owner" || assignedRole === "admin") {
-                    document.getElementById("admin-controls").classList.remove("hidden");
-                }
-                // Open Owner-only features (promoting others)
-                if (assignedRole === "owner") {
-                    document.getElementById("owner-only-tools").classList.remove("hidden");
-                }
-            }
-        };
-        xhr.send();
-    }
-
     // Owner action: patches a user's role status to admin
     function assignAdminPrivilege() {
         var targetEmail = document.getElementById("target-admin-email").value.trim();
@@ -404,6 +391,6 @@
 
     // Trigger state check on bootup
     checkCurrentSession();
-</script>
+        </script>
 </body>
 </html>
