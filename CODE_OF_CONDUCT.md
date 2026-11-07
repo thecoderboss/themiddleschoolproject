@@ -113,6 +113,8 @@ individual, or aggression toward or disparagement of classes of individuals.
 **Consequence**: A permanent ban from any sort of public interaction within
 the community.
 
+### Contact Info
+If you notice any of these behaviours, please email ralli1@ocdsb.ca to inform the admin and owner with a description of the behaviour and username of the violator.
 ## Attribution
 
 This Code of Conduct is adapted from the [Contributor Covenant][homepage],
