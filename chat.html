@@ -17,7 +17,7 @@
 
         /* Chat Feed Box Layout */
         .message-feed { border: 2px solid #000; height: 260px; overflow-y: scroll; text-align: left; padding: 8px; background: #fff; margin-bottom: 15px; }
-        .msg-bubble { border-bottom: 1px dashed #000; padding: 6px 0; margin-bottom: 4px; font-size: 14px; }
+        .msg-bubble { border-bottom: 1px dashed #000; padding: 6px 4px; margin-bottom: 4px; font-size: 14px; background: #fff; }
         .msg-user { font-weight: bold; text-decoration: underline; }
         .msg-time { font-size: 11px; color: #555; float: right; }
         
@@ -36,6 +36,49 @@
         
         .btn-back { display: inline-block; margin-top: 20px; padding: 10px 16px; background: #fff; border: 2px solid #000; font-weight: bold; text-decoration: none; color: #000; font-size: 14px; }
         .hidden { display: none !important; }
+
+        /* NEW SHINY GLOW, SYSTEM TEXT, AND YELLOW OWNER BUBBLES */
+        @keyframes pulseGlow {
+            0% { text-shadow: 0 0 2px currentColor, 0 0 4px currentColor; }
+            50% { text-shadow: 0 0 6px currentColor, 0 0 12px currentColor; }
+            100% { text-shadow: 0 0 2px currentColor, 0 0 4px currentColor; }
+        }
+
+        .glow-owner {
+            color: #bd0000;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            animation: pulseGlow 2s infinite ease-in-out;
+            margin-left: 4px;
+        }
+
+        .glow-admin {
+            color: #008f11;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            animation: pulseGlow 2s infinite ease-in-out;
+            margin-left: 4px;
+        }
+
+        /* Changes the background to light yellow just for the owner! */
+        .msg-owner {
+            background-color: #fffae6 !important;
+            border: 1px dashed #bd0000;
+            border-radius: 2px;
+        }
+
+        .system-msg {
+            text-align: center;
+            font-style: italic;
+            color: #555;
+            font-size: 13px;
+            margin: 6px 0;
+            padding: 5px;
+            background: #f0f0f0;
+            border: 1px dashed #000;
+        }
     </style>
 </head>
 <body>
@@ -74,7 +117,7 @@
                     <button class="btn-logout" style="padding: 8px; vertical-align: top;" onclick="assignAdminPrivilege()">Grant Admin</button>
                 </div>
             </div>
-        <div style="font-size:12px; color: #bd0000; font-weight: bold;">You have chat moderation access. You can delete any message below.</div>
+            <div style="font-size:12px; color: #bd0000; font-weight: bold;">You have chat moderation access. You can delete or ban rows below.</div>
         </div>
         
 
@@ -143,19 +186,27 @@
         }
     }
 
-    // Fetches the user role from public.user_roles
-    function fetchUserPrivilege(email) {
+      function fetchUserPrivilege(email) {
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(email) + "&select=role", true);
+        // Updated query to check both role and ban status
+        xhr.open("GET", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(email) + "&select=role,is_banned", true);
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 var res = JSON.parse(xhr.responseText);
                 
-                // FIXED: Targets the first object in the list using [0]
-                var assignedRole = (res && res.length > 0) ? res[0].role : "user";
+                if (res && res.length > 0) {
+                    // Check if user is banned
+                    if (res[0].is_banned === true) {
+                        alert("🚨 Access Denied: You have been banned from this server.");
+                        handleLogout();
+                        return;
+                    }
+                    var assignedRole = res[0].role || "user";
+                } else {
+                    var assignedRole = "user";
+                }
                 
-                // Formats the lowercase string to look nice in the UI
                 var displayRole = assignedRole;
                 if (assignedRole === "owner") displayRole = "Owner";
                 if (assignedRole === "admin") displayRole = "Admin";
@@ -249,7 +300,7 @@
         checkCurrentSession();
     }
 
-        function fetchRequestMessages() {
+          function fetchRequestMessages() {
         var feed = document.getElementById("chat-stream");
         var wasAtBottom = (feed.scrollHeight - feed.clientHeight - feed.scrollTop) < 40;
         var userRole = localStorage.getItem("sb_user_role") || "user";
@@ -269,34 +320,44 @@
                 }
 
                 for (var i = 0; i < data.length; i++) {
+                    // Check if it's a System Message
+                    if (data[i].role === "system") {
+                        htmlBuffer += "<div class='system-msg'>⚙️ " + escapeHtml(data[i].message) + "</div>";
+                        continue;
+                    }
+
                     var timeStr = "";
                     try {
                         var dateObj = new Date(data[i].created_at);
                         timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                     } catch(e) { timeStr = "--:--"; }
 
-                    // Only render delete button snippet if role matches privilege limits
-                    var deleteBtnHtml = "";
+                    // Admin & Owner Ban/Delete options
+                    var moderationControlsHtml = "";
                     if (userRole === "admin" || userRole === "owner") {
-                        deleteBtnHtml = " <span class='btn-delete' onclick='deleteChatMessage(" + data[i].id + ")'>[Delete]</span>";
+                        moderationControlsHtml += " <span class='btn-delete' style='cursor:pointer;color:gray;' onclick='deleteChatMessage(" + data[i].id + ")'>[Delete]</span>";
+                        // Admins/Owners see a small [Ban] button next to messages
+                        moderationControlsHtml += " <span style='cursor:pointer;color:#ff4757;font-weight:bold;' onclick='banUserByUsername(\"" + data[i].name + "\")'>[Ban]</span>";
                     }
 
-                    // Format the message sender's role tag nicely
                     var senderRole = data[i].role || "user";
                     var roleTagHtml = "";
                     if (senderRole === "owner") {
-                        roleTagHtml = " <span style='color: #ff4757; font-weight: bold; font-size: 0.8em;'>[Owner]</span>";
+                        roleTagHtml = " <span class='glow-owner'>[Owner]</span>";
                     } else if (senderRole === "admin") {
-                        roleTagHtml = " <span style='color: #2ed573; font-weight: bold; font-size: 0.8em;'>[Admin]</span>";
+                        roleTagHtml = " <span class='glow-admin'>[Admin]</span>";
                     }
 
-                    // Added roleTagHtml right next to the username below:
-                    htmlBuffer += "<div class='msg-bubble'>" +
-                        "<span class='msg-user'>" + escapeHtml(data[i].name) + roleTagHtml + "</span>: " +
-                        "<span>" + escapeHtml(data[i].message) + "</span>" +
-                        "<span class='msg-time'>" + timeStr + "</span>" +
-                        deleteBtnHtml +
-                        "</div>";
+                    // Check if the bubble needs a special owner style class
+                    var bubbleClass = (senderRole === "owner") ? "msg-bubble msg-owner" : "msg-bubble";
+
+                    htmlBuffer += "<div class='" + bubbleClass + "'>" +
+                    "<span class='msg-user'>" + escapeHtml(data[i].name) + roleTagHtml + "</span>: " +
+                    "<span>" + escapeHtml(data[i].message) + "</span>" +
+                    "<span class='msg-time'>" + timeStr + "</span>" +
+                    moderationControlsHtml +
+                    "</div>";
+
                 }
                 feed.innerHTML = htmlBuffer;
                 
@@ -307,6 +368,7 @@
         };
         xhr.send();
     }
+
 
 
         function submitRequestMessage() {
@@ -401,6 +463,56 @@
         if (!str) return "";
         return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
+        function banUserByUsername(username) {
+        var jwtToken = localStorage.getItem("sb_token");
+        var currentRole = localStorage.getItem("sb_user_role");
+        
+        if (currentRole !== "owner" && currentRole !== "admin") {
+            return alert("Denied: Unauthorized Action.");
+        }
+        if (!confirm("Are you sure you want to ban " + username + "?")) return;
+
+        // Step A: Find the email address using their parsed username
+        var targetEmail = username + "@"; 
+        
+        var xhr = new XMLHttpRequest();
+        // Matches the email column prefix string
+        xhr.open("PATCH", SUPABASE_URL + "/rest/v1/user_roles?email=ilike." + encodeURIComponent(targetEmail) + "%", true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Authorization", "Bearer " + jwtToken);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status >= 200 && xhr.status <= 299) {
+                    alert(username + " has been successfully banned.");
+                    // Step B: Send an automatic system broadcast alert to the chat room
+                    sendSystemBroadcast(username + " was permanently banned from the server.");
+                } else {
+                    alert("Failed to issue ban status framework.");
+                }
+            }
+        };
+        xhr.send(JSON.stringify({ "is_banned": true }));
+    }
+
+    function sendSystemBroadcast(textMessage) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", SUPABASE_URL + "/rest/v1/online_chat", true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status <= 299) {
+                fetchRequestMessages();
+            }
+        };
+        xhr.send(JSON.stringify({
+            "name": "System",
+            "message": textMessage,
+            "role": "system"
+        }));
+    }
+
 
     // Trigger state check on bootup
     checkCurrentSession();
