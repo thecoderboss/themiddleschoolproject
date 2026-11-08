@@ -184,7 +184,6 @@
             
             var savedRole = localStorage.getItem("sb_user_role") || "user";
             
-            // Format the saved role for display
             var initialDisplayRole = savedRole;
             if (savedRole === "owner") initialDisplayRole = "Owner";
             if (savedRole === "admin") initialDisplayRole = "Admin";
@@ -211,9 +210,8 @@
         }
     }
 
-      function fetchUserPrivilege(email) {
+    function fetchUserPrivilege(email) {
         var xhr = new XMLHttpRequest();
-        // Updated query to check both role and ban status
         xhr.open("GET", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(email) + "&select=role,is_banned", true);
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
         xhr.onreadystatechange = function() {
@@ -221,7 +219,6 @@
                 var res = JSON.parse(xhr.responseText);
                 
                 if (res && res.length > 0) {
-                    // Check if user is banned
                     if (res[0].is_banned === true) {
                         alert("🚨 Access Denied: You have been banned from this server.");
                         handleLogout();
@@ -259,7 +256,6 @@
         }
     }
 
-    // Toggle between Sign In and Sign Up visual interfaces
     function toggleAuthMode() {
         isSignUpMode = !isSignUpMode;
         var title = document.getElementById("auth-title");
@@ -276,7 +272,7 @@
             toggleLink.innerText = "Don't have an account? Sign up here";
         }
     }
-    // Send form data to Supabase signup or login endpoint
+
     function handleAuthSubmit() {
         var email = document.getElementById("auth-email").value.trim();
         var password = document.getElementById("auth-password").value.trim();
@@ -321,25 +317,26 @@
     function handleLogout() {
         localStorage.removeItem("sb_token");
         localStorage.removeItem("sb_user_email");
-        localStorage.removeItem("sb_user_role"); // Clear role on logout
+        localStorage.removeItem("sb_user_role");
         checkCurrentSession();
     }
-
-          function fetchRequestMessages() {
+        function fetchRequestMessages() {
         var feed = document.getElementById("chat-stream");
         var wasAtBottom = (feed.scrollHeight - feed.clientHeight - feed.scrollTop) < 40;
         var userRole = localStorage.getItem("sb_user_role") || "user";
         
-        // Grab the room we want to look at
         var roomId = document.getElementById("chat-room-input").value.trim() || "global";
+        var roomPassword = document.getElementById("chat-room-password").value.trim() || "";
         
         var xhr = new XMLHttpRequest();
-        // 🔒 FIXED: Added &room_id=eq. to the URL to filter out other rooms!
-        xhr.open("GET", SUPABASE_URL + "/rest/v1/online_chat?room_id=eq." + encodeURIComponent(roomId) + "&select=*&order=created_at.asc&limit=15", true);
-        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        var queryUrl = SUPABASE_URL + "/rest/v1/online_chat?room_id=eq." + encodeURIComponent(roomId);
         
-        // ... (Keeping the rest of the fetchRequestMessages function exactly the same!) ...
-
+        if (roomId !== "global") {
+            queryUrl += "&room_password=eq." + encodeURIComponent(roomPassword);
+        }
+        
+        xhr.open("GET", queryUrl + "&select=*&order=created_at.asc&limit=15", true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
         
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
@@ -352,7 +349,6 @@
                 }
 
                 for (var i = 0; i < data.length; i++) {
-                    // Check if it's a System Message
                     if (data[i].role === "system") {
                         htmlBuffer += "<div class='system-msg'>⚙️ " + escapeHtml(data[i].message) + "</div>";
                         continue;
@@ -364,12 +360,10 @@
                         timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                     } catch(e) { timeStr = "--:--"; }
 
-                    // Admin & Owner Delete options (Ban link removed from here!)
                     var moderationControlsHtml = "";
                     if (userRole === "admin" || userRole === "owner") {
                         moderationControlsHtml += " <span class='btn-delete' style='cursor:pointer;color:gray;' onclick='deleteChatMessage(" + data[i].id + ")'>[Delete]</span>";
                     }
-
 
                     var senderRole = data[i].role || "user";
                     var roleTagHtml = "";
@@ -379,16 +373,14 @@
                         roleTagHtml = " <span class='glow-admin'>[Admin]</span>";
                     }
 
-                    // Check if the bubble needs a special owner style class
                     var bubbleClass = (senderRole === "owner") ? "msg-bubble msg-owner" : "msg-bubble";
 
                     htmlBuffer += "<div class='" + bubbleClass + "'>" +
-                    "<span class='msg-user'>" + escapeHtml(data[i].name) + roleTagHtml + "</span>: " +
-                    "<span>" + escapeHtml(data[i].message) + "</span>" +
-                    "<span class='msg-time'>" + timeStr + "</span>" +
-                    moderationControlsHtml +
-                    "</div>";
-
+                        "<span class='msg-user'>" + escapeHtml(data[i].name) + roleTagHtml + "</span>: " +
+                        "<span>" + escapeHtml(data[i].message) + "</span>" +
+                        "<span class='msg-time'>" + timeStr + "</span>" +
+                        moderationControlsHtml +
+                        "</div>";
                 }
                 feed.innerHTML = htmlBuffer;
                 
@@ -400,21 +392,18 @@
         xhr.send();
     }
 
-
-
-            function submitRequestMessage() {
+    function submitRequestMessage() {
         var msgInput = document.getElementById("user-msg").value.trim();
         var userEmail = localStorage.getItem("sb_user_email");
         var jwtToken = localStorage.getItem("sb_token");
         var userRole = localStorage.getItem("sb_user_role") || "user";
         
-        // Grab the current room ID from our new input box!
         var roomId = document.getElementById("chat-room-input").value.trim() || "global";
+        var roomPassword = document.getElementById("chat-room-password").value.trim() || "";
 
         if (!msgInput) return alert("Write something first!");
         
         var parsedUsername = userEmail.split('@')[0];
-
 
         var xhr = new XMLHttpRequest();
         xhr.open("POST", SUPABASE_URL + "/rest/v1/online_chat", true);
@@ -438,12 +427,11 @@
             "name": parsedUsername,
             "message": msgInput,
             "role": userRole,
-            "room_id": roomId // ◄ Saves the room ID to Supabase!
+            "room_id": roomId,
+            "room_password": roomPassword
         }));
     }
-
-    // Owner action: patches a user's role status to admin
-    function assignAdminPrivilege() {
+        function assignAdminPrivilege() {
         var targetEmail = document.getElementById("target-admin-email").value.trim();
         var currentRole = localStorage.getItem("sb_user_role");
         var jwtToken = localStorage.getItem("sb_token");
@@ -472,7 +460,125 @@
         xhr.send(JSON.stringify({ "role": "admin" }));
     }
 
-    // Admin/Owner action: Deletes a message row from the database
+    function handleBanSubmit() {
+        var usernameInput = document.getElementById("target-ban-username").value.trim();
+        if (!usernameInput) {
+            return alert("Please type a username to ban!");
+        }
+        banUserByUsername(usernameInput);
+        document.getElementById("target-ban-username").value = "";
+    }
+
+    function banUserByUsername(username) {
+        var jwtToken = localStorage.getItem("sb_token");
+        var currentRole = localStorage.getItem("sb_user_role");
+        
+        if (currentRole !== "owner" && currentRole !== "admin") {
+            return alert("Denied: Unauthorized Action.");
+        }
+        
+        if (username.toLowerCase() === "owner") {
+            return alert("🚨 Error: The Owner cannot be banned from this server!");
+        }
+
+        if (!confirm("Are you sure you want to ban " + username + "?")) return;
+
+        var targetEmail = username + "@chat.com"; 
+        
+        var checkXhr = new XMLHttpRequest();
+        checkXhr.open("GET", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(targetEmail) + "&select=role", true);
+        checkXhr.setRequestHeader("apikey", SUPABASE_KEY);
+        checkXhr.onreadystatechange = function() {
+            if (checkXhr.readyState === 4 && checkXhr.status === 200) {
+                var profileMatch = JSON.parse(checkXhr.responseText);
+                
+                if (profileMatch && profileMatch.length > 0) {
+                    var targetRole = profileMatch.role;
+                    
+                    if (targetRole === "admin" && currentRole !== "owner") {
+                        return alert("🚨 Denied: Admins cannot ban other Admins. Only the Owner can do this.");
+                    }
+                    if (targetRole === "owner") {
+                        return alert("🚨 Error: Nice try! The Owner cannot be banned.");
+                    }
+                }
+                executeBanRequest(username, targetEmail, jwtToken);
+            }
+        };
+        checkXhr.send();
+    }
+
+    function executeBanRequest(username, targetEmail, jwtToken) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("PATCH", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(targetEmail), true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Authorization", "Bearer " + jwtToken);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status >= 200 && xhr.status <= 299) {
+                    alert(username + " has been successfully banned.");
+                    sendSystemBroadcast(username + " was permanently banned from the server.");
+                } else {
+                    alert("Failed to issue ban status framework.");
+                }
+            }
+        };
+        xhr.send(JSON.stringify({ "is_banned": true }));
+    }
+
+    function sendSystemBroadcast(textMessage) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", SUPABASE_URL + "/rest/v1/online_chat", true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status <= 299) {
+                fetchRequestMessages();
+            }
+        };
+        xhr.send(JSON.stringify({
+            "name": "System",
+            "message": textMessage,
+            "role": "system",
+            "room_id": "global"
+        }));
+    }
+
+    function createNewPrivateChatPopup() {
+        var chosenRoom = window.prompt("Enter a unique Private Room ID name:\n(e.g., 'secret-cabinet-7' or 'gaming-lounge')");
+        if (!chosenRoom) return; 
+        chosenRoom = chosenRoom.trim();
+        
+        if (chosenRoom.toLowerCase() === "global") {
+            return alert("Error: 'global' is reserved for the main chat board.");
+        }
+
+        var chosenPassword = window.prompt("Enter a Passcode for room [" + chosenRoom + "]:\n(Your friends must type this exact password to join!)");
+        if (chosenPassword === null) return; 
+        chosenPassword = chosenPassword.trim();
+
+        if (!chosenPassword) {
+            return alert("Error: Private rooms require a password lock!");
+        }
+
+        document.getElementById("chat-room-input").value = chosenRoom;
+        document.getElementById("chat-room-password").value = chosenPassword;
+        
+        document.getElementById("current-room-display").innerText = chosenRoom + " (Locked 🔑)";
+        
+        fetchRequestMessages();
+        alert("Success! Switched to private room: " + chosenRoom + "\nGive your friends the Room ID and Passcode to let them join!");
+    }
+
+    function joinGlobalChat() {
+        document.getElementById("chat-room-input").value = "global";
+        document.getElementById("chat-room-password").value = "";
+        document.getElementById("current-room-display").innerText = "global";
+        fetchRequestMessages();
+    }
+
     function deleteChatMessage(messageId) {
         var jwtToken = localStorage.getItem("sb_token");
         if (!confirm("Are you sure you want to delete this message?")) return;
@@ -498,146 +604,9 @@
         if (!str) return "";
         return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
-            function banUserByUsername(username) {
-        var jwtToken = localStorage.getItem("sb_token");
-        var currentRole = localStorage.getItem("sb_user_role");
-        
-        if (currentRole !== "owner" && currentRole !== "admin") {
-            return alert("Denied: Unauthorized Action.");
-        }
-        
-        // 🔒 SAFETY STEP 1: If someone tries to ban you, shut it down immediately
-        if (username.toLowerCase() === "owner") {
-            return alert("🚨 Error: The Owner cannot be banned from this server!");
-        }
 
-        if (!confirm("Are you sure you want to ban " + username + "?")) return;
-
-        // Step A: First, we check what role the target user has in your database
-        var targetEmail = username + "@chat.com"; // Formats their email to look up their profile
-        
-        var checkXhr = new XMLHttpRequest();
-        checkXhr.open("GET", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(targetEmail) + "&select=role", true);
-        checkXhr.setRequestHeader("apikey", SUPABASE_KEY);
-        checkXhr.onreadystatechange = function() {
-            if (checkXhr.readyState === 4 && checkXhr.status === 200) {
-                var profileMatch = JSON.parse(checkXhr.responseText);
-                
-                if (profileMatch && profileMatch.length > 0) {
-                    var targetRole = profileMatch[0].role;
-                    
-                    // 🔒 SAFETY STEP 2: Only the owner can ban an admin
-                    if (targetRole === "admin" && currentRole !== "owner") {
-                        return alert("🚨 Denied: Admins cannot ban other Admins. Only the Owner can do this.");
-                    }
-                    
-                    // 🔒 SAFETY STEP 3: Double-check to make sure they aren't trying to ban the owner via email registry
-                    if (targetRole === "owner") {
-                        return alert("🚨 Error: Nice try! The Owner cannot be banned.");
-                    }
-                }
-                
-                // If all safety checks pass, proceed with executing the ban!
-                executeBanRequest(username, targetEmail, jwtToken);
-            }
-        };
-        checkXhr.send();
-    }
-
-    // This helper function handles the actual database update after safety checks pass
-    function executeBanRequest(username, targetEmail, jwtToken) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("PATCH", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(targetEmail), true);
-        xhr.setRequestHeader("apikey", SUPABASE_KEY);
-        xhr.setRequestHeader("Authorization", "Bearer " + jwtToken);
-        xhr.setRequestHeader("Content-Type", "application/json");
-        
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                if (xhr.status >= 200 && xhr.status <= 299) {
-                    alert(username + " has been successfully banned.");
-                    sendSystemBroadcast(username + " was permanently banned from the server.");
-                } else {
-                    alert("Failed to issue ban status framework.");
-                }
-            }
-        };
-        xhr.send(JSON.stringify({ "is_banned": true }));
-    }
-
-
-    function sendSystemBroadcast(textMessage) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", SUPABASE_URL + "/rest/v1/online_chat", true);
-        xhr.setRequestHeader("apikey", SUPABASE_KEY);
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status <= 299) {
-                fetchRequestMessages();
-            }
-        };
-        xhr.send(JSON.stringify({
-            "name": "System",
-            "message": textMessage,
-            "role": "system"
-        }));
-    }
-        function handleBanSubmit() {
-        var usernameInput = document.getElementById("target-ban-username").value.trim();
-        if (!usernameInput) {
-            return alert("Please type a username to ban!");
-        }
-    
-            function createNewPrivateChatPopup() {
-            // Added window. explicitly so the browser knows exactly what element to draw
-            var chosenRoom = window.prompt("Enter a unique Private Room ID name:\n(e.g., 'secret-cabinet-7' or 'gaming-lounge')");
-            if (!chosenRoom) return; 
-            chosenRoom = chosenRoom.trim();
-        
-            if (chosenRoom.toLowerCase() === "global") {
-                return alert("Error: 'global' is reserved for the main chat board.");
-               }
-
-            var chosenPassword = window.prompt("Enter a Passcode for room [" + chosenRoom + "]:\n(Your friends must type this exact password to join!)");
-            if (chosenPassword === null) return; 
-            chosenPassword = chosenPassword.trim();
-
-            if (!chosenPassword) {
-                return alert("Error: Private rooms require a password lock!");
-            }
-
-            // Lock the secret keys into your hidden text elements
-            document.getElementById("chat-room-input").value = chosenRoom;
-            document.getElementById("chat-room-password").value = chosenPassword;
-            
-            // Update display text
-            document.getElementById("current-room-display").innerText = chosenRoom + " (Locked 🔑)";
-            
-            // Wipe and reload feed
-            fetchRequestMessages();
-            alert("Success! Switched to private room: " + chosenRoom + "\nGive your friends the Room ID and Passcode to let them join!");
-        }
-        
-        function joinGlobalChat() {
-            document.getElementById("chat-room-input").value = "global";
-            document.getElementById("chat-room-password").value = "";
-            document.getElementById("current-room-display").innerText = "global";
-            fetchRequestMessages();
-        }
-
-
-        
-        // This fires off your core ban mechanics function
-        banUserByUsername(usernameInput);
-        
-        // Clears out the box when you are done
-        document.getElementById("target-ban-username").value = "";
-    }
-
-
-
-    // Trigger state check on bootup
     checkCurrentSession();
+
         </script>
 </body>
 </html>
