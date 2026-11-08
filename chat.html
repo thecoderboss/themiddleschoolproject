@@ -586,42 +586,43 @@
         if (!usernameInput) {
             return alert("Please type a username to ban!");
         }
-    function createNewPrivateChatPopup() {
-    // Added window. explicitly so the browser knows exactly what element to draw
-    var chosenRoom = window.prompt("Enter a unique Private Room ID name:\n(e.g., 'secret-cabinet-7' or 'gaming-lounge')");
-    if (!chosenRoom) return; 
-    chosenRoom = chosenRoom.trim();
     
-    if (chosenRoom.toLowerCase() === "global") {
-        return alert("Error: 'global' is reserved for the main chat board.");
-    }
+            function createNewPrivateChatPopup() {
+            // Added window. explicitly so the browser knows exactly what element to draw
+            var chosenRoom = window.prompt("Enter a unique Private Room ID name:\n(e.g., 'secret-cabinet-7' or 'gaming-lounge')");
+            if (!chosenRoom) return; 
+            chosenRoom = chosenRoom.trim();
+        
+            if (chosenRoom.toLowerCase() === "global") {
+                return alert("Error: 'global' is reserved for the main chat board.");
+               }
 
-    var chosenPassword = window.prompt("Enter a Passcode for room [" + chosenRoom + "]:\n(Your friends must type this exact password to join!)");
-    if (chosenPassword === null) return; 
-    chosenPassword = chosenPassword.trim();
+            var chosenPassword = window.prompt("Enter a Passcode for room [" + chosenRoom + "]:\n(Your friends must type this exact password to join!)");
+            if (chosenPassword === null) return; 
+            chosenPassword = chosenPassword.trim();
 
-    if (!chosenPassword) {
-        return alert("Error: Private rooms require a password lock!");
-    }
+            if (!chosenPassword) {
+                return alert("Error: Private rooms require a password lock!");
+            }
 
-    // Lock the secret keys into your hidden text elements
-    document.getElementById("chat-room-input").value = chosenRoom;
-    document.getElementById("chat-room-password").value = chosenPassword;
-    
-    // Update display text
-    document.getElementById("current-room-display").innerText = chosenRoom + " (Locked 🔑)";
-    
-    // Wipe and reload feed
-    fetchRequestMessages();
-    alert("Success! Switched to private room: " + chosenRoom + "\nGive your friends the Room ID and Passcode to let them join!");
-}
-
-function joinGlobalChat() {
-    document.getElementById("chat-room-input").value = "global";
-    document.getElementById("chat-room-password").value = "";
-    document.getElementById("current-room-display").innerText = "global";
-    fetchRequestMessages();
-}
+            // Lock the secret keys into your hidden text elements
+            document.getElementById("chat-room-input").value = chosenRoom;
+            document.getElementById("chat-room-password").value = chosenPassword;
+            
+            // Update display text
+            document.getElementById("current-room-display").innerText = chosenRoom + " (Locked 🔑)";
+            
+            // Wipe and reload feed
+            fetchRequestMessages();
+            alert("Success! Switched to private room: " + chosenRoom + "\nGive your friends the Room ID and Passcode to let them join!");
+        }
+        
+        function joinGlobalChat() {
+            document.getElementById("chat-room-input").value = "global";
+            document.getElementById("chat-room-password").value = "";
+            document.getElementById("current-room-display").innerText = "global";
+            fetchRequestMessages();
+        }
 
 
         
