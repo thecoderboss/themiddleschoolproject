@@ -136,6 +136,22 @@
         <div class="message-feed" id="chat-stream">
             Loading recent messages...
         </div>
+                <!-- SECURE CHAT ROOM PANEL -->
+        <div class="input-row" style="margin-top: 10px; background: #f0f0f0; padding: 10px; border: 2px solid #000; text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <span>🔒 Current Room: <strong id="current-room-display">global</strong></span>
+                <!-- Button to reset back to main chat -->
+                <button class="btn-logout" style="background: #000;" onclick="joinGlobalChat()">Go Global</button>
+            </div>
+            
+            <!-- Your shiny new creation button! -->
+            <button class="btn-submit" style="padding: 6px 0; font-size: 13px; margin-top: 5px;" onclick="createNewPrivateChatPopup()">➕ Create / Join Private Chat</button>
+            
+            <!-- Hidden values your code uses to track the secret keys in the background -->
+            <input type="hidden" id="chat-room-input" value="global">
+            <input type="hidden" id="chat-room-password" value="">
+        </div>
+
         
         <div class="input-row">
             <span class="input-label">&gt; Message:</span>
@@ -316,9 +332,16 @@
         var wasAtBottom = (feed.scrollHeight - feed.clientHeight - feed.scrollTop) < 40;
         var userRole = localStorage.getItem("sb_user_role") || "user";
         
+        // Grab the room we want to look at
+        var roomId = document.getElementById("chat-room-input").value.trim() || "global";
+        
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", SUPABASE_URL + "/rest/v1/online_chat?select=*&order=created_at.asc&limit=15", true);
+        // 🔒 FIXED: Added &room_id=eq. to the URL to filter out other rooms!
+        xhr.open("GET", SUPABASE_URL + "/rest/v1/online_chat?room_id=eq." + encodeURIComponent(roomId) + "&select=*&order=created_at.asc&limit=15", true);
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        
+        // ... (Keeping the rest of the fetchRequestMessages function exactly the same!) ...
+
         
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
@@ -381,11 +404,14 @@
 
 
 
-        function submitRequestMessage() {
+            function submitRequestMessage() {
         var msgInput = document.getElementById("user-msg").value.trim();
         var userEmail = localStorage.getItem("sb_user_email");
         var jwtToken = localStorage.getItem("sb_token");
-        var userRole = localStorage.getItem("sb_user_role") || "user"; // Grab the role!
+        var userRole = localStorage.getItem("sb_user_role") || "user";
+        
+        // Grab the current room ID from our new input box!
+        var roomId = document.getElementById("chat-room-input").value.trim() || "global";
 
         if (!msgInput) return alert("Write something first!");
         
@@ -409,11 +435,11 @@
             }
         };
 
-        // Added "role" to the database payload below:
         xhr.send(JSON.stringify({
             "name": parsedUsername,
             "message": msgInput,
-            "role": userRole 
+            "role": userRole,
+            "room_id": roomId // ◄ Saves the room ID to Supabase!
         }));
     }
 
@@ -562,6 +588,45 @@
         if (!usernameInput) {
             return alert("Please type a username to ban!");
         }
+                function createNewPrivateChatPopup() {
+        // Step A: Ask for the room identity name
+        var chosenRoom = prompt("Enter a unique Private Room ID name:\n(e.g., 'secret-cabinet-7' or 'gaming-lounge')");
+        if (!chosenRoom) return; // Cancelled
+        chosenRoom = chosenRoom.trim();
+        
+        if (chosenRoom.toLowerCase() === "global") {
+            return alert("Error: 'global' is reserved for the main chat board.");
+        }
+
+        // Step B: Ask for the secure password gate key
+        var chosenPassword = prompt("Enter a Passcode for room [" + chosenRoom + "]:\n(Your friends must type this exact password to join!)");
+        if (chosenPassword === null) return; // Cancelled
+        chosenPassword = chosenPassword.trim();
+
+        if (!chosenPassword) {
+            return alert("Error: Private rooms require a password lock!");
+        }
+
+        // Step C: Lock the secret keys into your hidden text nodes
+        document.getElementById("chat-room-input").value = chosenRoom;
+        document.getElementById("chat-room-password").value = chosenPassword;
+        
+        // Step D: Update the UI display so you know where you are
+        document.getElementById("current-room-display").innerText = chosenRoom + " (Locked 🔑)";
+        
+        // Step E: Wipe the screen and pull messages from your new room!
+        fetchRequestMessages();
+        alert("Success! Switched to private room: " + chosenRoom + "\nGive your friends the Room ID and Passcode to let them join!");
+    }
+
+    // Helper function to easily jump back to the global room
+    function joinGlobalChat() {
+        document.getElementById("chat-room-input").value = "global";
+        document.getElementById("chat-room-password").value = "";
+        document.getElementById("current-room-display").innerText = "global";
+        fetchRequestMessages();
+    }
+
         
         // This fires off your core ban mechanics function
         banUserByUsername(usernameInput);
