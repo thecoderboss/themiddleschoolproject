@@ -72,6 +72,38 @@
             animation: pulseGlow 2s infinite ease-in-out;
             margin-left: 4px;
         }
+        /* Custom Admin Variant 1: Cyber Purple Glow */
+.glow-admin-purple {
+    color: #df40ff;
+    font-weight: bold;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-left: 4px;
+    letter-spacing: 0.5px;
+    animation: smoothPurpleGlow 2.5s infinite ease-in-out;
+}
+@keyframes smoothPurpleGlow {
+    0% { text-shadow: 0 1px 2px #260033, 0 0 4px rgba(223, 64, 255, 0.2); }
+    50% { text-shadow: 0 1px 3px #100017, 0 0 10px #df40ff, 0 0 16px rgba(223, 64, 255, 0.4); }
+    100% { text-shadow: 0 1px 2px #260033, 0 0 4px rgba(223, 64, 255, 0.2); }
+}
+
+/* Custom Admin Style for idk@chat.com - Electric Fire Orange */
+.glow-admin-orange {
+    color: #ff7700; /* Fire Orange text */
+    font-weight: bold;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-left: 4px;
+    letter-spacing: 0.5px;
+    animation: smoothOrangeGlow 2.5s infinite ease-in-out;
+}
+@keyframes smoothOrangeGlow {
+    0% { text-shadow: 0 1px 2px #331400, 0 0 4px rgba(255, 119, 0, 0.2); }
+    50% { text-shadow: 0 1px 3px #1a0a00, 0 0 10px #ff7700, 0 0 16px rgba(255, 119, 0, 0.4); }
+    100% { text-shadow: 0 1px 2px #331400, 0 0 4px rgba(255, 119, 0, 0.2); }
+}
+
 
        /* Changes the background to a cool light purple just for the owner! */
         .msg-owner {
@@ -398,8 +430,19 @@
                 if (senderRole === "owner") {
                     roleTagHtml = " <span class='glow-owner'>[Owner]</span>";
                 } else if (senderRole === "admin") {
-                    roleTagHtml = " <span class='glow-admin'>[Admin]</span>";
-                }
+    // Grab the sender's username string and make it lowercase to be safe
+    var senderName = data[i].name.toLowerCase(); 
+    
+    // 🌟 Check if this specific message was sent by idk@chat.com
+    if (senderName === "idk") {
+        roleTagHtml = " <span class='glow-admin-orange'>[Admin]</span>";
+    } else {
+        // All other admins get your default admin glow style
+        roleTagHtml = " <span class='glow-admin'>[Admin]</span>";
+    }
+}
+
+
 
                 var bubbleClass = (senderRole === "owner") ? "msg-bubble msg-owner" : "msg-bubble";
 
