@@ -44,23 +44,51 @@
             100% { text-shadow: 0 0 2px currentColor, 0 0 4px currentColor; }
         }
 
-        .glow-owner {
-            color: #ffd700; /* Rich gold text */
-            font-weight: bold;
+         .glow-owner {
+            color: #ffd700; /* Rich gold text face */
+            font-weight: 900; /* Extra thick font to give the 3D block substance */
             font-size: 12px;
             text-transform: uppercase;
             margin-left: 4px;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
             
-            /* Sleek, smooth dark purple background glow that makes gold pop */
-            text-shadow: 0 1px 2px #3a0d45; 
-            animation: smoothGoldGlow 2.5s infinite ease-in-out;
+            /* Stacks solid, non-blurry steps downward to construct a physical 3D block */
+            text-shadow: 
+                1px 1px 0px #d4af37, /* Bright gold edge */
+                2px 2px 0px #aa8010, /* Medium bronze body */
+                3px 3px 0px #805a05, /* Deep dark bronze base */
+                4px 4px 5px #25042d; /* Soft outer royal purple depth shadow */
+                
+            animation: smooth3DGoldGlow 2.5s infinite ease-in-out;
         }
+
         
-        @keyframes smoothGoldGlow {
-            0% { text-shadow: 0 1px 2px #3a0d45, 0 0 4px rgba(255, 215, 0, 0.2); }
-            50% { text-shadow: 0 1px 3px #25042d, 0 0 10px #ffd700, 0 0 16px rgba(255, 215, 0, 0.4); }
-            100% { text-shadow: 0 1px 2px #3a0d45, 0 0 4px rgba(255, 215, 0, 0.2); }
+               @keyframes smoothGoldGlow {
+            0% { 
+                transform: translateY(0px);
+                text-shadow: 
+                    1px 1px 0px #d4af37, 
+                    2px 2px 0px #aa8010, 
+                    3px 3px 0px #805a05, 
+                    4px 4px 4px #25042d; 
+            }
+            50% { 
+                transform: translateY(-1px); /* Physically lifts the text up */
+                text-shadow: 
+                    1px 1px 0px #d4af37, 
+                    2px 2px 0px #aa8010, 
+                    3px 3px 0px #805a05,
+                    4px 4px 0px #604000,   /* Extends the 3D block an extra layer deep */
+                    5px 5px 12px #25042d;  /* Pushes the purple shadow further away */
+            }
+            100% { 
+                transform: translateY(0px);
+                text-shadow: 
+                    1px 1px 0px #d4af37, 
+                    2px 2px 0px #aa8010, 
+                    3px 3px 0px #805a05, 
+                    4px 4px 4px #25042d; 
+            }
         }
 
 
