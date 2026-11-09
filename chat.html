@@ -106,16 +106,19 @@
             100% { text-shadow: 0 1px 2px #33001a, 0 0 4px rgba(255, 68, 170, 0.2); }
         }
         
-        /* Custom Admin Style for shadow@chat.com - Completely Invisible */
-        .glow-admin-invisible {
-            color: transparent; /* Makes text completely see-through */
+          .glow-admin-invisible {
+            color: #000000; /* Pitch black text */
             font-weight: bold;
             font-size: 12px;
             text-transform: uppercase;
             margin-left: 4px;
             letter-spacing: 0.5px;
-            pointer-events: none; /* Prevents user interactions like clicking/hovering */
-            user-select: none; /* Prevents text from being selected/highlighted */
+            animation: shadowVoidGlow 3s infinite ease-in-out;
+        }
+        @keyframes shadowVoidGlow {
+            0% { text-shadow: 0 0 2px #222, 0 0 4px #111; }
+            50% { text-shadow: 0 0 6px #444, 0 0 12px #000; color: #111; }
+            100% { text-shadow: 0 0 2px #222, 0 0 4px #111; }
         }
         
        /* Changes the background to a cool light orange just for the owner! */
