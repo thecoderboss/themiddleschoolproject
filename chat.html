@@ -333,80 +333,96 @@
         checkCurrentSession();
     }
             function fetchRequestMessages() {
-        var feed = document.getElementById("chat-stream");
-        var wasAtBottom = (feed.scrollHeight - feed.clientHeight - feed.scrollTop) < 40;
-        var userRole = localStorage.getItem("sb_user_role") || "user";
-        
-        var roomId = document.getElementById("chat-room-input").value.trim() || "global";
-        var roomPassword = document.getElementById("chat-room-password").value.trim() || "";
-        
-        var xhr = new XMLHttpRequest();
-        var queryUrl = SUPABASE_URL + "/rest/v1/online_chat?room_id=eq." + encodeURIComponent(roomId);
-        
-        if (roomId !== "global") {
-            queryUrl += "&room_password=eq." + encodeURIComponent(roomPassword);
-        }
-        
-        // CHANGED: Changed order to created_at.desc to grab the 15 LATEST entries instead of oldest
-        xhr.open("GET", queryUrl + "&select=*&order=created_at.desc&limit=15", true);
-        xhr.setRequestHeader("apikey", SUPABASE_KEY);
-        
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                var data = JSON.parse(xhr.responseText);
-                var htmlBuffer = "";
-                
-                if (data.length === 0) {
-                    feed.innerHTML = "<div style='text-align:center; padding-top:40px; font-style:italic;'>The board is empty.</div>";
-                    return;
-                }
-
-                // CHANGED: Reverse the array so the messages display from oldest to newest down the screen
-                data.reverse();
-
-                for (var i = 0; i < data.length; i++) {
-                    if (data[i].role === "system") {
-                        htmlBuffer += "<div class='system-msg'>⚙️ " + escapeHtml(data[i].message) + "</div>";
-                        continue;
-                    }
-
-                    var timeStr = "";
-                    try {
-                        var dateObj = new Date(data[i].created_at);
-                        timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    } catch(e) { timeStr = "--:--"; }
-
-                    var moderationControlsHtml = "";
-                    if (userRole === "admin" || userRole === "owner") {
-                        moderationControlsHtml += " <span class='btn-delete' style='cursor:pointer;color:gray;' onclick='deleteChatMessage(" + data[i].id + ")'>[Delete]</span>";
-                    }
-
-                    var senderRole = data[i].role || "user";
-                    var roleTagHtml = "";
-                    if (senderRole === "owner") {
-                        roleTagHtml = " <span class='glow-owner'>[Owner]</span>";
-                    } else if (senderRole === "admin") {
-                        roleTagHtml = " <span class='glow-admin'>[Admin]</span>";
-                    }
-
-                    var bubbleClass = (senderRole === "owner") ? "msg-bubble msg-owner" : "msg-bubble";
-
-                    htmlBuffer += "<div class='" + bubbleClass + "'>" +
-                        "<span class='msg-user'>" + escapeHtml(data[i].name) + roleTagHtml + "</span>: " +
-                        "<span>" + escapeHtml(data[i].message) + "</span>" +
-                        "<span class='msg-time'>" + timeStr + "</span>" +
-                        moderationControlsHtml +
-                        "</div>";
-                }
-                feed.innerHTML = htmlBuffer;
-                
-                if (wasAtBottom) {
-                    feed.scrollTop = feed.scrollHeight;
-                }
-            }
-        };
-        xhr.send();
+    var feed = document.getElementById("chat-stream");
+    if (!feed) return; // Keeps the app from breaking if elements load slowly
+    
+    var wasAtBottom = (feed.scrollHeight - feed.clientHeight - feed.scrollTop) < 40;
+    var userRole = localStorage.getItem("sb_user_role") || "user";
+    
+    var roomId = document.getElementById("chat-room-input").value.trim() || "global";
+    var roomPassword = document.getElementById("chat-room-password").value.trim() || "";
+    
+    var xhr = new XMLHttpRequest();
+    var queryUrl = SUPABASE_URL + "/rest/v1/online_chat?room_id=eq." + encodeURIComponent(roomId);
+    
+    if (roomId !== "global") {
+        queryUrl += "&room_password=eq." + encodeURIComponent(roomPassword);
     }
+    
+    xhr.open("GET", queryUrl + "&select=*&order=created_at.desc&limit=15", true);
+    xhr.setRequestHeader("apikey", SUPABASE_KEY);
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            var data = JSON.parse(xhr.responseText);
+            var htmlBuffer = "";
+            
+            if (!data || data.length === 0) {
+                feed.innerHTML = "<div style='text-align:center; padding-top:40px; font-style:italic;'>The board is empty.</div>";
+                return;
+            }
+
+            // Flip them so oldest is at the top, newest is at the bottom
+            data.reverse();
+
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].role === "system") {
+                    htmlBuffer += "<div class='system-msg'>⚙️ " + escapeHtml(data[i].message) + "</div>";
+                    continue;
+                }
+
+                var timeStr = "";
+                try {
+                    var dateObj = new Date(data[i].created_at);
+                    timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                } catch(e) { timeStr = "--:--"; }
+
+                var moderationControlsHtml = "";
+                if (userRole === "admin" || userRole === "owner") {
+                    moderationControlsHtml += " <span class='btn-delete' style='cursor:pointer;color:gray;' onclick='deleteChatMessage(" + data[i].id + ")'>[Delete]</span>";
+                }
+
+                var senderRole = data[i].role || "user";
+                var roleTagHtml = "";
+                if (senderRole === "owner") {
+                    roleTagHtml = " <span class='glow-owner'>[Owner]</span>";
+                } else if (senderRole === "admin") {
+                    roleTagHtml = " <span class='glow-admin'>[Admin]</span>";
+                }
+
+                var bubbleClass = (senderRole === "owner") ? "msg-bubble msg-owner" : "msg-bubble";
+
+                htmlBuffer += "<div class='" + bubbleClass + "'>" +
+                    "<span class='msg-user'>" + escapeHtml(data[i].name) + roleTagHtml + "</span>: " +
+                    "<span>" + escapeHtml(data[i].message) + "</span>" +
+                    "<span class='msg-time'>" + timeStr + "</span>" +
+                    moderationControlsHtml +
+                    "</div>";
+            }
+            feed.innerHTML = htmlBuffer;
+            
+            if (wasAtBottom) {
+                feed.scrollTop = feed.scrollHeight;
+            }
+        }
+    };
+    xhr.send();
+}
+
+function handleBanSubmit() {
+    var emailInput = document.getElementById("target-ban-username").value.trim();
+    if (!emailInput) {
+        return alert("Please type a full email address to ban!");
+    }
+    if (!emailInput.includes("@")) {
+        return alert("🚨 Error: Please enter a valid email address (including the @ part)!");
+    }
+    
+    // ✅ FIX: Correctly call the new email function here!
+    banUserByEmail(emailInput);
+    document.getElementById("target-ban-username").value = "";
+}
+
 
     function submitRequestMessage() {
         var msgInput = document.getElementById("user-msg").value.trim();
@@ -476,28 +492,8 @@
         xhr.send(JSON.stringify({ "role": "admin" }));
     }
 
-    function handleBanSubmit() {
-    // 1. Grab the text from the input box (which is now a full email address)
-    var emailInput = document.getElementById("target-ban-username").value.trim();
-    
-    // 2. Make sure they didn't leave it blank
-    if (!emailInput) {
-        return alert("Please type a full email address to ban!");
-    }
-    
-    // 3. Make sure it looks like a real email (contains an @ symbol)
-    if (!emailInput.includes("@")) {
-        return alert("🚨 Error: Please enter a valid email address (including the @ part)!");
-    }
-    
-    // 4. Send the email to our ban logic function
-    banUserByEmail(emailInput);
-    
-    // 5. Clear out the input box so it's clean for next time
-    document.getElementById("target-ban-username").value = "";
-}
 
-function banUserByEmail(targetEmail) {
+    function banUserByEmail(targetEmail) {
     var jwtToken = localStorage.getItem("sb_token");
     var currentRole = localStorage.getItem("sb_user_role");
     
