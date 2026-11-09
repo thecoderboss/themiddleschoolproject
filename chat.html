@@ -485,7 +485,7 @@
         document.getElementById("target-ban-username").value = "";
     }
 
-    function banUserByUsername(username) {
+        function banUserByUsername(username) {
         var jwtToken = localStorage.getItem("sb_token");
         var currentRole = localStorage.getItem("sb_user_role");
         
@@ -508,8 +508,9 @@
             if (checkXhr.readyState === 4 && checkXhr.status === 200) {
                 var profileMatch = JSON.parse(checkXhr.responseText);
                 
+                // FIXED: Checked array bounds and grabbed index [0]
                 if (profileMatch && profileMatch.length > 0) {
-                    var targetRole = profileMatch.role;
+                    var targetRole = profileMatch[0].role;
                     
                     if (targetRole === "admin" && currentRole !== "owner") {
                         return alert("🚨 Denied: Admins cannot ban other Admins. Only the Owner can do this.");
@@ -579,13 +580,13 @@
             return alert("Error: Private rooms require a password lock!");
         }
 
+        alert("Success! Switching to private room: " + chosenRoom + "\nGive your friends the Room ID and Passcode to let them join!");
+
         document.getElementById("chat-room-input").value = chosenRoom;
         document.getElementById("chat-room-password").value = chosenPassword;
-        
         document.getElementById("current-room-display").innerText = chosenRoom + " (Locked 🔑)";
         
         fetchRequestMessages();
-        alert("Success! Switched to private room: " + chosenRoom + "\nGive your friends the Room ID and Passcode to let them join!");
     }
 
     function joinGlobalChat() {
@@ -615,14 +616,8 @@
         };
         xhr.send();
     }
-    
-    function escapeHtml(str) {
-        if (!str) return "";
-        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    }
 
     checkCurrentSession();
-
-        </script>
+</script>
 </body>
 </html>
