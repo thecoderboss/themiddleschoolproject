@@ -332,7 +332,7 @@
         localStorage.removeItem("sb_user_role");
         checkCurrentSession();
     }
-        function fetchRequestMessages() {
+            function fetchRequestMessages() {
         var feed = document.getElementById("chat-stream");
         var wasAtBottom = (feed.scrollHeight - feed.clientHeight - feed.scrollTop) < 40;
         var userRole = localStorage.getItem("sb_user_role") || "user";
@@ -347,7 +347,8 @@
             queryUrl += "&room_password=eq." + encodeURIComponent(roomPassword);
         }
         
-        xhr.open("GET", queryUrl + "&select=*&order=created_at.asc&limit=15", true);
+        // CHANGED: Changed order to created_at.desc to grab the 15 LATEST entries instead of oldest
+        xhr.open("GET", queryUrl + "&select=*&order=created_at.desc&limit=15", true);
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
         
         xhr.onreadystatechange = function() {
@@ -359,6 +360,9 @@
                     feed.innerHTML = "<div style='text-align:center; padding-top:40px; font-style:italic;'>The board is empty.</div>";
                     return;
                 }
+
+                // CHANGED: Reverse the array so the messages display from oldest to newest down the screen
+                data.reverse();
 
                 for (var i = 0; i < data.length; i++) {
                     if (data[i].role === "system") {
