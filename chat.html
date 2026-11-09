@@ -106,7 +106,7 @@
             100% { text-shadow: 0 1px 2px #33001a, 0 0 4px rgba(255, 68, 170, 0.2); }
         }
                 /* Custom Admin Style for shadow@chat.com - Sharp 3D Block Shadow */
-        .glow-admin-invisible {
+        .glow-admin-3d {
             color: #ffffff; /* Bright white text face */
             font-weight: 900; 
             font-size: 12px;
@@ -128,6 +128,25 @@
             50% { transform: translateY(-1px); text-shadow: 1px 1px 0px #333333, 2px 2px 0px #222222, 3px 3px 0px #111111, 4px 4px 0px #000000; }
             100% { transform: translateY(0px); }
         }
+                /* Custom Admin Style for shadow@chat.com - Sleek Silver 3D */
+        .glow-admin-invisible {
+            color: #e0e0e0; /* Clean metallic silver face */
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-left: 4px;
+            letter-spacing: 0.5px;
+            
+            /* Sharp, tight offset dark shadow to create a distinct 3D lift */
+            text-shadow: 1px 1px 2px #222222, 0px 0px 8px rgba(0, 0, 0, 0.15);
+            animation: smoothSilverGlow 2.5s infinite ease-in-out;
+        }
+        @keyframes smoothSilverGlow {
+            0% { text-shadow: 1px 1px 2px #222222, 0 0 4px rgba(0, 0, 0, 0.1); }
+            50% { text-shadow: 1px 1px 3px #111111, 0 0 10px #888888, 0 0 14px rgba(0, 0, 0, 0.3); }
+            100% { text-shadow: 1px 1px 2px #222222, 0 0 4px rgba(0, 0, 0, 0.1); }
+        }
+
 
         
        /* Changes the background to a cool light orange just for the owner! */
