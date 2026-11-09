@@ -106,20 +106,30 @@
             100% { text-shadow: 0 1px 2px #33001a, 0 0 4px rgba(255, 68, 170, 0.2); }
         }
         
-          .glow-admin-invisible {
-            color: #000000; /* Pitch black text */
-            font-weight: bold;
+             /* Custom Admin Style for shadow@chat.com - 3D Void Shadow */
+            .glow-admin-invisible {
+            color: #111111; /* Extremely dark charcoal center */
+            font-weight: 900; /* Extra bold to make the 3D effect pop */
             font-size: 12px;
             text-transform: uppercase;
             margin-left: 4px;
-            letter-spacing: 0.5px;
-            animation: shadowVoidGlow 3s infinite ease-in-out;
+            letter-spacing: 0.8px;
+            
+            /* Multi-layer text shadow: Creates a crisp white 3D rim light + a dark smoke glow */
+            text-shadow: 
+                1px 1px 0px #ffffff,   /* Crisp white bottom-right highlight for 3D extrusion */
+                -1px -1px 0px #000000, /* Dark top-left inset edge shadow */
+                0 0 8px rgba(0, 0, 0, 0.6); /* Soft dark smoke depth blur */
+                
+            animation: smoothVoidPulse 3s infinite ease-in-out;
         }
-        @keyframes shadowVoidGlow {
-            0% { text-shadow: 0 0 2px #222, 0 0 4px #111; }
-            50% { text-shadow: 0 0 6px #444, 0 0 12px #000; color: #111; }
-            100% { text-shadow: 0 0 2px #222, 0 0 4px #111; }
+        
+        @keyframes smoothVoidPulse {
+            0% { text-shadow: 1px 1px 0px #ffffff, -1px -1px 0px #000000, 0 0 4px rgba(0, 0, 0, 0.4); opacity: 0.85; }
+            50% { text-shadow: 1px 1px 1px #ffffff, -1px -1px 0px #000000, 0 0 14px #000000, 0 0 20px rgba(0, 0, 0, 0.8); opacity: 1; }
+            100% { text-shadow: 1px 1px 0px #ffffff, -1px -1px 0px #000000, 0 0 4px rgba(0, 0, 0, 0.4); opacity: 0.85; }
         }
+
         
        /* Changes the background to a cool light orange just for the owner! */
         .msg-owner {
