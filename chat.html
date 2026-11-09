@@ -121,7 +121,6 @@
             <button class="btn-logout" onclick="handleLogout()">Log out</button>
         </div>
         <!-- CO-OWNER & ADMIN CONTROL SETTINGS PANEL -->
-                <!-- CO-OWNER & ADMIN CONTROL SETTINGS PANEL -->
         <div id="admin-controls" class="admin-panel hidden">
             <!-- Owner Only Tools -->
             <div id="owner-only-tools" class="hidden">
@@ -132,12 +131,13 @@
                 </div>
             </div>
 
-            <!-- Admin & Owner Shared Ban Tools -->
-            <div class="input-row" style="margin-top: 15px; border-top: 1px dashed red; padding-top: 15px;">
-                <span class="input-label" style="color: #bd0000;">Ban User by Chat Username:</span>
-                <input type="text" id="target-ban-username" class="field-box" placeholder="badguy123" style="width: 65%; display: inline-block;">
-                <button class="btn-logout" style="padding: 8px; vertical-align: top; background: #bd0000;" onclick="handleBanSubmit()">Issue Ban</button>
-            </div>
+               <!-- Admin & Owner Shared Ban Tools -->
+                <div class="input-row" style="margin-top: 15px; border-top: 1px dashed red; padding-top: 15px;">
+                    <span class="input-label" style="color: #bd0000;">Ban User by Full Email Address:</span>
+                    <input type="text" id="target-ban-username" class="field-box" placeholder="badguy123@chat.com" style="width: 65%; display: inline-block;">
+                    <button class="btn-logout" style="padding: 8px; vertical-align: top; background: #bd0000;" onclick="handleBanSubmit()">Issue Ban</button>
+                </div>
+
 
             <div style="font-size:12px; color: #bd0000; font-weight: bold; margin-top: 10px;">You have chat moderation access. You can delete any message below.</div>
         </div>
@@ -477,86 +477,91 @@
     }
 
     function handleBanSubmit() {
-        var usernameInput = document.getElementById("target-ban-username").value.trim();
-        if (!usernameInput) {
-            return alert("Please type a username to ban!");
-        }
-        banUserByUsername(usernameInput);
-        document.getElementById("target-ban-username").value = "";
+    // 1. Grab the text from the input box (which is now a full email address)
+    var emailInput = document.getElementById("target-ban-username").value.trim();
+    
+    // 2. Make sure they didn't leave it blank
+    if (!emailInput) {
+        return alert("Please type a full email address to ban!");
     }
-
-        function escapeHtml(string) {
-    if (!string) return "";
-    return String(string)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    
+    // 3. Make sure it looks like a real email (contains an @ symbol)
+    if (!emailInput.includes("@")) {
+        return alert("🚨 Error: Please enter a valid email address (including the @ part)!");
+    }
+    
+    // 4. Send the email to our ban logic function
+    banUserByEmail(emailInput);
+    
+    // 5. Clear out the input box so it's clean for next time
+    document.getElementById("target-ban-username").value = "";
 }
 
+function banUserByEmail(targetEmail) {
+    var jwtToken = localStorage.getItem("sb_token");
+    var currentRole = localStorage.getItem("sb_user_role");
     
-        function banUserByUsername(username) {
-        var jwtToken = localStorage.getItem("sb_token");
-        var currentRole = localStorage.getItem("sb_user_role");
-        
-        if (currentRole !== "owner" && currentRole !== "admin") {
-            return alert("Denied: Unauthorized Action.");
-        }
-        
-        if (username.toLowerCase() === "owner") {
-            return alert("🚨 Error: The Owner cannot be banned from this server!");
-        }
+    // Check if the person clicking the button is allowed to ban people
+    if (currentRole !== "owner" && currentRole !== "admin") {
+        return alert("Denied: You aren't an Admin or Owner!");
+    }
 
-        if (!confirm("Are you sure you want to ban " + username + "?")) return;
-
-        var targetEmail = username + "@chat.com"; 
-        
-        var checkXhr = new XMLHttpRequest();
-        checkXhr.open("GET", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(targetEmail) + "&select=role", true);
-        checkXhr.setRequestHeader("apikey", SUPABASE_KEY);
-        checkXhr.onreadystatechange = function() {
-            if (checkXhr.readyState === 4 && checkXhr.status === 200) {
-                var profileMatch = JSON.parse(checkXhr.responseText);
+    if (!confirm("Are you sure you want to ban the user with email: " + targetEmail + "?")) return;
+    
+    // Look up the user by their full email address in your Supabase database
+    var checkXhr = new XMLHttpRequest();
+    checkXhr.open("GET", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(targetEmail) + "&select=role", true);
+    checkXhr.setRequestHeader("apikey", SUPABASE_KEY);
+    
+    checkXhr.onreadystatechange = function() {
+        if (checkXhr.readyState === 4 && checkXhr.status === 200) {
+            var profileMatch = JSON.parse(checkXhr.responseText);
+            
+            // Check if we actually found a user profile in the database
+            if (profileMatch && profileMatch.length > 0) {
+                var targetUser = profileMatch[0]; 
+                var targetRole = targetUser.role;
                 
-                // FIXED: Checked array bounds and grabbed index [0]
-                if (profileMatch && profileMatch.length > 0) {
-                    var targetRole = profileMatch[0].role;
-                    
-                    if (targetRole === "admin" && currentRole !== "owner") {
-                        return alert("🚨 Denied: Admins cannot ban other Admins. Only the Owner can do this.");
-                    }
-                    if (targetRole === "owner") {
-                        return alert("🚨 Error: Nice try! The Owner cannot be banned.");
-                    }
+                // Stop Admins from banning other Admins
+                if (targetRole === "admin" && currentRole !== "owner") {
+                    return alert("🚨 Denied: Admins cannot ban other Admins!");
                 }
-                executeBanRequest(username, targetEmail, jwtToken);
-            }
-        };
-        checkXhr.send();
-    }
-
-    function executeBanRequest(username, targetEmail, jwtToken) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("PATCH", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(targetEmail), true);
-        xhr.setRequestHeader("apikey", SUPABASE_KEY);
-        xhr.setRequestHeader("Authorization", "Bearer " + jwtToken);
-        xhr.setRequestHeader("Content-Type", "application/json");
-        
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                if (xhr.status >= 200 && xhr.status <= 299) {
-                    alert(username + " has been successfully banned.");
-                    sendSystemBroadcast(username + " was permanently banned from the server.");
-                } else {
-                    alert("Failed to issue ban status framework.");
+                
+                // Stop anyone from banning the Owner
+                if (targetRole === "owner") {
+                    return alert("🚨 Error: Nice try! You can't ban the Owner.");
                 }
             }
-        };
-        xhr.send(JSON.stringify({ "is_banned": true }));
-    }
+            
+            // If everything passes, proceed to lock them out!
+            executeBanRequest(targetEmail, jwtToken);
+        }
+    };
+    checkXhr.send();
+}
 
-    function sendSystemBroadcast(textMessage) {
+function executeBanRequest(targetEmail, jwtToken) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("PATCH", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(targetEmail), true);
+    xhr.setRequestHeader("apikey", SUPABASE_KEY);
+    xhr.setRequestHeader("Authorization", "Bearer " + jwtToken);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status >= 200 && xhr.status <= 299) {
+                alert(targetEmail + " has been successfully banned.");
+                // Send a system broadcast to the global chat room to show who got banned
+                sendSystemBroadcast(targetEmail + " was permanently banned from the server.");
+            } else {
+                alert("Failed to issue ban status. Error Code: " + xhr.status);
+            }
+        }
+    };
+    xhr.send(JSON.stringify({ "is_banned": true }));
+}
+    
+        function sendSystemBroadcast(textMessage) {
         var xhr = new XMLHttpRequest();
         xhr.open("POST", SUPABASE_URL + "/rest/v1/online_chat", true);
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
