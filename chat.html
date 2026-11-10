@@ -45,162 +45,176 @@
         }
 
          .glow-ultimate {
-    position: relative;
-    color: #ffd700;
-    font-weight: 900;
-    font-size: 12px;
-    text-transform: uppercase;
-    margin-left: 4px;
-    letter-spacing: 0.8px;
-    display: inline-block;
-    will-change: transform, letter-spacing, color, text-shadow, filter, opacity;
-    transform-style: preserve-3d;
-    perspective: 500px;
-    
-    /* 15 seconds total loop: 3 seconds per style */
-    animation: masterUltimateCycle 15s infinite ease-in-out;
-}
-
-/* 3D EXTRUSION LAYER */
-.glow-ultimate::before {
-    content: attr(data-text);
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    z-index: -1;
-    color: #aa8010;
-    transform-style: preserve-3d;
-    will-change: transform, text-shadow, opacity;
-    animation: masterUltimateBlock 15s infinite ease-in-out;
-}
-
-/* FLOOR SHADOW LAYER */
-.glow-ultimate::after {
-    content: attr(data-text);
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    z-index: -2;
-    color: transparent;
-    transform-style: preserve-3d;
-    will-change: transform, text-shadow, opacity;
-    animation: masterUltimateShadow 15s infinite ease-in-out;
-}
-
-/* ==========================================================================
-   THE FIX: MAIN TEXT TIMELINE (Changes color, glow, and effects)
-   ========================================================================== */
-@keyframes masterUltimateCycle {
-    /* PHASE 1: 3D GOLD OWNER (0% to 20%) */
-    0%, 20% {
-        transform: rotateX(0deg) translateZ(0px) scale(1) skewX(0deg) scaleY(1);
-        color: #ffd700;
-        letter-spacing: 0.8px;
-        opacity: 1; filter: blur(0px);
-        text-shadow: none;
-    }
-    10% {
-        transform: rotateX(16deg) translateZ(12px);
-        color: #fff4bd;
-        text-shadow: none;
-    }
-
-    /* PHASE 2: RADIOACTIVE GREEN PULSE (20% to 40%) */
-    21%, 40% {
-        transform: rotateX(0deg) translateZ(0px) scale(1) skewX(0deg) scaleY(1);
-        color: #00cc1b;
-        letter-spacing: 0.8px;
-        opacity: 1; filter: blur(0px);
-        text-shadow: 0px 1px 2px #001a03, 0px 0px 4px rgba(0, 255, 34, 0.3);
-    }
-    30% {
-        color: #bfffca;
-        text-shadow: 0px 1px 2px #001a03, 0px 0px 8px #00ff22, 0px 0px 18px #009914;
-    }
-
-    /* PHASE 3: HYPER BLUE LASER SCAN (40% to 60%) */
-    41%, 60% {
-        transform: scale(1) skewX(0deg) scaleY(1);
-        opacity: 1; filter: blur(0px);
-        letter-spacing: 1.5px;
-        color: #0099ff;
-        text-shadow: 0px 1px 2px #00081a, 0px 0px 4px rgba(0, 221, 255, 0.4);
-    }
-    47% {
-        letter-spacing: 1px; color: #ffffff;
-        text-shadow: 0px 1px 2px #00081a, -4px 0px 8px #00ddff, -8px 0px 16px #0055ff;
-    }
-    53% {
-        letter-spacing: 1px; color: #ffffff;
-        text-shadow: 0px 1px 2px #00081a, 4px 0px 8px #00ddff, 8px 0px 16px #0055ff;
-    }
-
-    /* PHASE 4: GLITCH MATRIX PINK (60% to 80%) */
-    61%, 65%, 70%, 75%, 80% {
-        transform: scale(1) skewX(0deg) scaleY(1);
-        color: #ffffff;
-        letter-spacing: 0.8px;
-        opacity: 1; filter: blur(0px);
-        text-shadow: 0 0 4px #ff44aa, 0 1px 2px #33001a;
-    }
-    67% {
-        transform: scale(1.03) skewX(-4deg);
-        text-shadow: -3px -1px 0px #ff0055, 2px 1px 0px #00ffff;
-    }
-    72% {
-        transform: scaleY(1.1);
-        text-shadow: 0px 0px 15px #ff44aa, 0px 0px 25px #ff0055;
-    }
-
-    /* PHASE 5: SMOKE CLOAK STEALTH PLATINUM (80% to 100%) */
-    81%, 100% {
-        transform: scale(1) skewX(0deg) scaleY(1);
-        color: #f0f0f5;
-        letter-spacing: 1px;
-        opacity: 1; filter: blur(0px);
-        text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.8);
-    }
-    90% {
-        opacity: 0.15; filter: blur(3px);
-        text-shadow: 0px 0px 12px rgba(255, 255, 255, 0.9);
-    }
-}
-
-/* ==========================================================================
-   THE FIX: FORCE 3D LAYERS TO HIDE EXCEPT DURING PHASE 1
-   ========================================================================== */
-@keyframes masterUltimateBlock {
-    0%, 20% {
-        opacity: 1;
-        color: #aa8010;
-        transform: translateZ(-1px);
-        text-shadow: 0px 0.5px 0px #d4af37, 0px 1px 0px #aa8010, 0px 2px 0px #442e00;
-    }
-    10% {
-        opacity: 1;
-        color: #aa8010;
-        transform: translateZ(-6px); 
-        text-shadow: 0px 0.5px 0px #e5c158, 0px 2px 0px #946f0c, 0px 5px 0px #1f1400;
-    }
-    21%, 100% {
-        opacity: 0; /* Vanishes completely so it doesn't block the other styles */
-        text-shadow: none;
-    }
-}
-
-@keyframes masterUltimateShadow {
-    0%, 20% {
-        opacity: 1;
-        text-shadow: 0px 2px 3px rgba(37, 4, 45, 0.7);
-    }
-    10% {
-        opacity: 1;
-        text-shadow: 0px 14px 18px rgba(37, 4, 45, 0.45);
-    }
-    21%, 100% {
-        opacity: 0; /* Vanishes completely so it doesn't block the other styles */
-        text-shadow: none;
-    }
-}
-
+            position: relative;
+            color: #ffd700;
+            font-weight: 900;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-left: 4px;
+            letter-spacing: 0.8px;
+            display: inline-block;
+            will-change: transform, letter-spacing, color, text-shadow, filter, opacity;
+            transform-style: preserve-3d;
+            perspective: 500px;
+            
+            /* 15 seconds total loop: 3 seconds per style */
+            animation: masterUltimateCycle 15s infinite ease-in-out;
+        }
+        
+        /* 3D EXTRUSION LAYER */
+        .glow-ultimate::before {
+            content: attr(data-text);
+            position: absolute;
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            z-index: -1;
+            transform-style: preserve-3d;
+            will-change: transform, text-shadow, color;
+            /* Completely controlled by the timeline below */
+            animation: masterUltimateBlock 15s infinite ease-in-out;
+        }
+        
+        /* FLOOR SHADOW LAYER */
+        .glow-ultimate::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            z-index: -2;
+            transform-style: preserve-3d;
+            will-change: transform, text-shadow;
+            /* Completely controlled by the timeline below */
+            animation: masterUltimateShadow 15s infinite ease-in-out;
+        }
+        
+        /* ==========================================================================
+           1. MAIN TEXT TIMELINE (Changes color, glow, and layout)
+           ========================================================================== */
+        @keyframes masterUltimateCycle {
+            /* PHASE 1: 3D GOLD OWNER (0% to 20%) */
+            0%, 20% {
+                transform: rotateX(0deg) translateZ(0px) scale(1) skewX(0deg) scaleY(1);
+                color: #ffd700;
+                letter-spacing: 0.8px;
+                opacity: 1; 
+                filter: blur(0px);
+                text-shadow: none;
+            }
+            10% {
+                transform: rotateX(16deg) translateZ(12px);
+                color: #fff4bd;
+                text-shadow: none;
+            }
+        
+            /* PHASE 2: RADIOACTIVE GREEN PULSE (21% to 40%) */
+            21%, 40% {
+                transform: rotateX(0deg) translateZ(0px) scale(1) skewX(0deg) scaleY(1);
+                color: #00cc1b;
+                letter-spacing: 0.8px;
+                opacity: 1; 
+                filter: blur(0px);
+                text-shadow: 0px 1px 2px #001a03, 0px 0px 4px rgba(0, 255, 34, 0.3);
+            }
+            30% {
+                color: #bfffca;
+                text-shadow: 0px 1px 2px #001a03, 0px 0px 8px #00ff22, 0px 0px 18px #009914;
+            }
+        
+            /* PHASE 3: HYPER BLUE LASER SCAN (41% to 60%) */
+            41%, 60% {
+                transform: scale(1) skewX(0deg) scaleY(1);
+                opacity: 1; 
+                filter: blur(0px);
+                letter-spacing: 1.5px;
+                color: #0099ff;
+                text-shadow: 0px 1px 2px #00081a, 0px 0px 4px rgba(0, 221, 255, 0.4);
+            }
+            47% {
+                letter-spacing: 1px; 
+                color: #ffffff;
+                text-shadow: 0px 1px 2px #00081a, -4px 0px 8px #00ddff, -8px 0px 16px #0055ff;
+            }
+            53% {
+                letter-spacing: 1px; 
+                color: #ffffff;
+                text-shadow: 0px 1px 2px #00081a, 4px 0px 8px #00ddff, 8px 0px 16px #0055ff;
+            }
+        
+            /* PHASE 4: GLITCH MATRIX PINK (61% to 80%) */
+            61%, 65%, 70%, 75%, 80% {
+                transform: scale(1) skewX(0deg) scaleY(1);
+                color: #ffffff;
+                letter-spacing: 0.8px;
+                opacity: 1; 
+                filter: blur(0px);
+                text-shadow: 0 0 4px #ff44aa, 0 1px 2px #33001a;
+            }
+            67% {
+                transform: scale(1.03) skewX(-4deg);
+                text-shadow: -3px -1px 0px #ff0055, 2px 1px 0px #00ffff;
+            }
+            72% {
+                transform: scaleY(1.1);
+                text-shadow: 0px 0px 15px #ff44aa, 0px 0px 25px #ff0055;
+            }
+        
+            /* PHASE 5: SMOKE CLOAK STEALTH PLATINUM (81% to 100%) */
+            81%, 100% {
+                transform: scale(1) skewX(0deg) scaleY(1);
+                color: #f0f0f5;
+                letter-spacing: 1px;
+                opacity: 1; 
+                filter: blur(0px);
+                text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.8);
+            }
+            90% {
+                opacity: 0.15; 
+                filter: blur(3px);
+                text-shadow: 0px 0px 12px rgba(255, 255, 255, 0.9);
+            }
+        }
+        
+        /* ==========================================================================
+           2. THE EXTRUSION TIMELINE (Only shows color/shadow from 0% to 20%)
+           ========================================================================== */
+        @keyframes masterUltimateBlock {
+            0%, 20% {
+                color: #aa8010; /* Bronze color ONLY active here */
+                transform: translateZ(-1px);
+                text-shadow: 0px 0.5px 0px #d4af37, 0px 1px 0px #aa8010, 0px 2px 0px #442e00;
+            }
+            10% {
+                color: #aa8010;
+                transform: translateZ(-6px); 
+                text-shadow: 0px 0.5px 0px #e5c158, 0px 2px 0px #946f0c, 0px 5px 0px #1f1400;
+            }
+            21%, 100% {
+                color: transparent; /* Turns completely invisible during other phases */
+                text-shadow: none;
+            }
+        }
+        
+        /* ==========================================================================
+           3. THE FLOOR SHADOW TIMELINE (Only shows shadow from 0% to 20%)
+           ========================================================================== */
+        @keyframes masterUltimateShadow {
+            0%, 20% {
+                color: transparent;
+                text-shadow: 0px 2px 3px rgba(37, 4, 45, 0.7);
+            }
+            10% {
+                color: transparent;
+                text-shadow: 0px 14px 18px rgba(37, 4, 45, 0.45);
+            }
+            21%, 100% {
+                color: transparent;
+                text-shadow: none; /* Disappears completely during other phases */
+            }
+        }
         /* Upgraded Generic Admin Style - Overclocked Radioactive Green */
 .glow-admin {
     color: #00ff22; /* Upgraded to a sharper, more vivid neon matrix green */
