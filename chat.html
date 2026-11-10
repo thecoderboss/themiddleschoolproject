@@ -44,13 +44,14 @@
             100% { text-shadow: 0 0 2px currentColor, 0 0 4px currentColor; }
         }
 
-         .glow-owner {
+            .glow-owner {
             color: #ffd700; /* Rich gold text face */
             font-weight: 900; /* Extra thick font to give the 3D block substance */
             font-size: 12px;
             text-transform: uppercase;
             margin-left: 4px;
             letter-spacing: 0.8px;
+            display: inline-block; /* REQUIRED: Allows the translateY transform to actually move the text */
             
             /* Stacks solid, non-blurry steps downward to construct a physical 3D block */
             text-shadow: 
@@ -59,11 +60,10 @@
                 3px 3px 0px #805a05, /* Deep dark bronze base */
                 4px 4px 5px #25042d; /* Soft outer royal purple depth shadow */
                 
-            animation: smooth3DGoldGlow 2.5s infinite ease-in-out;
+            animation: smoothGoldGlow 2.5s infinite ease-in-out; /* FIXED: Matched name with keyframes */
         }
-
         
-               @keyframes smoothGoldGlow {
+        @keyframes smoothGoldGlow {
             0% { 
                 transform: translateY(0px);
                 text-shadow: 
@@ -73,7 +73,7 @@
                     4px 4px 4px #25042d; 
             }
             50% { 
-                transform: translateY(-1px); /* Physically lifts the text up */
+                transform: translateY(-2px); /* Slightly increased for a more noticeable floating effect */
                 text-shadow: 
                     1px 1px 0px #d4af37, 
                     2px 2px 0px #aa8010, 
@@ -90,7 +90,7 @@
                     4px 4px 4px #25042d; 
             }
         }
-
+        
 
         .glow-admin {
             color: #008f11;
