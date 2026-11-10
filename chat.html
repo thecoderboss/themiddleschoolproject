@@ -43,7 +43,6 @@
             50% { text-shadow: 0 0 6px currentColor, 0 0 12px currentColor; }
             100% { text-shadow: 0 0 2px currentColor, 0 0 4px currentColor; }
         }
-
 .glow-ultimate {
     display: inline-block;
     font-size: 12px;
@@ -52,10 +51,17 @@
     margin-left: 4px;
     color: #fff4bd; /* Bright white-hot gold text face */
     
-    /* Hardware acceleration to keep all simultaneous animations buttery smooth */
+    /* 🚀 ENHANCEMENT ENGINE: Hardware acceleration + crisp edge overrides */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transform-style: preserve-3d;
+    perspective: 500px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    
     will-change: letter-spacing, text-shadow, transform, filter, opacity;
     
-    /* EVERY SINGLE EFFECT RUNNING AT THE SAME TIME on different speeds */
+    /* EVERY SINGLE EFFECT RUNNING SIMULTANEOUSLY AT UNIQUE SPEEDS */
     animation: 
         allGoldLaser 2.4s infinite ease-in-out,
         allGoldGlitch 1.6s infinite linear,
