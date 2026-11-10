@@ -157,14 +157,41 @@
             }
         }
 
-        .glow-admin {
-            color: #008f11;
-            font-weight: bold;
-            font-size: 12px;
-            text-transform: uppercase;
-            animation: pulseGlow 2s infinite ease-in-out;
-            margin-left: 4px;
-        }
+        /* Upgraded Generic Admin Style - Overclocked Radioactive Green */
+.glow-admin {
+    color: #00ff22; /* Upgraded to a sharper, more vivid neon matrix green */
+    font-weight: 800; /* Thicker weight to catch the light effects better */
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-left: 4px;
+    letter-spacing: 0.8px;
+    display: inline-block;
+    
+    /* Solid backing shadow so it pops off any background */
+    text-shadow: 0px 1px 2px #001a03; 
+    
+    animation: radioactivePulse 2.5s infinite ease-in-out;
+}
+
+@keyframes radioactivePulse {
+    0%, 100% {
+        /* Stable reactor state */
+        color: #00cc1b; /* Rich matrix green core */
+        text-shadow: 
+            0px 1px 2px #001a03,
+            0px 0px 4px rgba(0, 255, 34, 0.3);
+    }
+    50% {
+        /* RADIATION BURST: Core flashes white-hot lime, venting an intense neon glow */
+        color: #bfffca; 
+        text-shadow: 
+            0px 1px 2px #001a03,
+            0px 0px 8px #00ff22,   /* Blazing neon edge */
+            0px 0px 18px #009914,  /* Medium toxic wash */
+            0px 0px 28px rgba(0, 255, 34, 0.4); /* Fading atmospheric energy */
+    }
+}
+
     
 
         /* Custom Admin Style for idk@chat.com - Electric Medium Blue */
