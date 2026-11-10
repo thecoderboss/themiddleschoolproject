@@ -168,21 +168,40 @@
     
 
         /* Custom Admin Style for idk@chat.com - Electric Medium Blue */
-        .glow-admin-blue {
-            color: #0088ff; /* Medium Blue text */
-            font-weight: bold;
-            font-size: 12px;
-            text-transform: uppercase;
-            margin-left: 4px;
-            letter-spacing: 0.5px;
-            animation: smoothBlueGlow 2.5s infinite ease-in-out;
-        }
-        @keyframes smoothBlueGlow {
-            0% { text-shadow: 0 1px 2px #001133, 0 0 4px rgba(0, 136, 255, 0.2); }
-            50% { text-shadow: 0 1px 3px #00081a, 0 0 10px #0088ff, 0 0 16px rgba(0, 136, 255, 0.4); }
-            100% { text-shadow: 0 1px 2px #001133, 0 0 4px rgba(0, 136, 255, 0.2); }
-        }
-        
+.glow-admin-blue {
+    color: #0088ff; /* Medium Blue text */
+    font-weight: 800;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-left: 4px;
+    letter-spacing: 1.5px; /* Wider spacing looks cleaner on flat neon */
+    display: inline-block;
+    
+    animation: neonLaserPulse 2.5s infinite ease-in-out;
+}
+
+@keyframes neonLaserPulse {
+    0%, 100% {
+        text-shadow: 
+            -2px 0px 4px rgba(0, 136, 255, 0.6),
+            0px 0px 2px #001133;
+    }
+    30% {
+        /* Laser beam hits the left side */
+        text-shadow: 
+            -6px 0px 12px #0088ff,
+            -2px 0px 4px #ffffff,
+            4px 0px 6px rgba(0, 136, 255, 0.2);
+    }
+    70% {
+        /* Laser beam hits the right side */
+        text-shadow: 
+            4px 0px 6px rgba(0, 136, 255, 0.2),
+            2px 0px 4px #ffffff,
+            6px 0px 12px #0088ff;
+    }
+}
+
         /* Custom Admin Style for celiaseesall@chat.com - Electric Pink */
         .glow-admin-pink {
             color: #ff44aa; /* Electric Pink text */
