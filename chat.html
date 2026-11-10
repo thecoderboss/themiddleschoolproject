@@ -51,46 +51,49 @@
             text-transform: uppercase;
             margin-left: 4px;
             letter-spacing: 0.8px;
-            display: inline-block; /* REQUIRED: Allows the translateY transform to actually move the text */
             
-            /* Stacks solid, non-blurry steps downward to construct a physical 3D block */
+            /* UPPERGRADE ADDITIONS FOR REAL 3D DEPTH */
+            display: inline-block;
+            will-change: transform, text-shadow; /* Optimizes browser performance for silky smooth rendering */
+            transform-style: preserve-3d;        /* Forces the browser to render true 3D layers */
+            
+            /* Base resting state shadow */
             text-shadow: 
-                1px 1px 0px #d4af37, /* Bright gold edge */
-                2px 2px 0px #aa8010, /* Medium bronze body */
-                3px 3px 0px #805a05, /* Deep dark bronze base */
-                4px 4px 5px #25042d; /* Soft outer royal purple depth shadow */
+                1px 1px 0px #d4af37, 
+                2px 2px 0px #aa8010, 
+                3px 3px 0px #805a05, 
+                4px 4px 5px rgba(37, 4, 45, 0.6); 
                 
-            animation: smoothGoldGlow 2.5s infinite ease-in-out; /* FIXED: Matched name with keyframes */
+            animation: true3DGoldGlow 3s infinite ease-in-out;
         }
         
-        @keyframes smoothGoldGlow {
-            0% { 
-                transform: translateY(0px);
+        @keyframes true3DGoldGlow {
+            0%, 100% { 
+                /* Flat resting position close to the background */
+                transform: perspective(300px) rotateX(0deg) rotateY(0deg) translateZ(0px);
                 text-shadow: 
                     1px 1px 0px #d4af37, 
                     2px 2px 0px #aa8010, 
                     3px 3px 0px #805a05, 
-                    4px 4px 4px #25042d; 
+                    4px 4px 4px rgba(37, 4, 45, 0.6);
             }
             50% { 
-                transform: translateY(-2px); /* Slightly increased for a more noticeable floating effect */
+                /* THE UPGRADE: The text physically leans forward into the 3D space. 
+                   The text-shadow expands and blurs to simulate a light source casting a longer shadow. */
+                color: #fff2a3; /* Text face flares brighter under the "light" */
+                transform: perspective(300px) rotateX(12deg) rotateY(-8deg) translateZ(5px);
+                
                 text-shadow: 
-                    1px 1px 0px #d4af37, 
-                    2px 2px 0px #aa8010, 
-                    3px 3px 0px #805a05,
-                    4px 4px 0px #604000,   /* Extends the 3D block an extra layer deep */
-                    5px 5px 12px #25042d;  /* Pushes the purple shadow further away */
-            }
-            100% { 
-                transform: translateY(0px);
-                text-shadow: 
-                    1px 1px 0px #d4af37, 
-                    2px 2px 0px #aa8010, 
-                    3px 3px 0px #805a05, 
-                    4px 4px 4px #25042d; 
+                    1px 1px 0px #e5c158, 
+                    2px 2px 0px #c19a28, 
+                    3px 3px 0px #aa8010,
+                    4px 4px 0px #805a05,
+                    5px 5px 0px #5c4002,   /* Extends the physical solid gold block */
+                    6px 6px 0px #3a2801,   /* Extra shadow depth for the block edge */
+                    9px 12px 15px rgba(37, 4, 45, 0.8); /* The royal purple floor shadow drops down and blurs away */
             }
         }
-        
+
 
         .glow-admin {
             color: #008f11;
