@@ -50,158 +50,72 @@
     font-weight: 900;
     text-transform: uppercase;
     margin-left: 4px;
-    letter-spacing: 0.8px;
-    will-change: letter-spacing, color, text-shadow, filter, opacity, transform;
+    color: #fff4bd; /* Bright white-hot gold core face */
     
-    /* 15 seconds total: 3 seconds per phase */
-    animation: cleanUltimateCycle 15s infinite ease-in-out;
+    /* Mixes the laser scan, glitch, and radiation pulsing into one single execution line */
+    will-change: letter-spacing, text-shadow, transform, filter;
+    animation: 
+        allEffectsLaser 2.6s infinite ease-in-out,
+        allEffectsGlitch 1.8s infinite linear,
+        allEffectsPulse 2.2s infinite ease-in-out;
 }
 
-@keyframes cleanUltimateCycle {
-    /* ==========================================================================
-       PHASE 1: 3D GOLD OWNER (0% to 19%)
-       ========================================================================== */
-    0% {
-        transform: scale(1) skewX(0deg) scaleY(1);
-        color: #ffd700;
-        letter-spacing: 0.8px;
-        opacity: 1; 
+/* 1. LASER SCAN + SMOKE CLOAK BLUR */
+@keyframes allEffectsLaser {
+    0%, 100% {
+        letter-spacing: 1.5px;
         filter: blur(0px);
-        text-shadow: 
-            0px 0.5px 0px #d4af37,
-            0px 1px 0px #aa8010,
-            0px 1.5px 0px #805a05,
-            0px 2px 2px rgba(37, 4, 45, 0.6);
-    }
-    10% {
-        transform: scale(1.05);
-        color: #fff4bd;
-        text-shadow: 
-            0px 0.5px 0px #e5c158,
-            0px 1px 0px #c19a28,
-            0px 1.5px 0px #aa8010,
-            0px 2.5px 4px rgba(37, 4, 45, 0.4);
-    }
-    19% {
-        transform: scale(1) skewX(0deg) scaleY(1);
-        color: #ffd700;
-        letter-spacing: 0.8px;
-        opacity: 1; 
-        filter: blur(0px);
-        text-shadow: 
-            0px 0.5px 0px #d4af37,
-            0px 1px 0px #aa8010,
-            0px 1.5px 0px #805a05,
-            0px 2px 2px rgba(37, 4, 45, 0.6);
-    }
-
-    /* ==========================================================================
-       PHASE 2: RADIOACTIVE GREEN PULSE (20% to 39%)
-       ========================================================================== */
-    20% {
-        transform: scale(1) skewX(0deg) scaleY(1);
-        color: #00cc1b;
-        letter-spacing: 0.8px;
-        opacity: 1; 
-        filter: blur(0px);
-        text-shadow: 0px 1px 2px #001a03, 0px 0px 4px rgba(0, 255, 34, 0.3);
     }
     30% {
-        color: #bfffca;
-        text-shadow: 0px 1px 2px #001a03, 0px 0px 8px #00ff22, 0px 0px 18px #009914;
-    }
-    39% {
-        transform: scale(1) skewX(0deg) scaleY(1);
-        color: #00cc1b;
         letter-spacing: 0.8px;
-        opacity: 1; 
-        filter: blur(0px);
-        text-shadow: 0px 1px 2px #001a03, 0px 0px 4px rgba(0, 255, 34, 0.3);
+        filter: blur(0.5px); /* Smoke cloak mist activates at peak laser impact */
     }
-
-    /* ==========================================================================
-       PHASE 3: HYPER BLUE LASER SCAN (40% to 59%)
-       ========================================================================== */
-    40% {
-        transform: scale(1) skewX(0deg) scaleY(1);
-        opacity: 1; 
-        filter: blur(0px);
-        letter-spacing: 1.5px;
-        color: #0099ff;
-        text-shadow: 0px 1px 2px #00081a, 0px 0px 4px rgba(0, 221, 255, 0.4);
-    }
-    45% {
-        letter-spacing: 1px; 
-        color: #ffffff;
-        text-shadow: 0px 1px 2px #00081a, -4px 0px 8px #00ddff, -8px 0px 16px #0055ff;
-    }
-    52% {
-        letter-spacing: 1px; 
-        color: #ffffff;
-        text-shadow: 0px 1px 2px #00081a, 4px 0px 8px #00ddff, 8px 0px 16px #0055ff;
-    }
-    59% {
-        transform: scale(1) skewX(0deg) scaleY(1);
-        opacity: 1; 
-        filter: blur(0px);
-        letter-spacing: 1.5px;
-        color: #0099ff;
-        text-shadow: 0px 1px 2px #00081a, 0px 0px 4px rgba(0, 221, 255, 0.4);
-    }
-
-    /* ==========================================================================
-       PHASE 4: GLITCH MATRIX PINK (60% to 79%)
-       ========================================================================== */
-    60% {
-        transform: scale(1) skewX(0deg) scaleY(1);
-        color: #ffffff;
+    70% {
         letter-spacing: 0.8px;
-        opacity: 1; 
-        filter: blur(0px);
-        text-shadow: 0 0 4px #ff44aa, 0 1px 2px #33001a;
-    }
-    66% {
-        transform: scale(1.03) skewX(-4deg);
-        text-shadow: -3px -1px 0px #ff0055, 2px 1px 0px #00ffff;
-    }
-    72% {
-        transform: scaleY(1.1);
-        text-shadow: 0px 0px 15px #ff44aa, 0px 0px 25px #ff0055;
-    }
-    79% {
-        transform: scale(1) skewX(0deg) scaleY(1);
-        color: #ffffff;
-        letter-spacing: 0.8px;
-        opacity: 1; 
-        filter: blur(0px);
-        text-shadow: 0 0 4px #ff44aa, 0 1px 2px #33001a;
-    }
-
-    /* ==========================================================================
-       PHASE 5: SMOKE CLOAK STEALTH PLATINUM (80% to 100%)
-       ========================================================================== */
-    80% {
-        transform: scale(1) skewX(0deg) scaleY(1);
-        color: #f0f0f5;
-        letter-spacing: 1px;
-        opacity: 1; 
-        filter: blur(0px);
-        text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.8);
-    }
-    90% {
-        opacity: 0.15; 
-        filter: blur(3px);
-        text-shadow: 0px 0px 12px rgba(255, 255, 255, 0.9);
-    }
-    100% {
-        transform: scale(1) skewX(0deg) scaleY(1);
-        color: #f0f0f5;
-        letter-spacing: 1px;
-        opacity: 1; 
-        filter: blur(0px);
-        text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.8);
+        filter: blur(0.5px);
     }
 }
+
+/* 2. LIVE MATRIX GLITCH SKEWING */
+@keyframes allEffectsGlitch {
+    0%, 15%, 19%, 21%, 55%, 59%, 61%, 100% {
+        transform: scale(1) skewX(0deg) scaleY(1);
+    }
+    17% {
+        transform: scale(1.04) skewX(-5deg); /* Sudden glitch snap left */
+    }
+    20% {
+        transform: scale(0.96) skewX(5deg);  /* Sudden glitch snap right */
+    }
+    57% {
+        transform: scaleY(1.15);             /* Vertical spike flare */
+    }
+}
+
+/* 3. PERMANENT 3D EXTRUSION + RADIOACTIVE GOLD FLARE */
+@keyframes allEffectsPulse {
+    0%, 100% {
+        text-shadow: 
+            0px 0.5px 0px #d4af37,
+            0px 1px 0px #aa8010,
+            0px 1.5px 0px #805a05,
+            0px 2px 4px rgba(212, 175, 55, 0.4),   /* Gold radioactive core wash */
+            0px 0px 12px rgba(255, 215, 0, 0.3);  /* Outer gold atmospheric energy */
+    }
+    50% {
+        /* PULSE BURST: The gold shadows expand out into a massive blazing aura */
+        text-shadow: 
+            0px 0.5px 0px #fff4bd,
+            0px 1px 0px #d4af37,
+            0px 1.5px 0px #aa8010,
+            0px 2px 0px #805a05,
+            -3px 0px 8px #ffd700,                  /* Laser-swept side flares */
+            3px 0px 8px #ffac00,
+            0px 0px 20px #ffd700,                  /* Blazing toxic gold radiation */
+            0px 0px 35px rgba(255, 244, 189, 0.5); /* Fading plasma cloud */
+    }
+}
+
         /* Upgraded Generic Admin Style - Overclocked Radioactive Green */
     .glow-admin {
     color: #00ff22; /* Upgraded to a sharper, more vivid neon matrix green */
