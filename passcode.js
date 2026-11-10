@@ -3,7 +3,7 @@ function enterSecureCabinet() {
     var userInput = prompt("ENTER SECURE CABINET PIN CODE:");
     
     // 2. Define your desired secret key/PIN here (e.g., "1234")
-    var secretPin = "0316"; 
+    var secretPin = "03160922CGR"; 
     
     if (userInput === null) {
         // User clicked cancel
