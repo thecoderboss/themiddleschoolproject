@@ -236,24 +236,35 @@
         text-shadow: 0px 0px 15px #ff44aa, 0px 0px 25px #ff0055;
     }
 }
-             /* Custom Admin Style for shadow@chat.com - Sleek Silver 3D */
-        .glow-admin-invisible {
-            color: #e0e0e0; /* Clean metallic silver face */
-            font-weight: bold;
-            font-size: 12px;
-            text-transform: uppercase;
-            margin-left: 4px;
-            letter-spacing: 0.5px;
-            
-            /* Sharp, tight offset dark shadow to create a distinct 3D lift */
-            text-shadow: 1px 1px 2px #222222, 0px 0px 8px rgba(0, 0, 0, 0.15);
-            animation: smoothSilverGlow 2.5s infinite ease-in-out;
-        }
-        @keyframes smoothSilverGlow {
-            0% { text-shadow: 1px 1px 2px #222222, 0 0 4px rgba(0, 0, 0, 0.1); }
-            50% { text-shadow: 1px 1px 3px #111111, 0 0 10px #888888, 0 0 14px rgba(0, 0, 0, 0.3); }
-            100% { text-shadow: 1px 1px 2px #222222, 0 0 4px rgba(0, 0, 0, 0.1); }
-        }
+       /* Custom Admin Style for shadow@chat.com - Sleek Silver Plasma */
+.glow-admin-invisible {
+    color: #1c1c1e; /* Deep obsidian/ink text face */
+    font-weight: 900;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-left: 4px;
+    letter-spacing: 1px;
+    display: inline-block;
+    
+    animation: plasmaEclipse 3.5s infinite ease-in-out;
+}
+
+@keyframes plasmaEclipse {
+    0%, 100% {
+        text-shadow: 
+            0px 1px 1px #000000,
+            0px 0px 3px rgba(224, 224, 224, 0.4);
+    }
+    50% {
+        /* The silver shadow expands outward like liquid smoke, masking the text */
+        text-shadow: 
+            0px 1px 1px #000000,
+            0px 0px 10px #e0e0e0, 
+            0px 0px 18px rgba(255, 255, 255, 0.75),
+            0px 0px 30px rgba(136, 136, 136, 0.3);
+    }
+}
+
 
 
         
