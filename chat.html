@@ -236,43 +236,43 @@
         text-shadow: 0px 0px 15px #ff44aa, 0px 0px 25px #ff0055;
     }
 }
-       /* Custom Admin Style for shadow@chat.com - Holographic Camouflage */
+      /* Custom Admin Style for shadow@chat.com - Smoke Cloak Stealth */
 .glow-admin-invisible {
-    color: transparent; /* Makes the inside of the text completely invisible */
-    -webkit-text-stroke: 1px rgba(224, 224, 224, 0.6); /* Sharp, ghostly silver outline */
-    font-weight: 900;
+    color: #f0f0f5; /* Crisp platinum white face — guaranteed to render and be readable */
+    font-weight: 800;
     font-size: 12px;
     text-transform: uppercase;
     margin-left: 4px;
-    letter-spacing: 1.2px;
+    letter-spacing: 1px;
     display: inline-block;
     
-    animation: stealthGlitch 4s infinite ease-in-out;
+    animation: smokeCloak 4s infinite ease-in-out;
 }
 
-@keyframes stealthGlitch {
-    0%, 90%, 100% {
-        -webkit-text-stroke: 1px rgba(224, 224, 224, 0.5);
-        text-shadow: none;
-        filter: blur(0px);
-        opacity: 0.7; /* Faded back into the shadows */
-    }
-    93% {
-        /* Sudden holographic flash/reveal */
-        color: rgba(255, 255, 255, 0.1);
-        -webkit-text-stroke: 1px #ffffff;
-        text-shadow: 
-            2px 0px 0px rgba(0, 255, 255, 0.6),  /* Cyber cyan artifact */
-            -2px 0px 0px rgba(255, 0, 128, 0.6); /* Cyber magenta artifact */
-        filter: blur(0.5px);
+@keyframes smokeCloak {
+    0%, 100% {
+        /* Full solid physical state */
         opacity: 1;
+        filter: blur(0px);
+        text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.8);
     }
-    95% {
-        /* Return to line outline quickly */
-        color: transparent;
-        -webkit-text-stroke: 1px #e0e0e0;
-        text-shadow: 0px 0px 8px rgba(255, 255, 255, 0.4);
-        opacity: 0.9;
+    45% {
+        /* Transitioning state */
+        opacity: 0.6;
+        filter: blur(1px);
+        text-shadow: 0px 0px 6px rgba(240, 240, 245, 0.6);
+    }
+    50% {
+        /* STEALTH CLOAK ACTIVE: The text dissolves into a ghostly cloud of silver smoke */
+        opacity: 0.15; /* Becomes almost completely see-through safely */
+        filter: blur(3px); /* Physically diffuses the letters into mist */
+        text-shadow: 0px 0px 12px rgba(255, 255, 255, 0.9); /* The glowing ash cloud left behind */
+    }
+    55% {
+        /* Re-materializing state */
+        opacity: 0.6;
+        filter: blur(1px);
+        text-shadow: 0px 0px 6px rgba(240, 240, 245, 0.6);
     }
 }
 
