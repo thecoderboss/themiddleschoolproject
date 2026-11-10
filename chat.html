@@ -44,7 +44,7 @@
             100% { text-shadow: 0 0 2px currentColor, 0 0 4px currentColor; }
         }
 
-       .glow-ultimate {
+   .glow-ultimate {
     display: inline-block;
     font-size: 12px;
     font-weight: 900;
@@ -58,12 +58,15 @@
 }
 
 @keyframes cleanUltimateCycle {
-    /* PHASE 1: 3D GOLD OWNER (0% to 20%) - Built natively with stacked text shadows */
-    0%, 20% {
-        transform: rotateX(0deg) scale(1) skewX(0deg) scaleY(1);
+    /* ==========================================================================
+       PHASE 1: 3D GOLD OWNER (0% to 19%)
+       ========================================================================== */
+    0% {
+        transform: scale(1) skewX(0deg) scaleY(1);
         color: #ffd700;
         letter-spacing: 0.8px;
-        opacity: 1; filter: blur(0px);
+        opacity: 1; 
+        filter: blur(0px);
         text-shadow: 
             0px 0.5px 0px #d4af37,
             0px 1px 0px #aa8010,
@@ -71,7 +74,7 @@
             0px 2px 2px rgba(37, 4, 45, 0.6);
     }
     10% {
-        transform: scale(1.05); /* Slight clean pop out instead of breaking 3D tilts */
+        transform: scale(1.05);
         color: #fff4bd;
         text-shadow: 
             0px 0.5px 0px #e5c158,
@@ -79,46 +82,85 @@
             0px 1.5px 0px #aa8010,
             0px 2.5px 4px rgba(37, 4, 45, 0.4);
     }
+    19% {
+        transform: scale(1) skewX(0deg) scaleY(1);
+        color: #ffd700;
+        letter-spacing: 0.8px;
+        opacity: 1; 
+        filter: blur(0px);
+        text-shadow: 
+            0px 0.5px 0px #d4af37,
+            0px 1px 0px #aa8010,
+            0px 1.5px 0px #805a05,
+            0px 2px 2px rgba(37, 4, 45, 0.6);
+    }
 
-    /* PHASE 2: RADIOACTIVE GREEN PULSE (21% to 40%) */
-    21%, 40% {
+    /* ==========================================================================
+       PHASE 2: RADIOACTIVE GREEN PULSE (20% to 39%)
+       ========================================================================== */
+    20% {
         transform: scale(1) skewX(0deg) scaleY(1);
         color: #00cc1b;
         letter-spacing: 0.8px;
-        opacity: 1; filter: blur(0px);
+        opacity: 1; 
+        filter: blur(0px);
         text-shadow: 0px 1px 2px #001a03, 0px 0px 4px rgba(0, 255, 34, 0.3);
     }
     30% {
         color: #bfffca;
         text-shadow: 0px 1px 2px #001a03, 0px 0px 8px #00ff22, 0px 0px 18px #009914;
     }
-
-    /* PHASE 3: HYPER BLUE LASER SCAN (41% to 60%) */
-    41%, 60% {
+    39% {
         transform: scale(1) skewX(0deg) scaleY(1);
-        opacity: 1; filter: blur(0px);
+        color: #00cc1b;
+        letter-spacing: 0.8px;
+        opacity: 1; 
+        filter: blur(0px);
+        text-shadow: 0px 1px 2px #001a03, 0px 0px 4px rgba(0, 255, 34, 0.3);
+    }
+
+    /* ==========================================================================
+       PHASE 3: HYPER BLUE LASER SCAN (40% to 59%)
+       ========================================================================== */
+    40% {
+        transform: scale(1) skewX(0deg) scaleY(1);
+        opacity: 1; 
+        filter: blur(0px);
         letter-spacing: 1.5px;
         color: #0099ff;
         text-shadow: 0px 1px 2px #00081a, 0px 0px 4px rgba(0, 221, 255, 0.4);
     }
-    47% {
-        letter-spacing: 1px; color: #ffffff;
+    45% {
+        letter-spacing: 1px; 
+        color: #ffffff;
         text-shadow: 0px 1px 2px #00081a, -4px 0px 8px #00ddff, -8px 0px 16px #0055ff;
     }
-    53% {
-        letter-spacing: 1px; color: #ffffff;
+    52% {
+        letter-spacing: 1px; 
+        color: #ffffff;
         text-shadow: 0px 1px 2px #00081a, 4px 0px 8px #00ddff, 8px 0px 16px #0055ff;
     }
+    59% {
+        transform: scale(1) skewX(0deg) scaleY(1);
+        opacity: 1; 
+        filter: blur(0px);
+        letter-spacing: 1.5px;
+        color: #0099ff;
+        text-shadow: 0px 1px 2px #00081a, 0px 0px 4px rgba(0, 221, 255, 0.4);
+    }
 
-    /* PHASE 4: GLITCH MATRIX PINK (61% to 80%) */
-    61%, 65%, 70%, 75%, 80% {
+    /* ==========================================================================
+       PHASE 4: GLITCH MATRIX PINK (60% to 79%)
+       ========================================================================== */
+    60% {
         transform: scale(1) skewX(0deg) scaleY(1);
         color: #ffffff;
         letter-spacing: 0.8px;
-        opacity: 1; filter: blur(0px);
+        opacity: 1; 
+        filter: blur(0px);
         text-shadow: 0 0 4px #ff44aa, 0 1px 2px #33001a;
     }
-    67% {
+    66% {
         transform: scale(1.03) skewX(-4deg);
         text-shadow: -3px -1px 0px #ff0055, 2px 1px 0px #00ffff;
     }
@@ -126,21 +168,40 @@
         transform: scaleY(1.1);
         text-shadow: 0px 0px 15px #ff44aa, 0px 0px 25px #ff0055;
     }
+    79% {
+        transform: scale(1) skewX(0deg) scaleY(1);
+        color: #ffffff;
+        letter-spacing: 0.8px;
+        opacity: 1; 
+        filter: blur(0px);
+        text-shadow: 0 0 4px #ff44aa, 0 1px 2px #33001a;
+    }
 
-    /* PHASE 5: SMOKE CLOAK STEALTH PLATINUM (81% to 100%) */
-    81%, 100% {
+    /* ==========================================================================
+       PHASE 5: SMOKE CLOAK STEALTH PLATINUM (80% to 100%)
+       ========================================================================== */
+    80% {
         transform: scale(1) skewX(0deg) scaleY(1);
         color: #f0f0f5;
         letter-spacing: 1px;
-        opacity: 1; filter: blur(0px);
+        opacity: 1; 
+        filter: blur(0px);
         text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.8);
     }
     90% {
-        opacity: 0.15; filter: blur(3px);
+        opacity: 0.15; 
+        filter: blur(3px);
         text-shadow: 0px 0px 12px rgba(255, 255, 255, 0.9);
     }
+    100% {
+        transform: scale(1) skewX(0deg) scaleY(1);
+        color: #f0f0f5;
+        letter-spacing: 1px;
+        opacity: 1; 
+        filter: blur(0px);
+        text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.8);
+    }
 }
-
         /* Upgraded Generic Admin Style - Overclocked Radioactive Green */
     .glow-admin {
     color: #00ff22; /* Upgraded to a sharper, more vivid neon matrix green */
