@@ -44,75 +44,93 @@
             100% { text-shadow: 0 0 2px currentColor, 0 0 4px currentColor; }
         }
 
-   .glow-ultimate {
+.glow-ultimate {
     display: inline-block;
     font-size: 12px;
     font-weight: 900;
     text-transform: uppercase;
     margin-left: 4px;
-    color: #fff4bd; /* Bright white-hot gold core face */
+    color: #fff4bd; /* Bright white-hot gold text face */
     
-    /* Mixes the laser scan, glitch, and radiation pulsing into one single execution line */
-    will-change: letter-spacing, text-shadow, transform, filter;
+    /* Hardware acceleration to keep all simultaneous animations buttery smooth */
+    will-change: letter-spacing, text-shadow, transform, filter, opacity;
+    
+    /* EVERY SINGLE EFFECT RUNNING AT THE SAME TIME on different speeds */
     animation: 
-        allEffectsLaser 2.6s infinite ease-in-out,
-        allEffectsGlitch 1.8s infinite linear,
-        allEffectsPulse 2.2s infinite ease-in-out;
+        allGoldLaser 2.4s infinite ease-in-out,
+        allGoldGlitch 1.6s infinite linear,
+        allGoldPulse 2.0s infinite ease-in-out,
+        allGoldSmoke 3.5s infinite ease-in-out;
 }
 
-/* 1. LASER SCAN + SMOKE CLOAK BLUR */
-@keyframes allEffectsLaser {
+/* 1. THE HYPER LASER SWEEP (Constantly expanding and compressing text width) */
+@keyframes allGoldLaser {
     0%, 100% {
-        letter-spacing: 1.5px;
-        filter: blur(0px);
+        letter-spacing: 1.6px;
     }
-    30% {
-        letter-spacing: 0.8px;
-        filter: blur(0.5px); /* Smoke cloak mist activates at peak laser impact */
-    }
-    70% {
-        letter-spacing: 0.8px;
-        filter: blur(0.5px);
+    50% {
+        letter-spacing: 0.6px; /* Compresses together like a focused beam impact */
     }
 }
 
-/* 2. LIVE MATRIX GLITCH SKEWING */
-@keyframes allEffectsGlitch {
-    0%, 15%, 19%, 21%, 55%, 59%, 61%, 100% {
+/* 2. THE MATRIX GLITCH (Rapidly snapping, skewing, and shaking the text) */
+@keyframes allGoldGlitch {
+    0%, 14%, 18%, 22%, 58%, 62%, 66%, 100% {
         transform: scale(1) skewX(0deg) scaleY(1);
     }
-    17% {
-        transform: scale(1.04) skewX(-5deg); /* Sudden glitch snap left */
+    16% {
+        transform: scale(1.05) skewX(-6deg); /* Instant snap left */
     }
     20% {
-        transform: scale(0.96) skewX(5deg);  /* Sudden glitch snap right */
+        transform: scale(0.95) skewX(6deg);  /* Instant snap right */
     }
-    57% {
-        transform: scaleY(1.15);             /* Vertical spike flare */
+    60% {
+        transform: scaleY(1.2) scaleX(0.95);  /* Vertical glitch spike */
     }
 }
 
-/* 3. PERMANENT 3D EXTRUSION + RADIOACTIVE GOLD FLARE */
-@keyframes allEffectsPulse {
+/* 3. THE PERMANENT 3D BLOCK + RADIOACTIVE GOLD RADIATION PULSE */
+@keyframes allGoldPulse {
     0%, 100% {
+        /* Crisp stacked 3D gold shadows with ambient background glow */
         text-shadow: 
             0px 0.5px 0px #d4af37,
             0px 1px 0px #aa8010,
             0px 1.5px 0px #805a05,
-            0px 2px 4px rgba(212, 175, 55, 0.4),   /* Gold radioactive core wash */
-            0px 0px 12px rgba(255, 215, 0, 0.3);  /* Outer gold atmospheric energy */
+            0px 2px 3px rgba(0, 0, 0, 0.6),
+            0px 0px 6px rgba(255, 215, 0, 0.4);
     }
     50% {
-        /* PULSE BURST: The gold shadows expand out into a massive blazing aura */
+        /* THE BURST: Core flashes white-hot plasma, throwing out heavy laser side-shadows */
         text-shadow: 
-            0px 0.5px 0px #fff4bd,
-            0px 1px 0px #d4af37,
+            0px 0.5px 0px #ffffff,
+            0px 1px 0px #e5c158,
             0px 1.5px 0px #aa8010,
-            0px 2px 0px #805a05,
-            -3px 0px 8px #ffd700,                  /* Laser-swept side flares */
-            3px 0px 8px #ffac00,
-            0px 0px 20px #ffd700,                  /* Blazing toxic gold radiation */
-            0px 0px 35px rgba(255, 244, 189, 0.5); /* Fading plasma cloud */
+            0px 2px 0px #6d4b02,
+            -5px 0px 10px #ffd700, /* Concentrated left laser beam shadow */
+            5px 0px 10px #ffac00,  /* Concentrated right laser beam shadow */
+            0px 0px 18px #ffd700,  /* Intense radioactive gold aura */
+            0px 0px 30px rgba(255, 215, 0, 0.5);
+    }
+}
+
+/* 4. THE SMOKE CLOAK STEALTH (Ghostly golden ash mist fading in and out over everything) */
+@keyframes allGoldSmoke {
+    0%, 100% {
+        opacity: 1;
+        filter: blur(0px);
+    }
+    48% {
+        opacity: 0.65;
+        filter: blur(0.8px); /* Smoothly starts softening the edges */
+    }
+    52% {
+        opacity: 0.35;        /* Becomes semi-transparent ghost gold */
+        filter: blur(2px);    /* Diffuses the letters into a cloud of gold ash */
+    }
+    56% {
+        opacity: 0.65;
+        filter: blur(0.8px);
     }
 }
 
