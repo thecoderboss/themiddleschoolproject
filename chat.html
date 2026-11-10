@@ -45,6 +45,7 @@
         }
 
             .glow-owner {
+            position: relative;
             color: #ffd700; /* Rich gold text face */
             font-weight: 900; /* Extra thick font to give the 3D block substance */
             font-size: 12px;
@@ -52,48 +53,109 @@
             margin-left: 4px;
             letter-spacing: 0.8px;
             
-            /* UPPERGRADE ADDITIONS FOR REAL 3D DEPTH */
             display: inline-block;
-            will-change: transform, text-shadow; /* Optimizes browser performance for silky smooth rendering */
-            transform-style: preserve-3d;        /* Forces the browser to render true 3D layers */
+            will-change: transform;
+            transform-style: preserve-3d;
+            perspective: 500px;
             
-            /* Base resting state shadow */
-            text-shadow: 
-                1px 1px 0px #d4af37, 
-                2px 2px 0px #aa8010, 
-                3px 3px 0px #805a05, 
-                4px 4px 5px rgba(37, 4, 45, 0.6); 
-                
-            animation: true3DGoldGlow 3s infinite ease-in-out;
+            /* Smoothly scales the main text face forward */
+            animation: master3DFace 3s infinite ease-in-out;
         }
         
-        @keyframes true3DGoldGlow {
-            0%, 100% { 
-                /* Flat resting position close to the background */
-                transform: perspective(300px) rotateX(0deg) rotateY(0deg) translateZ(0px);
-                text-shadow: 
-                    1px 1px 0px #d4af37, 
-                    2px 2px 0px #aa8010, 
-                    3px 3px 0px #805a05, 
-                    4px 4px 4px rgba(37, 4, 45, 0.6);
-            }
-            50% { 
-                /* THE UPGRADE: The text physically leans forward into the 3D space. 
-                   The text-shadow expands and blurs to simulate a light source casting a longer shadow. */
-                color: #fff2a3; /* Text face flares brighter under the "light" */
-                transform: perspective(300px) rotateX(12deg) rotateY(-8deg) translateZ(5px);
+        /* LAYER 2: THE SOLID 3D BLOCK (Constructed using 3D extrusion) */
+        .glow-owner::before {
+            content: attr(data-text); /* Pulls text automatically from HTML */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            color: #aa8010; /* Solid bronze core */
+            
+            /* Ultra-dense layering to eliminate hollow gaps */
+            text-shadow: 
+                0px 0.5px 0px #d4af37,
+                0px 1px 0px #aa8010,
+                0px 1.5px 0px #946f0c,
+                0px 2px 0px #805a05,
+                0px 2.5px 0px #6d4b02,
+                0px 3px 0px #5a3d00,
+                0px 3.5px 0px #442e00,
+                0px 4px 0px #2e1f00;
                 
-                text-shadow: 
-                    1px 1px 0px #e5c158, 
-                    2px 2px 0px #c19a28, 
-                    3px 3px 0px #aa8010,
-                    4px 4px 0px #805a05,
-                    5px 5px 0px #5c4002,   /* Extends the physical solid gold block */
-                    6px 6px 0px #3a2801,   /* Extra shadow depth for the block edge */
-                    9px 12px 15px rgba(37, 4, 45, 0.8); /* The royal purple floor shadow drops down and blurs away */
+            transform-style: preserve-3d;
+            will-change: transform, text-shadow;
+            animation: master3DBlock 3s infinite ease-in-out;
+        }
+        
+        /* LAYER 3: THE SEPARATE AMBIENT FLOOR SHADOW */
+        .glow-owner::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            color: transparent; /* Face of shadow is invisible */
+            
+            transform-style: preserve-3d;
+            will-change: transform, text-shadow;
+            animation: master3DShadow 3s infinite ease-in-out;
+        }
+        
+        /* --- ANIMATION ENGINE --- */
+        
+        /* 1. The Face flares up and scales closer to the camera */
+        @keyframes master3DFace {
+            0%, 100% {
+                transform: rotateX(0deg) translateZ(0px);
+                color: #ffd700;
+            }
+            50% {
+                transform: rotateX(16deg) translateZ(12px); /* Uniform forward tilt */
+                color: #fff4bd; /* Bright light exposure */
             }
         }
-
+        
+        /* 2. The Extrusion stretches downwards dynamically to anchor the floating text */
+        @keyframes master3DBlock {
+            0%, 100% {
+                transform: translateZ(-1px);
+                text-shadow: 
+                    0px 0.5px 0px #d4af37,
+                    0px 1px 0px #aa8010,
+                    0px 1.5px 0px #805a05,
+                    0px 2px 0px #442e00;
+            }
+            50% {
+                /* As the face pulls away, the block stretches out much deeper to close the physical gap */
+                transform: translateZ(-6px); 
+                text-shadow: 
+                    0px 0.5px 0px #e5c158,
+                    0px 1px 0px #c19a28,
+                    0px 1.5px 0px #aa8010,
+                    0px 2px 0px #946f0c,
+                    0px 2.5px 0px #805a05,
+                    0px 3px 0px #6d4b02,
+                    0px 3.5px 0px #5a3d00,
+                    0px 4px 0px #442e00,
+                    0px 4.5px 0px #312100,
+                    0px 5px 0px #1f1400;
+            }
+        }
+        
+        /* 3. The Shadow falls straight down, blurring out as the text gets higher */
+        @keyframes master3DShadow {
+            0%, 100% {
+                text-shadow: 0px 2px 3px rgba(37, 4, 45, 0.7);
+            }
+            50% {
+                /* Drops dramatically further down and diffuses into a soft royal purple cloud */
+                text-shadow: 0px 14px 18px rgba(37, 4, 45, 0.45);
+            }
+        }
 
         .glow-admin {
             color: #008f11;
