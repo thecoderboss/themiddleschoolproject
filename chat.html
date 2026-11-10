@@ -194,38 +194,48 @@
 
     
 
-        /* Custom Admin Style for idk@chat.com - Electric Medium Blue */
+        /* Upgraded Custom Admin Style for idk@chat.com - Hyper-Refractive Blue Laser */
 .glow-admin-blue {
-    color: #0088ff; /* Medium Blue text */
+    color: #00ddff; /* Shipped to a bright, hyper-vivid cyan-blue sapphire core */
     font-weight: 800;
     font-size: 12px;
     text-transform: uppercase;
     margin-left: 4px;
-    letter-spacing: 1.5px; /* Wider spacing looks cleaner on flat neon */
+    letter-spacing: 1.5px; /* Wide resting state for the laser scan area */
     display: inline-block;
     
-    animation: neonLaserPulse 2.5s infinite ease-in-out;
+    will-change: letter-spacing, text-shadow;
+    animation: hyperLaserScan 2.6s infinite ease-in-out;
 }
 
-@keyframes neonLaserPulse {
+@keyframes hyperLaserScan {
     0%, 100% {
+        letter-spacing: 1.5px;
+        color: #0099ff;
+        /* Balanced low-power ambient sapphire glow */
         text-shadow: 
-            -2px 0px 4px rgba(0, 136, 255, 0.6),
-            0px 0px 2px #001133;
+            0px 1px 2px #00081a,
+            0px 0px 4px rgba(0, 221, 255, 0.4);
     }
     30% {
-        /* Laser beam hits the left side */
+        /* LASER BURST LEFT: Beam impacts the left boundary, compressing the font spacing */
+        letter-spacing: 1px;
+        color: #ffffff; /* Core goes pure white-hot plasma under the laser blast */
         text-shadow: 
-            -6px 0px 12px #0088ff,
-            -2px 0px 4px #ffffff,
-            4px 0px 6px rgba(0, 136, 255, 0.2);
+            0px 1px 2px #00081a,
+            -4px 0px 8px #00ddff,   /* Left-swept concentrated blue arc */
+            -8px 0px 16px #0055ff,  /* Deep tracking shadow trail */
+            2px 0px 4px rgba(0, 221, 255, 0.2);
     }
     70% {
-        /* Laser beam hits the right side */
+        /* LASER BURST RIGHT: Beam seamlessly slices across to the right boundary */
+        letter-spacing: 1px;
+        color: #ffffff;
         text-shadow: 
-            4px 0px 6px rgba(0, 136, 255, 0.2),
-            2px 0px 4px #ffffff,
-            6px 0px 12px #0088ff;
+            0px 1px 2px #00081a,
+            2px 0px 4px rgba(0, 221, 255, 0.2),
+            8px 0px 16px #0055ff,   /* Deep tracking shadow trail */
+            4px 0px 8px #00ddff;    /* Right-swept concentrated blue arc */
     }
 }
 
