@@ -236,9 +236,9 @@
         text-shadow: 0px 0px 15px #ff44aa, 0px 0px 25px #ff0055;
     }
 }
-       /* Custom Admin Style for shadow@chat.com - Sleek Silver Plasma */
+       /* Custom Admin Style for shadow@chat.com - Dark Void Eclipse */
 .glow-admin-invisible {
-    color: #1c1c1e; /* Deep obsidian/ink text face */
+    color: #ffffff; /* FIXED: Crisp white face so it's instantly readable on dark layouts */
     font-weight: 900;
     font-size: 12px;
     text-transform: uppercase;
@@ -251,24 +251,24 @@
 
 @keyframes plasmaEclipse {
     0%, 100% {
+        /* Clean, sharp dark outline */
         text-shadow: 
-            0px 1px 1px #000000,
-            0px 0px 3px rgba(224, 224, 224, 0.4);
+            0px 1px 2px #000000,
+            0px 0px 4px rgba(255, 255, 255, 0.2);
     }
     50% {
-        /* The silver shadow expands outward like liquid smoke, masking the text */
+        /* THE FIXED EFFECT: The text face stays white, but a massive, 
+           heavy dark ink-smoke cloud billows out wide behind the letters */
         text-shadow: 
-            0px 1px 1px #000000,
-            0px 0px 10px #e0e0e0, 
-            0px 0px 18px rgba(255, 255, 255, 0.75),
-            0px 0px 30px rgba(136, 136, 136, 0.3);
+            0px 0px 3px #000000, 
+            0px 0px 8px #111111,
+            0px 0px 16px rgba(0, 0, 0, 0.9),  /* Thick obsidian smoke core */
+            0px 0px 24px rgba(0, 0, 0, 0.6);  /* Fading shadow edge */
     }
 }
-
-
-
-        
-       /* Changes the background to a cool light purple just for the owner! */
+ 
+       
+        /* Changes the background to a cool light purple just for the owner! */
         .msg-owner {
             background-color: #B19CD9 !important; 
             border-radius: 2px;
