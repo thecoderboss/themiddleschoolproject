@@ -564,7 +564,8 @@
                 var senderRole = data[i].role || "user";
                 var roleTagHtml = "";
                 if (senderRole === "owner") {
-                    roleTagHtml = " <span class='glow-owner'>[Owner]</span>";
+                    roleTagHtml = " <span class="glow-owner" data-text="OWNER">[OWNER]</span>
+";
                 } else if (senderRole === "admin") {
     // Grab the sender's username string and make it lowercase to be safe
     var senderName = data[i].name.toLowerCase(); 
