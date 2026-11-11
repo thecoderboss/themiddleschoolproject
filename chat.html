@@ -335,6 +335,14 @@
             background: #f0f0f0;
             border: 1px dashed #000;
         }
+        /* Retro Space Invaders Arcade Cabinet */
+.arcade-box { border: 2px solid #000; background: #000; color: #0f0; padding: 10px; margin-bottom: 15px; text-align: center; }
+.arcade-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; margin-bottom: 6px; color: #fff; }
+#invaders-canvas { background: #000; border: 1px solid #0f0; display: block; margin: 0 auto; max-width: 100%; }
+.arcade-controls { margin-top: 8px; display: flex; justify-content: center; gap: 6px; }
+.btn-arcade { background: #fff; color: #000; border: 2px solid #000; font-family: monospace; font-weight: bold; font-size: 12px; padding: 4px 10px; cursor: pointer; }
+.btn-arcade:active { background: #0f0; }
+
     </style>
 </head>
 <body>
@@ -393,7 +401,25 @@
             <div style="font-size:12px; color: #bd0000; font-weight: bold; margin-top: 10px;">You have chat moderation access. You can delete any message below.</div>
         </div>
 
-        
+        <!-- RETRO ARCADE TOGGLE & SPACE INVADERS CABINET -->
+<div style="margin-bottom: 10px;">
+    <button class="btn-submit" style="padding: 6px 0; font-size: 13px; background: #222;" onclick="toggleSpaceInvaders()">👾 Toggle Space Invaders</button>
+</div>
+
+<div id="arcade-cabinet" class="arcade-box hidden">
+    <div class="arcade-header">
+        <span>SCORE: <span id="si-score">0</span></span>
+        <span>WAVE: <span id="si-wave">1</span></span>
+        <span>HIGH: <span id="si-high">0</span></span>
+    </div>
+    <canvas id="invaders-canvas" width="440" height="240"></canvas>
+    <div style="font-size: 11px; color: #aaa; margin-top: 4px;">Controls: [A / D] or [Left / Right] to Move • [Space / Up] to Shoot</div>
+    <div class="arcade-controls">
+        <button class="btn-arcade" onclick="startSpaceInvaders()">▶ Start / Restart</button>
+        <button class="btn-arcade" onclick="postInvadersScore()">🏆 Post Score to Chat</button>
+    </div>
+</div>
+
 
         <!-- LIVE CONVERSATION STREAM FEED -->
         <div class="message-feed" id="chat-stream">
@@ -1002,6 +1028,177 @@ function executeBanRequest(targetEmail, jwtToken) {
             }
         };
         xhr.send();
+    }
+    //====================GAMES!!==================================
+    //
+    // ================= SPACE INVADERS MINI-GAME =================
+    var siRunning = false, siAnimId = null;
+    var siScore = 0, siWave = 1, siHigh = parseInt(localStorage.getItem("si_high") || "0");
+    var siPlayer = { x: 205, y: 215, w: 30, h: 12, speed: 5 };
+    var siBullets = [], siEnemyBullets = [], siEnemies = [];
+    var siEnemyDir = 1, siKeys = {}, siCooldown = 0;
+
+    document.addEventListener("keydown", function(e) {
+        if (!siRunning) return;
+        if (["ArrowLeft", "ArrowRight", "ArrowUp", " "].includes(e.key) && document.activeElement.tagName !== "INPUT") {
+            e.preventDefault();
+        }
+        siKeys[e.key.toLowerCase()] = true;
+    });
+    document.addEventListener("keyup", function(e) {
+        siKeys[e.key.toLowerCase()] = false;
+    });
+
+    function toggleSpaceInvaders() {
+        var box = document.getElementById("arcade-cabinet");
+        box.classList.toggle("hidden");
+        document.getElementById("si-high").innerText = siHigh;
+        if (!box.classList.contains("hidden") && !siRunning) {
+            startSpaceInvaders();
+        } else if (box.classList.contains("hidden")) {
+            siRunning = false;
+            cancelAnimationFrame(siAnimId);
+        }
+    }
+
+    function spawnInvaderWave() {
+        siEnemies = [];
+        for (var r = 0; r < 3; r++) {
+            for (var c = 0; c < 8; c++) {
+                siEnemies.push({ x: 35 + c * 46, y: 25 + r * 28, w: 26, h: 16, alive: true });
+            }
+        }
+    }
+
+    function startSpaceInvaders() {
+        siScore = 0; siWave = 1;
+        siPlayer.x = 205;
+        siBullets = []; siEnemyBullets = [];
+        siEnemyDir = 1;
+        document.getElementById("si-score").innerText = "0";
+        document.getElementById("si-wave").innerText = "1";
+        document.getElementById("si-high").innerText = siHigh;
+        spawnInvaderWave();
+        siRunning = true;
+        cancelAnimationFrame(siAnimId);
+        gameLoopSpaceInvaders();
+    }
+
+    function gameLoopSpaceInvaders() {
+        if (!siRunning) return;
+        var canvas = document.getElementById("invaders-canvas");
+        var ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Move player
+        if ((siKeys["arrowleft"] || siKeys["a"]) && siPlayer.x > 5) siPlayer.x -= siPlayer.speed;
+        if ((siKeys["arrowright"] || siKeys["d"]) && siPlayer.x < canvas.width - siPlayer.w - 5) siPlayer.x += siPlayer.speed;
+
+        // Shoot
+        if (siCooldown > 0) siCooldown--;
+        if ((siKeys[" "] || siKeys["arrowup"] || siKeys["w"]) && siCooldown === 0) {
+            siBullets.push({ x: siPlayer.x + siPlayer.w / 2 - 2, y: siPlayer.y - 6, w: 4, h: 8 });
+            siCooldown = 16;
+        }
+
+        // Draw Player Ship
+        ctx.fillStyle = "#00ff22";
+        ctx.fillRect(siPlayer.x, siPlayer.y, siPlayer.w, siPlayer.h);
+        ctx.fillRect(siPlayer.x + 11, siPlayer.y - 5, 8, 5);
+
+        // Update & Draw Player Bullets
+        ctx.fillStyle = "#fff";
+        for (var i = siBullets.length - 1; i >= 0; i--) {
+            siBullets[i].y -= 6;
+            ctx.fillRect(siBullets[i].x, siBullets[i].y, siBullets[i].w, siBullets[i].h);
+            if (siBullets[i].y < 0) siBullets.splice(i, 1);
+        }
+
+        // Move & Draw Invaders
+        var hitEdge = false, aliveCount = 0;
+        var speed = (0.7 + siWave * 0.25) * siEnemyDir;
+        ctx.fillStyle = "#ff44aa";
+        for (var j = 0; j < siEnemies.length; j++) {
+            var e = siEnemies[j];
+            if (!e.alive) continue;
+            aliveCount++;
+            e.x += speed;
+            if (e.x <= 5 || e.x + e.w >= canvas.width - 5) hitEdge = true;
+
+            // Alien pixel shape
+            ctx.fillRect(e.x + 4, e.y, e.w - 8, e.h);
+            ctx.fillRect(e.x, e.y + 4, e.w, e.h - 8);
+
+            // Random enemy fire
+            if (Math.random() < 0.0015 * siWave) {
+                siEnemyBullets.push({ x: e.x + e.w / 2, y: e.y + e.h, w: 3, h: 8 });
+            }
+
+            // Bullet hit check
+            for (var b = siBullets.length - 1; b >= 0; b--) {
+                var bul = siBullets[b];
+                if (bul.x < e.x + e.w && bul.x + bul.w > e.x && bul.y < e.y + e.h && bul.y + bul.h > e.y) {
+                    e.alive = false;
+                    siBullets.splice(b, 1);
+                    siScore += 10;
+                    document.getElementById("si-score").innerText = siScore;
+                    if (siScore > siHigh) {
+                        siHigh = siScore;
+                        localStorage.setItem("si_high", siHigh);
+                        document.getElementById("si-high").innerText = siHigh;
+                    }
+                    break;
+                }
+            }
+
+            if (e.y + e.h >= siPlayer.y) {
+                return gameOverSpaceInvaders(ctx, canvas);
+            }
+        }
+
+        if (hitEdge) {
+            siEnemyDir *= -1;
+            for (var k = 0; k < siEnemies.length; k++) {
+                if (siEnemies[k].alive) siEnemies[k].y += 10;
+            }
+        }
+
+        // Next wave
+        if (aliveCount === 0) {
+            siWave++;
+            document.getElementById("si-wave").innerText = siWave;
+            spawnInvaderWave();
+        }
+
+        // Enemy bullets
+        ctx.fillStyle = "#ffd700";
+        for (var eb = siEnemyBullets.length - 1; eb >= 0; eb--) {
+            var ebul = siEnemyBullets[eb];
+            ebul.y += 3.5;
+            ctx.fillRect(ebul.x, ebul.y, ebul.w, ebul.h);
+            if (ebul.x < siPlayer.x + siPlayer.w && ebul.x + ebul.w > siPlayer.x && ebul.y < siPlayer.y + siPlayer.h && ebul.y + ebul.h > siPlayer.y) {
+                return gameOverSpaceInvaders(ctx, canvas);
+            }
+            if (ebul.y > canvas.height) siEnemyBullets.splice(eb, 1);
+        }
+
+        siAnimId = requestAnimationFrame(gameLoopSpaceInvaders);
+    }
+
+    function gameOverSpaceInvaders(ctx, canvas) {
+        siRunning = false;
+        ctx.fillStyle = "rgba(0,0,0,0.75)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#ff4444";
+        ctx.font = "bold 22px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("GAME OVER! SCORE: " + siScore, canvas.width / 2, canvas.height / 2);
+    }
+
+    function postInvadersScore() {
+        var msgBox = document.getElementById("user-msg");
+        msgBox.value = "👾 [Space Invaders] Score: " + siScore + " (Wave " + siWave + " | High: " + siHigh + ")";
+        submitRequestMessage();
     }
 
      checkChatHours();
