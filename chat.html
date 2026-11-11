@@ -554,67 +554,7 @@ function checkChatHours() {
         xhr.send();
     }
 
-        function fetchPendingUsers() {
-        var listBox = document.getElementById("pending-users-list");
-        if (!listBox) return;
-
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", SUPABASE_URL + "/rest/v1/user_roles?is_approved=eq.false&select=email", true);
-        xhr.setRequestHeader("apikey", SUPABASE_KEY);
-        xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("sb_token"));
-
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                var pending = JSON.parse(xhr.responseText);
-                if (!pending || pending.length === 0) {
-                    listBox.innerHTML = "<i>No accounts waiting for approval.</i>";
-                    return;
-                }
-                var html = "";
-                for (var i = 0; i < pending.length; i++) {
-                    var safeEmail = escapeHtml(pending[i].email);
-                    html += "<div style='display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px dashed #ccc;'>" +
-                        "<span>" + safeEmail + "</span>" +
-                        "<span>" +
-                        "<button class='btn-logout' style='background:green; margin-right:4px;' onclick=\"approveUser('" + safeEmail + "')\">Approve</button>" +
-                        "<button class='btn-logout' style='background:#bd0000;' onclick=\"denyUser('" + safeEmail + "')\">Deny</button>" +
-                        "</span></div>";
-                }
-                listBox.innerHTML = html;
-            }
-        };
-        xhr.send();
-    }
-
-    function approveUser(targetEmail) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("PATCH", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(targetEmail), true);
-        xhr.setRequestHeader("apikey", SUPABASE_KEY);
-        xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("sb_token"));
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status <= 299) {
-                alert("✅ Approved " + targetEmail + "!");
-                fetchPendingUsers();
-            }
-        };
-        xhr.send(JSON.stringify({ "is_approved": true }));
-    }
-
-    function denyUser(targetEmail) {
-        if (!confirm("Deny and remove pending request for " + targetEmail + "?")) return;
-        var xhr = new XMLHttpRequest();
-        xhr.open("DELETE", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(targetEmail), true);
-        xhr.setRequestHeader("apikey", SUPABASE_KEY);
-        xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("sb_token"));
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status <= 299) {
-                alert("❌ Denied " + targetEmail + ".");
-                fetchPendingUsers();
-            }
-        };
-        xhr.send();
-    }
+     
 
     function applyRoleUIChanges(role) {
         if (role === "owner" || role === "admin") {
@@ -946,6 +886,67 @@ function executeBanRequest(targetEmail, jwtToken) {
         sendSystemBroadcast(username + " has joined the chat.");
     }
 
+    function fetchPendingUsers() {
+        var listBox = document.getElementById("pending-users-list");
+        if (!listBox) return;
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", SUPABASE_URL + "/rest/v1/user_roles?is_approved=eq.false&select=email", true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("sb_token"));
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var pending = JSON.parse(xhr.responseText);
+                if (!pending || pending.length === 0) {
+                    listBox.innerHTML = "<i>No accounts waiting for approval.</i>";
+                    return;
+                }
+                var html = "";
+                for (var i = 0; i < pending.length; i++) {
+                    var safeEmail = escapeHtml(pending[i].email);
+                    html += "<div style='display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px dashed #ccc;'>" +
+                        "<span>" + safeEmail + "</span>" +
+                        "<span>" +
+                        "<button class='btn-logout' style='background:green; margin-right:4px;' onclick=\"approveUser('" + safeEmail + "')\">Approve</button>" +
+                        "<button class='btn-logout' style='background:#bd0000;' onclick=\"denyUser('" + safeEmail + "')\">Deny</button>" +
+                        "</span></div>";
+                }
+                listBox.innerHTML = html;
+            }
+        };
+        xhr.send();
+    }
+
+    function approveUser(targetEmail) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("PATCH", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(targetEmail), true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("sb_token"));
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status <= 299) {
+                alert("✅ Approved " + targetEmail + "!");
+                fetchPendingUsers();
+            }
+        };
+        xhr.send(JSON.stringify({ "is_approved": true }));
+    }
+
+    function denyUser(targetEmail) {
+        if (!confirm("Deny and remove pending request for " + targetEmail + "?")) return;
+        var xhr = new XMLHttpRequest();
+        xhr.open("DELETE", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(targetEmail), true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("sb_token"));
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status <= 299) {
+                alert("❌ Denied " + targetEmail + ".");
+                fetchPendingUsers();
+            }
+        };
+        xhr.send();
+    }
 
 
     function createNewPrivateChatPopup() {
