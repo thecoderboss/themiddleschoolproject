@@ -673,10 +673,11 @@ function checkChatHours() {
             data.reverse();
 
             for (var i = 0; i < data.length; i++) {
-                if (data[i].role === "system") {
-                    htmlBuffer += "<div class='system-msg'>⚙️ " + escapeHtml(data[i].message) + "</div>";
+                               if (data[i].role === "system") {
+                    htmlBuffer += "<div class='system-msg'>" + escapeHtml(data[i].message) + "</div>";
                     continue;
                 }
+
 
                 var timeStr = "";
                 try {
