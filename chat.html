@@ -29,7 +29,16 @@
         /* Form Field Layout Inputs */
         .input-row { margin-bottom: 10px; text-align: left; }
         .input-label { font-size: 13px; font-weight: bold; display: block; margin-bottom: 3px; }
-        .field-box { width: 95%; padding: 8px; border: 2px solid #000; font-family: monospace; font-size: 15px; background: #fff; }
+       .field-box {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px;
+            border: 2px solid #000;
+            font-family: monospace;
+            font-size: 15px;
+            background: #fff;
+        }
+
         
         .btn-submit { display: block; width: 100%; text-align: center; padding: 12px 0; background-color: #000; color: #fff; font-weight: bold; font-size: 15px; text-decoration: none; border: 2px solid #000; cursor: pointer; }
         .btn-submit:active { background-color: #fff; color: #000; }
@@ -37,125 +46,120 @@
         .btn-back { display: inline-block; margin-top: 20px; padding: 10px 16px; background: #fff; border: 2px solid #000; font-weight: bold; text-decoration: none; color: #000; font-size: 14px; }
         .hidden { display: none !important; }
 
-        /* NEW SHINY GLOW, SYSTEM TEXT, AND YELLOW OWNER BUBBLES */
-        @keyframes pulseGlow {
-            0% { text-shadow: 0 0 2px currentColor, 0 0 4px currentColor; }
-            50% { text-shadow: 0 0 6px currentColor, 0 0 12px currentColor; }
-            100% { text-shadow: 0 0 2px currentColor, 0 0 4px currentColor; }
-        }
 
-            .glow-owner {
-            position: relative;
-            color: #ffd700; /* Rich gold text face */
-            font-weight: 900; /* Extra thick font to give the 3D block substance */
-            font-size: 12px;
-            text-transform: uppercase;
-            margin-left: 4px;
-            letter-spacing: 0.8px;
-            
-            display: inline-block;
-            will-change: transform;
-            transform-style: preserve-3d;
-            perspective: 500px;
-            
-            /* Smoothly scales the main text face forward */
-            animation: master3DFace 3s infinite ease-in-out;
-        }
-        
-        /* LAYER 2: THE SOLID 3D BLOCK (Constructed using 3D extrusion) */
-        .glow-owner::before {
-            content: attr(data-text); /* Pulls text automatically from HTML */
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            color: #aa8010; /* Solid bronze core */
-            
-            /* Ultra-dense layering to eliminate hollow gaps */
-            text-shadow: 
-                0px 0.5px 0px #d4af37,
-                0px 1px 0px #aa8010,
-                0px 1.5px 0px #946f0c,
-                0px 2px 0px #805a05,
-                0px 2.5px 0px #6d4b02,
-                0px 3px 0px #5a3d00,
-                0px 3.5px 0px #442e00,
-                0px 4px 0px #2e1f00;
+                     /* NEW SHINY GLOW, SYSTEM TEXT, AND YELLOW OWNER BUBBLES */
+                    .glow-owner {
+                    position: relative;
+                    z-index: 1; /* Keeps 3D block & shadow above the purple message bubble */
+                    color: #ffd700; /* Rich gold text face */
+                    font-weight: 900; /* Extra thick font to give the 3D block substance */
+                    font-size: 12px;
+                    text-transform: uppercase;
+                    margin-left: 4px;
+                    letter-spacing: 0.8px;
+                    
+                    display: inline-block;
+                    will-change: transform;
+                    transform-style: preserve-3d;
+                    
+                    /* Smoothly scales the main text face forward */
+                    animation: master3DFace 3s infinite ease-in-out;
+                }
                 
-            transform-style: preserve-3d;
-            will-change: transform, text-shadow;
-            animation: master3DBlock 3s infinite ease-in-out;
-        }
-        
-        /* LAYER 3: THE SEPARATE AMBIENT FLOOR SHADOW */
-        .glow-owner::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -2;
-            color: transparent; /* Face of shadow is invisible */
-            
-            transform-style: preserve-3d;
-            will-change: transform, text-shadow;
-            animation: master3DShadow 3s infinite ease-in-out;
-        }
-        
-        /* --- ANIMATION ENGINE --- */
-        
-        /* 1. The Face flares up and scales closer to the camera */
-        @keyframes master3DFace {
-            0%, 100% {
-                transform: rotateX(0deg) translateZ(0px);
-                color: #ffd700;
-            }
-            50% {
-                transform: rotateX(16deg) translateZ(12px); /* Uniform forward tilt */
-                color: #fff4bd; /* Bright light exposure */
-            }
-        }
-        
-        /* 2. The Extrusion stretches downwards dynamically to anchor the floating text */
-        @keyframes master3DBlock {
-            0%, 100% {
-                transform: translateZ(-1px);
-                text-shadow: 
-                    0px 0.5px 0px #d4af37,
-                    0px 1px 0px #aa8010,
-                    0px 1.5px 0px #805a05,
-                    0px 2px 0px #442e00;
-            }
-            50% {
-                /* As the face pulls away, the block stretches out much deeper to close the physical gap */
-                transform: translateZ(-6px); 
-                text-shadow: 
-                    0px 0.5px 0px #e5c158,
-                    0px 1px 0px #c19a28,
-                    0px 1.5px 0px #aa8010,
-                    0px 2px 0px #946f0c,
-                    0px 2.5px 0px #805a05,
-                    0px 3px 0px #6d4b02,
-                    0px 3.5px 0px #5a3d00,
-                    0px 4px 0px #442e00,
-                    0px 4.5px 0px #312100,
-                    0px 5px 0px #1f1400;
-            }
-        }
-        
-        /* 3. The Shadow falls straight down, blurring out as the text gets higher */
-        @keyframes master3DShadow {
-            0%, 100% {
-                text-shadow: 0px 2px 3px rgba(37, 4, 45, 0.7);
-            }
-            50% {
-                /* Drops dramatically further down and diffuses into a soft royal purple cloud */
-                text-shadow: 0px 14px 18px rgba(37, 4, 45, 0.45);
-            }
-        }
+                /* LAYER 2: THE SOLID 3D BLOCK (Constructed using 3D extrusion) */
+                .glow-owner::before {
+                    content: attr(data-text); /* Pulls text automatically from HTML */
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: -1;
+                    color: #aa8010; /* Solid bronze core */
+                    
+                    /* Ultra-dense layering to eliminate hollow gaps */
+                    text-shadow: 
+                        0px 0.5px 0px #d4af37,
+                        0px 1px 0px #aa8010,
+                        0px 1.5px 0px #946f0c,
+                        0px 2px 0px #805a05,
+                        0px 2.5px 0px #6d4b02,
+                        0px 3px 0px #5a3d00,
+                        0px 3.5px 0px #442e00,
+                        0px 4px 0px #2e1f00;
+                        
+                    transform-style: preserve-3d;
+                    will-change: transform, text-shadow;
+                    animation: master3DBlock 3s infinite ease-in-out;
+                }
+                
+                /* LAYER 3: THE SEPARATE AMBIENT FLOOR SHADOW */
+                .glow-owner::after {
+                    content: attr(data-text);
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: -2;
+                    color: transparent; /* Face of shadow is invisible */
+                    
+                    transform-style: preserve-3d;
+                    will-change: transform, text-shadow;
+                    animation: master3DShadow 3s infinite ease-in-out;
+                }
+                
+                /* --- ANIMATION ENGINE --- */
+                
+                /* 1. The Face flares up and scales closer to the camera */
+                @keyframes master3DFace {
+                    0%, 100% {
+                        transform: perspective(500px) rotateX(0deg) translateZ(0px);
+                        color: #ffd700;
+                    }
+                    50% {
+                        transform: perspective(500px) rotateX(16deg) translateZ(12px); /* Uniform forward tilt */
+                        color: #fff4bd; /* Bright light exposure */
+                    }
+                }
+                
+                /* 2. The Extrusion stretches downwards dynamically to anchor the floating text */
+                @keyframes master3DBlock {
+                    0%, 100% {
+                        transform: translateZ(-1px);
+                        text-shadow: 
+                            0px 0.5px 0px #d4af37,
+                            0px 1px 0px #aa8010,
+                            0px 1.5px 0px #805a05,
+                            0px 2px 0px #442e00;
+                    }
+                    50% {
+                        /* As the face pulls away, the block stretches out much deeper to close the physical gap */
+                        transform: translateZ(-6px); 
+                        text-shadow: 
+                            0px 0.5px 0px #e5c158,
+                            0px 1px 0px #c19a28,
+                            0px 1.5px 0px #aa8010,
+                            0px 2px 0px #946f0c,
+                            0px 2.5px 0px #805a05,
+                            0px 3px 0px #6d4b02,
+                            0px 3.5px 0px #5a3d00,
+                            0px 4px 0px #442e00,
+                            0px 4.5px 0px #312100,
+                            0px 5px 0px #1f1400;
+                    }
+                }
+                
+                /* 3. The Shadow falls straight down, blurring out as the text gets higher */
+                @keyframes master3DShadow {
+                    0%, 100% {
+                        text-shadow: 0px 2px 3px rgba(37, 4, 45, 0.7);
+                    }
+                    50% {
+                        /* Drops dramatically further down and diffuses into a soft royal purple cloud */
+                        text-shadow: 0px 14px 18px rgba(37, 4, 45, 0.45);
+                    }
+                }
 
         /* Upgraded Generic Admin Style - Overclocked Radioactive Green */
 .glow-admin {
@@ -348,7 +352,7 @@
         </div>
         <div class="input-row">
             <span class="input-label">Password:</span>
-            <input type="password" id="auth-password" class="field-box" placeholder="******">
+            <input type="password" id="auth-password" class="field-box" placeholder="******" onkeydown="if(event.key==='Enter') handleAuthSubmit()">
         </div>
         
         <button id="btn-auth-action" class="btn-submit" onclick="handleAuthSubmit()">Log in</button>
@@ -377,6 +381,13 @@
                     <input type="text" id="target-ban-username" class="field-box" placeholder="badguy123@chat.com" style="width: 65%; display: inline-block;">
                     <button class="btn-logout" style="padding: 8px; vertical-align: top; background: #bd0000;" onclick="handleBanSubmit()">Issue Ban</button>
                 </div>
+                        <!-- Pending Account Approvals (Admins & Owner) -->
+            <div class="input-row" style="margin-top: 15px; border-top: 1px dashed red; padding-top: 15px;">
+                <span class="input-label" style="color: #0055aa;">Pending Account Approvals:</span>
+                <div id="pending-users-list" style="font-size: 12px; background: #fff; border: 1px solid #000; padding: 6px; margin-top: 4px;">
+                    Checking for pending accounts...
+                </div>
+            </div>
 
 
             <div style="font-size:12px; color: #bd0000; font-weight: bold; margin-top: 10px;">You have chat moderation access. You can delete any message below.</div>
@@ -405,7 +416,7 @@
         
         <div class="input-row">
             <span class="input-label">&gt; Message:</span>
-            <input type="text" id="user-msg" class="field-box" placeholder="Hi! This is my first message!" maxlength="80">
+            <input type="text" id="user-msg" class="field-box" placeholder="Hi! This is my first message!" maxlength="80" onkeydown="if(event.key==='Enter') submitRequestMessage()">
         </div>
 
         <button class="btn-submit" onclick="submitRequestMessage()">Send</button>
@@ -418,7 +429,7 @@
 </div>
 
 <script>
-    var SUPABASE_URL = "https://hzcnqfzyehoctkviyfwf.supabase.co
+    var SUPABASE_URL = "https://hzcnqfzyehoctkviyfwf.supabase.co";
     var SUPABASE_KEY = "sb_publishable_mEl59NFDbz1V7YS_kO_OTw_4PnkhrNT";
 
     var isSignUpMode = false;
@@ -432,7 +443,8 @@
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-}
+    }
+
 
 function checkChatHours() {
     const now = new Date();
@@ -446,10 +458,13 @@ function checkChatHours() {
     const lockEnd = 920;   // 3:20 PM
 
     if (currentMinutes >= lockStart && currentMinutes < lockEnd) {
+        if (pollIntervalId) {
+            clearInterval(pollIntervalId);
+            pollIntervalId = null;
+        }
         document.body.innerHTML = "<h1 style='text-align:center; margin-top:100px;'>Chat is locked until 3:20 PM!</h1>";
     }
 }
-
 
     function checkCurrentSession() {
         var token = localStorage.getItem("sb_token");
@@ -489,10 +504,11 @@ function checkChatHours() {
         }
     }
 
-    function fetchUserPrivilege(email) {
+         function fetchUserPrivilege(email) {
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(email) + "&select=role,is_banned", true);
+        xhr.open("GET", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(email) + "&select=role,is_banned,is_approved", true);
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("sb_token"));
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 var res = JSON.parse(xhr.responseText);
@@ -503,9 +519,22 @@ function checkChatHours() {
                         handleLogout();
                         return;
                     }
+                    if (res[0].is_approved !== true) {
+                        alert("⏳ Pending Approval: An Admin or Owner must accept your account before you can enter the chat!");
+                        handleLogout();
+                        return;
+                    }
                     var assignedRole = res[0].role || "user";
                 } else {
-                    var assignedRole = "user";
+                    alert("⏳ Account profile not ready or pending approval.");
+                    handleLogout();
+                    return;
+                }
+
+                // Announce join once per tab session (won't spam on page refresh)
+                if (!sessionStorage.getItem("joined_announced")) {
+                    sendJoinBroadcast(email);
+                    sessionStorage.setItem("joined_announced", "true");
                 }
                 
                 var displayRole = assignedRole;
@@ -516,6 +545,72 @@ function checkChatHours() {
                 document.getElementById("user-role-display").innerText = displayRole;
                 localStorage.setItem("sb_user_role", assignedRole);
                 applyRoleUIChanges(assignedRole);
+
+                if (assignedRole === "admin" || assignedRole === "owner") {
+                    fetchPendingUsers();
+                }
+            }
+        };
+        xhr.send();
+    }
+
+        function fetchPendingUsers() {
+        var listBox = document.getElementById("pending-users-list");
+        if (!listBox) return;
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", SUPABASE_URL + "/rest/v1/user_roles?is_approved=eq.false&select=email", true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("sb_token"));
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var pending = JSON.parse(xhr.responseText);
+                if (!pending || pending.length === 0) {
+                    listBox.innerHTML = "<i>No accounts waiting for approval.</i>";
+                    return;
+                }
+                var html = "";
+                for (var i = 0; i < pending.length; i++) {
+                    var safeEmail = escapeHtml(pending[i].email);
+                    html += "<div style='display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px dashed #ccc;'>" +
+                        "<span>" + safeEmail + "</span>" +
+                        "<span>" +
+                        "<button class='btn-logout' style='background:green; margin-right:4px;' onclick=\"approveUser('" + safeEmail + "')\">Approve</button>" +
+                        "<button class='btn-logout' style='background:#bd0000;' onclick=\"denyUser('" + safeEmail + "')\">Deny</button>" +
+                        "</span></div>";
+                }
+                listBox.innerHTML = html;
+            }
+        };
+        xhr.send();
+    }
+
+    function approveUser(targetEmail) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("PATCH", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(targetEmail), true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("sb_token"));
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status <= 299) {
+                alert("✅ Approved " + targetEmail + "!");
+                fetchPendingUsers();
+            }
+        };
+        xhr.send(JSON.stringify({ "is_approved": true }));
+    }
+
+    function denyUser(targetEmail) {
+        if (!confirm("Deny and remove pending request for " + targetEmail + "?")) return;
+        var xhr = new XMLHttpRequest();
+        xhr.open("DELETE", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(targetEmail), true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("sb_token"));
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status <= 299) {
+                alert("❌ Denied " + targetEmail + ".");
+                fetchPendingUsers();
             }
         };
         xhr.send();
@@ -553,11 +648,15 @@ function checkChatHours() {
     }
 
     function handleAuthSubmit() {
-        var email = document.getElementById("auth-email").value.trim();
+        var email = document.getElementById("auth-email").value.trim().toLowerCase();
         var password = document.getElementById("auth-password").value.trim();
 
         if (!email || !password) {
             return alert("Fill out both input boxes!");
+        }
+
+        if (!email.endsWith("@chat.com")) {
+            return alert("Error: Your email must end with @chat.com!");
         }
 
         var endpoint = isSignUpMode ? "/auth/v1/signup" : "/auth/v1/token?grant_type=password";
@@ -572,7 +671,7 @@ function checkChatHours() {
                 if (xhr.status >= 200 && xhr.status <= 299) {
                     var data = JSON.parse(xhr.responseText);
                     
-                    if (isSignUpMode) {
+                                     if (isSignUpMode) {
                         alert("Registration successful! You can now log in using these credentials.");
                         toggleAuthMode();
                     } else {
@@ -593,10 +692,11 @@ function checkChatHours() {
         xhr.send(JSON.stringify({ "email": email, "password": password }));
     }
 
-    function handleLogout() {
+        function handleLogout() {
         localStorage.removeItem("sb_token");
         localStorage.removeItem("sb_user_email");
         localStorage.removeItem("sb_user_role");
+        sessionStorage.removeItem("joined_announced");
         checkCurrentSession();
     }
             function fetchRequestMessages() {
@@ -707,7 +807,14 @@ function handleBanSubmit() {
 }
 
 
+    var lastSentTime = 0;
+
     function submitRequestMessage() {
+        var now = Date.now();
+        if (now - lastSentTime < 2000) {
+            return alert("Slow down! Please wait 2 seconds between messages.");
+        }
+
         var msgInput = document.getElementById("user-msg").value.trim();
         var userEmail = localStorage.getItem("sb_user_email");
         var jwtToken = localStorage.getItem("sb_token");
@@ -718,6 +825,7 @@ function handleBanSubmit() {
 
         if (!msgInput) return alert("Write something first!");
         
+        lastSentTime = now;
         var parsedUsername = userEmail.split('@')[0];
 
         var xhr = new XMLHttpRequest();
@@ -733,7 +841,8 @@ function handleBanSubmit() {
                     document.getElementById("user-msg").value = "";
                     fetchRequestMessages(); 
                 } else {
-                    alert("Transmission failure. Status code: " + xhr.status);
+                    var err = JSON.parse(xhr.responseText || "{}");
+                    alert("Transmission failure: " + (err.message || "Status code " + xhr.status));
                 }
             }
         };
@@ -746,35 +855,6 @@ function handleBanSubmit() {
             "room_password": roomPassword
         }));
     }
-        function assignAdminPrivilege() {
-        var targetEmail = document.getElementById("target-admin-email").value.trim();
-        var currentRole = localStorage.getItem("sb_user_role");
-        var jwtToken = localStorage.getItem("sb_token");
-
-        if (currentRole !== "owner") {
-            return alert("Denied: Only the Owner can promote users.");
-        }
-        if (!targetEmail) return alert("Enter a target email address.");
-
-        var xhr = new XMLHttpRequest();
-        xhr.open("PATCH", SUPABASE_URL + "/rest/v1/user_roles?email=eq." + encodeURIComponent(targetEmail), true);
-        xhr.setRequestHeader("apikey", SUPABASE_KEY);
-        xhr.setRequestHeader("Authorization", "Bearer " + jwtToken);
-        xhr.setRequestHeader("Content-Type", "application/json");
-        
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                if (xhr.status >= 200 && xhr.status <= 299) {
-                    alert("Success! " + targetEmail + " has been promoted to Admin.");
-                    document.getElementById("target-admin-email").value = "";
-                } else {
-                    alert("Failed to modify permissions. Check if user is registered.");
-                }
-            }
-        };
-        xhr.send(JSON.stringify({ "role": "admin" }));
-    }
-
 
     function banUserByEmail(targetEmail) {
     var jwtToken = localStorage.getItem("sb_token");
@@ -840,10 +920,12 @@ function executeBanRequest(targetEmail, jwtToken) {
     xhr.send(JSON.stringify({ "is_banned": true }));
 }
     
-        function sendSystemBroadcast(textMessage) {
+       function sendSystemBroadcast(textMessage) {
+        var jwtToken = localStorage.getItem("sb_token");
         var xhr = new XMLHttpRequest();
         xhr.open("POST", SUPABASE_URL + "/rest/v1/online_chat", true);
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Authorization", "Bearer " + jwtToken);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status <= 299) {
@@ -857,6 +939,14 @@ function executeBanRequest(targetEmail, jwtToken) {
             "room_id": "global"
         }));
     }
+            
+
+    function sendJoinBroadcast(userEmail) {
+        var username = userEmail.split('@')[0];
+        sendSystemBroadcast(username + " has joined the chat.");
+    }
+
+
 
     function createNewPrivateChatPopup() {
         var chosenRoom = window.prompt("Enter a unique Private Room ID name:\n(e.g., 'secret-cabinet-7' or 'gaming-lounge')");
@@ -912,8 +1002,10 @@ function executeBanRequest(targetEmail, jwtToken) {
         xhr.send();
     }
 
-    checkCurrentSession();
-    checkChatHours();
+     checkChatHours();
+    if (document.getElementById("auth-gate")) {
+        checkCurrentSession();
+    }
     setInterval(checkChatHours, 10000);
 </script>
 </body>
