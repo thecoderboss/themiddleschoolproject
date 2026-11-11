@@ -11,7 +11,7 @@ async function enterSecureCabinet() {
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   const userHash = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 
-  // 4. Compare it to your saved hash for "03160922CGR"
+  // 4. Compare it to your saved hash
   const savedHash = "c81818739569ce5d0671c63e329f79bfd0f37727e3eca7b940bc56c0ad9cbcdd";
 
   if (userHash === savedHash) {
