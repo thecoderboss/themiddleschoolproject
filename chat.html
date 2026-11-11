@@ -434,6 +434,22 @@
         .replace(/'/g, "&#039;");
 }
 
+function checkChatHours() {
+    const now = new Date();
+    const day = now.getDay(); 
+
+    // Stay open all weekend (0 = Sunday, 6 = Saturday)
+    if (day === 0 || day === 6) return;
+
+    const currentMinutes = (now.getHours() * 60) + now.getMinutes();
+    const lockStart = 545; // 9:05 AM
+    const lockEnd = 920;   // 3:20 PM
+
+    if (currentMinutes >= lockStart && currentMinutes < lockEnd) {
+        document.body.innerHTML = "<h1 style='text-align:center; margin-top:100px;'>Chat is locked until 3:20 PM!</h1>";
+    }
+}
+
 
     function checkCurrentSession() {
         var token = localStorage.getItem("sb_token");
@@ -897,6 +913,8 @@ function executeBanRequest(targetEmail, jwtToken) {
     }
 
     checkCurrentSession();
+    checkChatHours();
+    setInterval(checkChatHours, 10000);
 </script>
 </body>
 </html>
