@@ -1,21 +1,22 @@
-function enterSecureCabinet() {
-    // 1. Open a system native prompt box (incredibly low resource usage)
-    var userInput = prompt("ENTER SECURE CABINET PIN CODE:");
-    
-    // 2. Define your desired secret key/PIN here (e.g., "1234")
-    var secretPin = "03160922CGR"; 
-    
-    if (userInput === null) {
-        // User clicked cancel
-        return; 
-    }
-    
-    if (userInput === secretPin) {
-        // PIN matches! Send them to your book requests file
-        // (Change 'chat.html' to the actual name of your file if it's different)
-        window.location.href = "chat.html"; 
-    } else {
-        // Wrong entry
-        alert("ACCESS DENIED: INVALID CABINET CREDENTIALS.");
-    }
+async function enterSecureCabinet() {
+  // 1. Get what the user typed
+  const userInput = document.getElementById("passcodeInput").value;
+
+  // 2. Turn the text into computer bytes and scramble it with SHA-256
+  const encoder = new TextEncoder();
+  const data = encoder.encode(userInput);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+
+  // 3. Convert the scrambled bytes into a readable 64-character string
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const userHash = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+
+  // 4. Compare it to your saved hash for "03160922CGR"
+  const savedHash = "c81818739569ce5d0671c63e329f79bfd0f37727e3eca7b940bc56c0ad9cbcdd";
+
+  if (userHash === savedHash) {
+    document.getElementById("message").innerText = "Access Granted!";
+  } else {
+    document.getElementById("message").innerText = "Wrong passcode!";
+  }
 }
