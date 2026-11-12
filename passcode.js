@@ -1,6 +1,6 @@
 async function enterSecureCabinet() {
   // 1. Open a browser popup for the user to type the passcode
-  const userInput = prompt("ENTER PASSCODE:");
+  const userInput = prompt("Enter the passcode:");
 
   // Stop if the user clicked Cancel or left it blank
   if (!userInput) return;
@@ -19,8 +19,8 @@ async function enterSecureCabinet() {
 
   if (userHash === savedHash) {
     alert("Access Granted!");
-    // Optional: redirect them to your chat page
-    // window.location.href = "chat.html";
+    // Redirects to your chat page inside your project folder
+    window.location.href = "chat"; 
   } else {
     alert("Wrong passcode!");
   }
