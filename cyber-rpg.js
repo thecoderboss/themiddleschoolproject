@@ -76,17 +76,24 @@
         ];
 
         // Spawn 5 Chapter Enemies
-        var spots = [[165, 45], [270, 50], [270, 195], [385, 115], [385, 200]];
+        var spots = [
+            { x: 160, y: 40 },
+            { x: 160, y: 205 },
+            { x: 270, y: 45 },
+            { x: 270, y: 200 },
+            { x: 380, y: 120 }
+        ];
         for (var i = 0; i < spots.length; i++) {
             rpgEnemies.push({
                 name: RPG_CHAPTERS[chIdx].enemy,
-                x: spots[i], y: spots[i], size: 16,
+                x: spots[i].x, y: spots[i].y, size: 16,
                 hp: Math.round(35 * scale), maxHp: Math.round(35 * scale),
                 atk: Math.round(8 * scale),
                 speed: 1.1 + (chIdx * 0.12),
                 isBoss: false, hitFlash: 0
             });
         }
+
 
         // Spawn 2 Green Repair Nodes
         rpgNodes.push({ x: 170, y: 125, active: true });
