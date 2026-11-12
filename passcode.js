@@ -20,7 +20,7 @@ async function enterSecureCabinet() {
   if (userHash === savedHash) {
     alert("Access Granted!");
     // Redirects to your chat page inside your project folder
-    window.location.href = "chat"; 
+    window.location.href = "chat.html"; 
   } else {
     alert("Wrong passcode!");
   }
