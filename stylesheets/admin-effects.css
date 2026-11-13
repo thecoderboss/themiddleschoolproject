@@ -1,0 +1,150 @@
+/* Upgraded Generic Admin Style - Overclocked Plasma Reactor */
+.glow-admin {
+    color: #00ff22;
+    font-weight: 900;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-left: 4px;
+    letter-spacing: 0.8px;
+    display: inline-block;
+    -webkit-text-stroke: 0.4px #003307;
+    animation: radioactivePulse 2.4s infinite ease-in-out;
+}
+
+@keyframes radioactivePulse {
+    0%, 100% {
+        transform: scale(1);
+        color: #00b819;
+        text-shadow: 
+            0px 1px 0px #002b06,
+            0px 0px 4px rgba(0, 255, 34, 0.4);
+    }
+    50% {
+        transform: scale(1.06);
+        color: #7dff8e;
+        text-shadow: 
+            0px 1px 1px #002b06,
+            0px 0px 6px #00ff22,
+            0px 0px 14px #00cc1b,
+            0px 0px 24px rgba(0, 255, 34, 0.7);
+    }
+}
+
+/* Upgraded Custom Admin Style for idk@chat.com - Hyper-Refractive Cyber Laser */
+.glow-admin-blue {
+    color: #0099ff;
+    font-weight: 900;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-left: 4px;
+    letter-spacing: 1.5px;
+    display: inline-block;
+    -webkit-text-stroke: 0.4px #001f4d;
+    will-change: letter-spacing, text-shadow;
+    animation: hyperLaserScan 2.5s infinite ease-in-out;
+}
+
+@keyframes hyperLaserScan {
+    0%, 100% {
+        letter-spacing: 1.5px;
+        color: #0077ee;
+        text-shadow: 
+            0px 1px 1px #001433,
+            0px 0px 4px rgba(0, 180, 255, 0.5);
+    }
+    30% {
+        letter-spacing: 0.8px;
+        color: #e6fbff;
+        text-shadow: 
+            0px 1px 2px #001433,
+            -4px 0px 6px #00ddff,
+            -9px 0px 14px #0044ff,
+            2px 0px 4px rgba(0, 221, 255, 0.4);
+    }
+    70% {
+        letter-spacing: 0.8px;
+        color: #e6fbff;
+        text-shadow: 
+            0px 1px 2px #001433,
+            -2px 0px 4px rgba(0, 221, 255, 0.4),
+            9px 0px 14px #0044ff,
+            4px 0px 6px #00ddff;
+    }
+}
+
+/* Upgraded Custom Admin Style for celiaseesall@chat.com - Cyberpunk Chromatic Glitch */
+.glow-admin-pink {
+    color: #ff1493;
+    font-weight: 900;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-left: 4px;
+    letter-spacing: 0.8px;
+    display: inline-block;
+    -webkit-text-stroke: 0.4px #3b001f;
+    animation: glitchMatrix 2.2s infinite linear;
+}
+
+@keyframes glitchMatrix {
+    0%, 14%, 22%, 54%, 62%, 100% {
+        transform: translate(0, 0) skewX(0deg);
+        color: #ff1493;
+        text-shadow: 0 0 5px rgba(255, 20, 147, 0.6), 0 1px 1px #2b0016;
+    }
+    16% {
+        transform: translate(-2px, 0) skewX(-8deg);
+        color: #ffffff;
+        text-shadow: -3px 0px 0px #ff0055, 3px 0px 0px #00e5ff;
+    }
+    19% {
+        transform: translate(2px, 0) skewX(8deg);
+        color: #ff66b8;
+        text-shadow: 3px 0px 0px #ff0055, -3px 0px 0px #00e5ff;
+    }
+    57% {
+        transform: scaleY(1.15);
+        color: #ffffff;
+        text-shadow: 0px 0px 10px #ff1493, 0px 0px 20px #ff0055;
+    }
+}
+
+/* Upgraded Custom Admin Style for shadow@chat.com - Phantom Wraith Phase-Shift */
+.glow-admin-invisible {
+    color: #2b2b36;
+    font-weight: 900;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-left: 4px;
+    letter-spacing: 1px;
+    display: inline-block;
+    animation: smokeCloak 3.8s infinite ease-in-out;
+}
+
+@keyframes smokeCloak {
+    0%, 100% {
+        opacity: 1;
+        filter: blur(0px);
+        letter-spacing: 1px;
+        color: #1f1f29;
+        text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.4);
+    }
+    45% {
+        opacity: 0.45;
+        filter: blur(1.2px);
+        letter-spacing: 1.8px;
+        text-shadow: 0px 0px 8px rgba(40, 40, 60, 0.7);
+    }
+    50% {
+        opacity: 0.12;
+        filter: blur(3.5px);
+        letter-spacing: 2.5px;
+        color: #555566;
+        text-shadow: 0px 0px 14px rgba(20, 20, 35, 0.95);
+    }
+    55% {
+        opacity: 0.45;
+        filter: blur(1.2px);
+        letter-spacing: 1.8px;
+        text-shadow: 0px 0px 8px rgba(40, 40, 60, 0.7);
+    }
+}
