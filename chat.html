@@ -422,21 +422,31 @@
         </div>
                 <!-- CYBERPUNK RPG TOGGLE & CABINET -->
         <div style="margin-bottom: 10px;">
-            <button class="btn-submit" style="padding: 6px 0; font-size: 13px; background: #0a192f; color: #00ddff; border-color: #00ddff;" onclick="toggleCyberRPG()">💻 Toggle Cyber-Breach RPG</button>
+            <button class="btn-submit" style="padding: 6px 0; font-size: 13px; background: #0a192f; color: #00ddff; border-color: #00ddff;" onclick="toggleCyberRPG()">💻 Play Cyber-Breach RPG</button>
         </div>
-        
-        <div id="rpg-cabinet" class="rpg-box hidden">
+            <div id="rpg-cabinet" class="rpg-box hidden">
             <div class="rpg-hud">
                 <span>CH.<span id="rpg-ch">1</span>: <span id="rpg-zone">Subnet</span></span>
                 <span>LVL <span id="rpg-lvl">1</span></span>
                 <span>HP: <span id="rpg-hp">100/100</span></span>
-                <span>ATK: <span id="rpg-atk">15</span></span>
+                <span>₿ <span id="rpg-credits">0</span></span>
             </div>
             <canvas id="rpg-canvas" width="440" height="260"></canvas>
-            <div id="rpg-log" class="rpg-log">Move: [WASD / Arrows] • Attack/Hack: [Space] • Clear enemies to summon Boss!</div>
-            <div class="arcade-controls">
-                <button class="btn-arcade" onclick="postRPGProgress()">🏆 Post Progress to Chat</button>
-                <button class="btn-arcade" onclick="resetRPGSave()">🔄 Reset Save</button>
+            <div id="rpg-log" class="rpg-log">Move: [WASD] • Slash: [Space] • Blaster: [E] • Dash: [Q]</div>
+            
+            <!-- Byte-Credit Upgrade Shop -->
+            <div class="arcade-controls" style="flex-wrap: wrap; margin-top: 6px;">
+                <button class="btn-arcade" onclick="buyRPGUpgrade('blade')">🗡️ Blade +6 (<span id="cost-blade">30</span>₿)</button>
+                <button class="btn-arcade" onclick="buyRPGUpgrade('blaster')">🔫 Blaster +5 (<span id="cost-blaster">35</span>₿)</button>
+                <button class="btn-arcade" onclick="buyRPGUpgrade('armor')">🛡️ MaxHP +30 (<span id="cost-armor">25</span>₿)</button>
+                <button class="btn-arcade" onclick="buyRPGUpgrade('heal')">💊 Heal 100% (20₿)</button>
+            </div>
+        
+            <!-- Cloud Save & Chat Flex Controls -->
+            <div class="arcade-controls" style="margin-top: 6px;">
+                <button class="btn-arcade" style="background: #00ff88;" onclick="saveRPGToCloud(true)">☁️ Cloud Save</button>
+                <button class="btn-arcade" onclick="postRPGProgress()">🏆 Post to Chat</button>
+                <button class="btn-arcade" style="background: #ffaaaa;" onclick="resetRPGSave()">🔄 Reset</button>
             </div>
         </div>
         <!-- LIVE CONVERSATION STREAM FEED -->
