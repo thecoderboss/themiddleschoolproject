@@ -424,29 +424,28 @@
         <div style="margin-bottom: 10px;">
             <button class="btn-submit" style="padding: 6px 0; font-size: 13px; background: #0a192f; color: #00ddff; border-color: #00ddff;" onclick="toggleCyberRPG()">💻 Play Cyber-Breach RPG</button>
         </div>
-            <div id="rpg-cabinet" class="rpg-box hidden">
+          <div id="rpg-cabinet" class="rpg-box hidden">
             <div class="rpg-hud">
-                <span>CH.<span id="rpg-ch">1</span>: <span id="rpg-zone">Subnet</span></span>
+                <span id="rpg-area-name">SECTOR 7 SLUMS</span>
                 <span>LVL <span id="rpg-lvl">1</span></span>
                 <span>HP: <span id="rpg-hp">100/100</span></span>
+                <span>RAM: <span id="rpg-ram">50/50</span></span>
                 <span>₿ <span id="rpg-credits">0</span></span>
             </div>
-            <canvas id="rpg-canvas" width="440" height="260"></canvas>
-            <div id="rpg-log" class="rpg-log">Move: [WASD] • Slash: [Space] • Blaster: [E] • Dash: [Q]</div>
+            <canvas id="rpg-canvas" width="440" height="240"></canvas>
             
-            <!-- Byte-Credit Upgrade Shop -->
-            <div class="arcade-controls" style="flex-wrap: wrap; margin-top: 6px;">
-                <button class="btn-arcade" onclick="buyRPGUpgrade('blade')">🗡️ Blade +6 (<span id="cost-blade">30</span>₿)</button>
-                <button class="btn-arcade" onclick="buyRPGUpgrade('blaster')">🔫 Blaster +5 (<span id="cost-blaster">35</span>₿)</button>
-                <button class="btn-arcade" onclick="buyRPGUpgrade('armor')">🛡️ MaxHP +30 (<span id="cost-armor">25</span>₿)</button>
-                <button class="btn-arcade" onclick="buyRPGUpgrade('heal')">💊 Heal 100% (20₿)</button>
+            <!-- Undertale / Pokemon Dialogue & Battle Box -->
+            <div id="rpg-dialogue-box" style="background:#000; border:2px solid #00ddff; color:#fff; padding:8px; margin-top:6px; text-align:left; font-size:12px; min-height:46px;">
+                * Welcome to Sector 7. Use [WASD / Arrows] to walk and [Space] to talk or inspect!
             </div>
         
-            <!-- Cloud Save & Chat Flex Controls -->
-            <div class="arcade-controls" style="margin-top: 6px;">
-                <button class="btn-arcade" style="background: #00ff88;" onclick="saveRPGToCloud(true)">☁️ Cloud Save</button>
+            <!-- Dynamic Action Buttons (Switches between Overworld & Turn-Based Battle!) -->
+            <div id="rpg-action-bar" class="arcade-controls" style="flex-wrap:wrap; margin-top:6px;">
+                <button class="btn-arcade" onclick="rpgInteract()">💬 Talk / Inspect [Space]</button>
+                <button class="btn-arcade" onclick="rpgOpenShop()">🛒 Cyber-Shop</button>
+                <button class="btn-arcade" style="background:#00ff88;" onclick="saveRPGToCloud(true)">☁️ Cloud Save</button>
                 <button class="btn-arcade" onclick="postRPGProgress()">🏆 Post to Chat</button>
-                <button class="btn-arcade" style="background: #ffaaaa;" onclick="resetRPGSave()">🔄 Reset</button>
+                <button class="btn-arcade" style="background:#ffaaaa;" onclick="resetRPGSave()">🔄 Reset</button>
             </div>
         </div>
         <!-- LIVE CONVERSATION STREAM FEED -->
