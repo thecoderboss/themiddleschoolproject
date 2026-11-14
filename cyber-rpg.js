@@ -171,7 +171,7 @@ function saveRPGLocal() {
     updateRPGHud();
 }
 
-function saveRPGToCloud(showAlert) {
+function saveRPGToCloud(showAlert, silent) {
     saveRPGLocal();
     var email = localStorage.getItem("sb_user_email");
     var token = localStorage.getItem("sb_token");
@@ -186,7 +186,9 @@ function saveRPGToCloud(showAlert) {
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
             if (xhr.status >= 200 && xhr.status <= 299) {
-                setRPGDialogue("* ☁️ Game progress synced to your Supabase account!");
+                if (!silent) {
+                    setRPGDialogue("* ☁️ Game progress synced to your Supabase account!");
+                }
                 if (showAlert) alert("☁️ Cloud Save complete!");
             } else if (showAlert) {
                 alert("Cloud save failed (Code " + xhr.status + "). Check your rpg_saves table!");
