@@ -128,6 +128,7 @@ function startCyberBreaker() {
     spawnBreakerBall(220, 222, 3.8, -4.2);
     updateBreakerHud();
     cbRunning = true;
+    cbPausedByHelp = false;
     cancelAnimationFrame(cbAnimId);
     gameLoopCyberBreaker();
 }
