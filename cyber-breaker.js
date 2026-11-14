@@ -401,3 +401,7 @@ function postBreakerScore() {
     msgBox.value = "🧱 [Cyber-Breaker HARD] Score: " + cbScore + " (Lvl " + cbLvl + " | High: " + cbHigh + ")";
     submitRequestMessage();
 }
+function toggleBreakerHelp() {
+    var helpBox = document.getElementById("breaker-help");
+    if (helpBox) helpBox.classList.toggle("hidden");
+}
