@@ -307,10 +307,19 @@
             </div>
             <canvas id="breaker-canvas" width="440" height="260" style="border-color: #ff44aa;"></canvas>
             <div id="cb-status" style="font-size: 11px; color: #ff44aa; margin-top: 4px;">Controls: [A / D] or [Left / Right] or [Mouse] • [Space] to Fire Lasers</div>
-            <div class="arcade-controls">
-                <button class="btn-arcade" onclick="startCyberBreaker()">▶ Start / Restart</button>
-                <button class="btn-arcade" onclick="postBreakerScore()">🏆 Post Score to Chat</button>
-            </div>
+                <div class="arcade-controls">
+                    <button class="btn-arcade" onclick="startCyberBreaker()">▶ Start / Restart</button>
+                    <button class="btn-arcade" style="background: #00ddff;" onclick="toggleBreakerHelp()">❓ Rules</button>
+                    <button class="btn-arcade" onclick="postBreakerScore()">🏆 Post Score to Chat</button>
+                </div>
+            
+                <div id="breaker-help" class="hidden" style="background: #100824; border: 1px dashed #ff44aa; color: #eee; font-size: 11px; text-align: left; padding: 8px; margin-top: 8px; line-height: 1.4;">
+                    <div style="color: #ff44aa; font-weight: bold; margin-bottom: 4px;">🧱 HOW TO PLAY CYBER-BREAKER (HARD):</div>
+                    • <b>Bricks:</b> Colored = 1 HP | Silver = 2 HP | Gold = 3 HP | Dark Steel = Unbreakable.<br>
+                    • <b>Good Drops:</b> <span style="color:#00ddff;">[M] Multi-Ball</span> • <span style="color:#ffd700;">[L] Dual Lasers ([Space])</span> • <span style="color:#00ff88;">[W] Wide Paddle</span>.<br>
+                    • <b>Hazards:</b> Dodge <span style="color:#ff2244;">RED [!] Skulls</span> (they shrink your paddle or invert Left/Right controls!).<br>
+                    • <b>Boss Core:</b> Appears every 3rd level—dodge its plasma shots and smash the core!
+                </div>
         </div>
         <!-- LIVE CONVERSATION STREAM FEED -->
         <div class="message-feed" id="chat-stream">
