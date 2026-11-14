@@ -293,6 +293,25 @@
                 <button class="btn-arcade" style="background:#ffaaaa;" onclick="resetRPGSave()">🔄 Reset</button>
             </div>
         </div>
+        <!-- HARD-MODE CYBER-BREAKER ARCADE TOGGLE & CABINET -->
+        <div style="margin-bottom: 10px;">
+            <button class="btn-submit" style="padding: 6px 0; font-size: 13px; background: #1a0933; color: #ff44aa; border-color: #ff44aa;" onclick="toggleCyberBreaker()">🧱 Toggle Cyber-Breaker (HARD)</button>
+        </div>
+        
+        <div id="breaker-cabinet" class="arcade-box hidden" style="border-color: #ff44aa;">
+            <div class="arcade-header">
+                <span>SCORE: <span id="cb-score">0</span></span>
+                <span>LIVES: <span id="cb-lives">❤️❤️❤️</span></span>
+                <span>LVL: <span id="cb-lvl">1</span></span>
+                <span>HIGH: <span id="cb-high">0</span></span>
+            </div>
+            <canvas id="breaker-canvas" width="440" height="260" style="border-color: #ff44aa;"></canvas>
+            <div id="cb-status" style="font-size: 11px; color: #ff44aa; margin-top: 4px;">Controls: [A / D] or [Left / Right] or [Mouse] • [Space] to Fire Lasers</div>
+            <div class="arcade-controls">
+                <button class="btn-arcade" onclick="startCyberBreaker()">▶ Start / Restart</button>
+                <button class="btn-arcade" onclick="postBreakerScore()">🏆 Post Score to Chat</button>
+            </div>
+        </div>
         <!-- LIVE CONVERSATION STREAM FEED -->
         <div class="message-feed" id="chat-stream">
             Loading recent messages...
@@ -1268,6 +1287,7 @@ function executeBanRequest(targetEmail, jwtToken) {
     }
     setInterval(checkChatHours, 10000);
 </script>
+<script src="cyber-breaker.js"></script>
 <script src="cyber-rpg.js"></script>
 </body>
 </html>
