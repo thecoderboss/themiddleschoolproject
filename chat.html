@@ -556,7 +556,22 @@ function checkChatHours() {
         };
         xhr.send(JSON.stringify({ "email": email, "password": password }));
     }
+   
+    var jwtLoggingOut = false;
 
+    function checkJWTExpired(xhr) {
+        if (jwtLoggingOut) return true;
+        if (xhr.status === 401 || (xhr.responseText && xhr.responseText.indexOf("JWT expired") !== -1)) {
+            jwtLoggingOut = true;
+            alert("Your session expired! Please log in again.");
+            handleLogout();
+            setTimeout(function() { jwtLoggingOut = false; }, 1000);
+            return true;
+        }
+        return false;
+    }
+
+    
         function handleLogout() {
         localStorage.removeItem("sb_token");
         localStorage.removeItem("sb_user_email");
@@ -584,11 +599,17 @@ function checkChatHours() {
     xhr.open("GET", queryUrl + "&select=*&order=created_at.desc&limit=15", true);
     xhr.setRequestHeader("apikey", SUPABASE_KEY);
     
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            var data = JSON.parse(xhr.responseText);
-            var htmlBuffer = "";
-            
+            xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (checkJWTExpired(xhr)) return;
+                if (xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    var htmlBuffer = "";
+                }
+            }
+        };
+
+
             if (!data || data.length === 0) {
                 feed.innerHTML = "<div style='text-align:center; padding-top:40px; font-style:italic;'>The board is empty.</div>";
                 return;
@@ -703,9 +724,10 @@ function handleBanSubmit() {
 
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
+                if (checkJWTExpired(xhr)) return;
                 if (xhr.status >= 200 && xhr.status <= 299) {
                     document.getElementById("user-msg").value = "";
-                    fetchRequestMessages(); 
+                    fetchRequestMessages();
                 } else {
                     var err = JSON.parse(xhr.responseText || "{}");
                     alert("Transmission failure: " + (err.message || "Status code " + xhr.status));
