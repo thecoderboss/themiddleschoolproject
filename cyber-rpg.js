@@ -591,7 +591,7 @@ function resetRPGSave() {
     if (!confirm("Reset your PROTOCOL ZERO save back to the beginning?")) return;
     rpgState = Object.assign({}, defaultRPG);
     activeBattle = null;
-    saveRPGToCloud(false);
+    saveRPGToCloud(false, true);
     setExploreControls();
-    setRPGDialogue("* Save wiped. Welcome back to Sector 7 Slums!");
+    setRPGDialogue("* Save wiped! Welcome back to Sector 7 Slums.");
 }
