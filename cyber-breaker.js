@@ -401,7 +401,25 @@ function postBreakerScore() {
     msgBox.value = "🧱 [Cyber-Breaker HARD] Score: " + cbScore + " (Lvl " + cbLvl + " | High: " + cbHigh + ")";
     submitRequestMessage();
 }
+
+var cbPausedByHelp = false;
+
 function toggleBreakerHelp() {
     var helpBox = document.getElementById("breaker-help");
-    if (helpBox) helpBox.classList.toggle("hidden");
+    if (!helpBox) return;
+
+    var opening = helpBox.classList.contains("hidden");
+    helpBox.classList.toggle("hidden");
+
+    if (opening && cbRunning) {
+        cbRunning = false;
+        cbPausedByHelp = true;
+        cancelAnimationFrame(cbAnimId);
+        setBreakerStatus("⏸️ PAUSED (Close Rules to resume)", "#ffd700");
+    } else if (!opening && cbPausedByHelp && cbLives > 0) {
+        cbPausedByHelp = false;
+        cbRunning = true;
+        setBreakerStatus("▶ RESUMED!", "#00ff88");
+        gameLoopCyberBreaker();
+    }
 }
