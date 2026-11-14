@@ -579,7 +579,8 @@ function checkChatHours() {
         sessionStorage.removeItem("joined_announced");
         checkCurrentSession();
     }
-            function fetchRequestMessages() {
+    
+    function fetchRequestMessages() {
     var feed = document.getElementById("chat-stream");
     if (!feed) return; // Keeps the app from breaking if elements load slowly
     
@@ -599,80 +600,69 @@ function checkChatHours() {
     xhr.open("GET", queryUrl + "&select=*&order=created_at.desc&limit=15", true);
     xhr.setRequestHeader("apikey", SUPABASE_KEY);
     
-            xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                if (checkJWTExpired(xhr)) return;
-                if (xhr.status === 200) {
-                    var data = JSON.parse(xhr.responseText);
-                    var htmlBuffer = "";
-                }
-            }
-        };
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (checkJWTExpired(xhr)) return;
+            if (xhr.status === 200) {
+                var data = JSON.parse(xhr.responseText);
+                var htmlBuffer = "";
 
-
-            if (!data || data.length === 0) {
-                feed.innerHTML = "<div style='text-align:center; padding-top:40px; font-style:italic;'>The board is empty.</div>";
-                return;
-            }
-
-            // Flip them so oldest is at the top, newest is at the bottom
-            data.reverse();
-
-            for (var i = 0; i < data.length; i++) {
-                               if (data[i].role === "system") {
-                    htmlBuffer += "<div class='system-msg'>" + escapeHtml(data[i].message) + "</div>";
-                    continue;
+                if (!data || data.length === 0) {
+                    feed.innerHTML = "<div style='text-align:center; padding-top:40px; font-style:italic;'>The board is empty.</div>";
+                    return;
                 }
 
+                // Flip them so oldest is at the top, newest is at the bottom
+                data.reverse();
 
-                var timeStr = "";
-                try {
-                    var dateObj = new Date(data[i].created_at);
-                    timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                } catch(e) { timeStr = "--:--"; }
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].role === "system") {
+                        htmlBuffer += "<div class='system-msg'>" + escapeHtml(data[i].message) + "</div>";
+                        continue;
+                    }
 
-                var moderationControlsHtml = "";
-                if (userRole === "admin" || userRole === "owner") {
-                    moderationControlsHtml += " <span class='btn-delete' style='cursor:pointer;color:gray;' onclick='deleteChatMessage(" + data[i].id + ")'>[Delete]</span>";
+                    var timeStr = "";
+                    try {
+                        var dateObj = new Date(data[i].created_at);
+                        timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    } catch(e) { timeStr = "--:--"; }
+
+                    var moderationControlsHtml = "";
+                    if (userRole === "admin" || userRole === "owner") {
+                        moderationControlsHtml += " <span class='btn-delete' style='cursor:pointer;color:gray;' onclick='deleteChatMessage(" + data[i].id + ")'>[Delete]</span>";
+                    }
+
+                    var senderRole = data[i].role || "user";
+                    var roleTagHtml = "";
+                    if (senderRole === "owner") {
+                        roleTagHtml = `<span class="glow-owner" data-text="[OWNER]">[OWNER]</span>`;
+                    } else if (senderRole === "admin") {
+                        var senderName = data[i].name.toLowerCase(); 
+                        if (senderName === "idk") {
+                            roleTagHtml = " <span class='glow-admin-blue'>[Admin]</span>";
+                        } else if (senderName === "celiaseesall") {
+                            roleTagHtml = " <span class='glow-admin-pink'>[Admin]</span>";
+                        } else if (senderName === "shadow") {
+                            roleTagHtml = " <span class='glow-admin-invisible'>[Admin]</span>";        
+                        } else {
+                            roleTagHtml = " <span class='glow-admin'>[Admin]</span>";
+                        }
+                    }
+
+                    var bubbleClass = (senderRole === "owner") ? "msg-bubble msg-owner" : "msg-bubble";
+
+                    htmlBuffer += "<div class='" + bubbleClass + "'>" +
+                        "<span class='msg-user'>" + escapeHtml(data[i].name) + roleTagHtml + "</span>: " +
+                        "<span>" + escapeHtml(data[i].message) + "</span>" +
+                        "<span class='msg-time'>" + timeStr + "</span>" +
+                        moderationControlsHtml +
+                        "</div>";
                 }
-
-                var senderRole = data[i].role || "user";
-                var roleTagHtml = "";
-                if (senderRole === "owner") {
-                    roleTagHtml = `<span class="glow-owner" data-text="[OWNER]">[OWNER]</span>`;
-
-                } else if (senderRole === "admin") {
-    // Grab the sender's username string and make it lowercase to be safe
-    var senderName = data[i].name.toLowerCase(); 
-    
-        // 🌟 Check if this specific message was sent by idk@chat.com
-    if (senderName === "idk") {
-        roleTagHtml = " <span class='glow-admin-blue'>[Admin]</span>";
-    } else if (senderName === "celiaseesall") {
-        roleTagHtml = " <span class='glow-admin-pink'>[Admin]</span>";
-    } else if (senderName === "shadow") {
-        roleTagHtml = " <span class='glow-admin-invisible'>[Admin]</span>";        
-    } else {
-        // All other admins get your default admin glow style
-        roleTagHtml = " <span class='glow-admin'>[Admin]</span>";
-    }
-}
-
-
-
-                var bubbleClass = (senderRole === "owner") ? "msg-bubble msg-owner" : "msg-bubble";
-
-                htmlBuffer += "<div class='" + bubbleClass + "'>" +
-                    "<span class='msg-user'>" + escapeHtml(data[i].name) + roleTagHtml + "</span>: " +
-                    "<span>" + escapeHtml(data[i].message) + "</span>" +
-                    "<span class='msg-time'>" + timeStr + "</span>" +
-                    moderationControlsHtml +
-                    "</div>";
-            }
-            feed.innerHTML = htmlBuffer;
-            
-            if (wasAtBottom) {
-                feed.scrollTop = feed.scrollHeight;
+                feed.innerHTML = htmlBuffer;
+                
+                if (wasAtBottom) {
+                    feed.scrollTop = feed.scrollHeight;
+                }
             }
         }
     };
