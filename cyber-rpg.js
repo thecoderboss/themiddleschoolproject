@@ -187,7 +187,7 @@ function saveRPGToCloud(showAlert, silent) {
         if (xhr.readyState === 4) {
             if (xhr.status >= 200 && xhr.status <= 299) {
                 if (!silent) {
-                    setRPGDialogue("* ☁️ Game progress synced to your Supabase account!");
+                    setRPGDialogue("* ☁️ Game progress synced to your chat account!");
                 }
                 if (showAlert) alert("☁️ Cloud Save complete!");
             } else if (showAlert) {
