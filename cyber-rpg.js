@@ -322,42 +322,37 @@ function rpgBuy(item) {
 var activeBattle = null;
 
 var dodgeState = {
-    active: false,
-    timer: 0,
-    soulX: 215,
-    soulY: 145,
-    bullets: [],
-    invuln: 0,
-    phase: 1,
-    charging: false,
-    weakened: false
+    active: false, timer: 0, soulX: 215, soulY: 135,
+    bullets: [], lasers: [], invuln: 0,
+    phase: 1, charging: false, weakened: false, pattern: 0
 };
 
 function startEnemyDodgeTurn() {
     dodgeState.active = true;
-    dodgeState.timer = activeBattle.isBoss ? 220 : 160;
+    dodgeState.timer = activeBattle.isBoss ? 240 : 170;
     dodgeState.soulX = 215;
-    dodgeState.soulY = 145;
+    dodgeState.soulY = 135;
     dodgeState.bullets = [];
+    dodgeState.lasers = [];
     dodgeState.invuln = 0;
+    dodgeState.pattern = Math.floor(Math.random() * 3);
 
-    // Boss Multi-Phase & Charge Warnings
     if (activeBattle.isBoss) {
         var hpPct = activeBattle.hp / activeBattle.maxHp;
         dodgeState.phase = hpPct <= 0.4 ? 3 : (hpPct <= 0.75 ? 2 : 1);
 
         if (!dodgeState.charging && Math.random() < 0.35) {
             dodgeState.charging = true;
-            setRPGDialogue("* ⚠️ WARNING: " + activeBattle.name + " [PHASE " + dodgeState.phase + "] is charging a MEGA-SURGE! Use BYTE Assist or brace!");
+            setRPGDialogue("* ⚠️ WARNING: " + activeBattle.name + " [PHASE " + dodgeState.phase + "] is charging a MEGA-SURGE! Use BYTE Assist!");
         } else {
-            var warn = dodgeState.charging ? "🔥 MEGA-SURGE UNLEASHED! " : "⚠️ PHASE " + dodgeState.phase + " ATTACK! ";
-            setRPGDialogue("* " + warn + "Use [WASD / Arrows] to dodge inside the grid!");
+            var pNames = ["LASER GRID", "SNIPER LOCK", "CROSS BARRAGE"];
+            var warn = dodgeState.charging ? "🔥 MEGA-SURGE + " : "⚠️ PHASE " + dodgeState.phase + " [" + pNames[dodgeState.pattern] + "]: ";
+            setRPGDialogue("* " + warn + "Dodge inside the grid with [WASD / Arrows]!");
         }
     } else {
         setRPGDialogue("* " + activeBattle.name + " attacks! Dodge with [WASD / Arrows]!");
     }
 
-    // Hide buttons while dodging
     var bar = document.getElementById("rpg-action-bar");
     if (bar) bar.innerHTML = '<div style="color:#ffd700; font-size:12px; font-weight:bold;">⚡ DODGE PHASE ACTIVE — USE [WASD / ARROWS]!</div>';
 }
@@ -367,65 +362,86 @@ function updateDodgeBox(ctx) {
     dodgeState.timer--;
     if (dodgeState.invuln > 0) dodgeState.invuln--;
 
-    // Dodge Arena Box (x: 130..310, y: 95..195)
-    var bx = 130, by = 95, bw = 180, bh = 100;
+    // Dodge Box (y: 78..182, leaving clean space above y=214 party bar!)
+    var bx = 125, by = 78, bw = 190, bh = 104;
     ctx.strokeStyle = dodgeState.charging ? "#ff2244" : "#00ff88";
     ctx.lineWidth = 3;
     ctx.strokeRect(bx, by, bw, bh);
 
-    // Move Player Hacker Soul
-    var spd = 3.2;
+    // Move Player Soul
+    var spd = 3.4;
     if ((rpgKeys["arrowleft"] || rpgKeys["a"]) && dodgeState.soulX > bx + 4) dodgeState.soulX -= spd;
     if ((rpgKeys["arrowright"] || rpgKeys["d"]) && dodgeState.soulX < bx + bw - 14) dodgeState.soulX += spd;
     if ((rpgKeys["arrowup"] || rpgKeys["w"]) && dodgeState.soulY > by + 4) dodgeState.soulY -= spd;
     if ((rpgKeys["arrowdown"] || rpgKeys["s"]) && dodgeState.soulY < by + bh - 14) dodgeState.soulY += spd;
 
-    // Spawn Bullets based on Phase & Charge State
-    var spawnRate = dodgeState.charging ? 8 : (activeBattle.isBoss ? Math.max(10, 22 - dodgeState.phase * 4) : 24);
-    if (dodgeState.timer % spawnRate === 0) {
-        var side = Math.floor(Math.random() * 4);
-        var sx = bx + Math.random() * (bw - 8), sy = by, vx = 0, vy = 2.4;
-        if (side === 1) { sy = by + bh - 8; vy = -2.4; }
-        else if (side === 2) { sx = bx; sy = by + Math.random() * (bh - 8); vx = 2.6; vy = 0; }
-        else if (side === 3) { sx = bx + bw - 8; sy = by + Math.random() * (bh - 8); vx = -2.6; vy = 0; }
-
-        if (dodgeState.charging) { vx *= 1.45; vy *= 1.45; }
-        dodgeState.bullets.push({ x: sx, y: sy, vx: vx, vy: vy, size: dodgeState.charging ? 8 : 6 });
+    // Pattern Spawner
+    var rate = dodgeState.charging ? 14 : (activeBattle.isBoss ? Math.max(16, 30 - dodgeState.phase * 4) : 28);
+    if (dodgeState.timer % rate === 0) {
+        if (dodgeState.pattern === 0) {
+            // Pattern 0: Sweeping Laser Bar with a Safe Gap
+            var gapX = bx + 20 + Math.random() * (bw - 65);
+            dodgeState.bullets.push({ x: bx + 2, y: by, vx: 0, vy: 2.5, w: gapX - bx - 2, h: 7 });
+            dodgeState.bullets.push({ x: gapX + 42, y: by, vx: 0, vy: 2.5, w: (bx + bw) - (gapX + 42) - 2, h: 7 });
+        } else if (dodgeState.pattern === 1) {
+            // Pattern 1: Aimed Sniper Bolts from Top Corners
+            var sx = Math.random() < 0.5 ? bx + 6 : bx + bw - 12;
+            var ang = Math.atan2((dodgeState.soulY + 5) - by, (dodgeState.soulX + 5) - sx);
+            var bSpd = dodgeState.charging ? 3.8 : 2.9;
+            dodgeState.bullets.push({ x: sx, y: by + 2, vx: Math.cos(ang) * bSpd, vy: Math.sin(ang) * bSpd, w: 7, h: 7 });
+        } else {
+            // Pattern 2: 4-Way Cross Burst from Center
+            var cx = bx + bw / 2 - 3, cy = by + bh / 2 - 3;
+            var dirs = [{vx:2.4,vy:0},{vx:-2.4,vy:0},{vx:0,vy:2.4},{vx:0,vy:-2.4}];
+            if (dodgeState.phase >= 2) dirs = [{vx:2,vy:2},{vx:-2,vy:2},{vx:2,vy:-2},{vx:-2,vy:-2}];
+            for (var d = 0; d < dirs.length; d++) {
+                dodgeState.bullets.push({ x: cx, y: cy, vx: dirs[d].vx, vy: dirs[d].vy, w: 6, h: 6 });
+            }
+        }
     }
 
-    // Update & Draw Bullets
-    ctx.fillStyle = dodgeState.charging ? "#ff2244" : "#ffaa00";
+    // Boss Mega-Surge Telegraph Laser Columns
+    if (dodgeState.charging && dodgeState.timer % 45 === 0) {
+        var lx = bx + 15 + Math.random() * (bw - 45);
+        dodgeState.lasers.push({ x: lx, w: 24, warn: 24, fire: 14 });
+    }
+    // Draw & Check Boss Telegraph Laser Columns
+    for (var l = dodgeState.lasers.length - 1; l >= 0; l--) {
+        var lz = dodgeState.lasers[l];
+        if (lz.warn > 0) {
+            lz.warn--;
+            ctx.fillStyle = "rgba(255, 34, 68, 0.25)";
+            ctx.fillRect(lz.x, by, lz.w, bh);
+        } else if (lz.fire > 0) {
+            lz.fire--;
+            ctx.fillStyle = "#ff2244";
+            ctx.fillRect(lz.x, by, lz.w, bh);
+            if (dodgeState.invuln === 0 && dodgeState.soulX + 10 > lz.x && dodgeState.soulX < lz.x + lz.w) {
+                damageSoulInDodge(Math.round(activeBattle.atk * 1.3));
+                if (!dodgeState.active) return;
+            }
+        } else {
+            dodgeState.lasers.splice(l, 1);
+        }
+    }
+
+    // Update & Draw Pattern Bullets
+    ctx.fillStyle = dodgeState.charging ? "#ff4466" : "#ffaa00";
     for (var i = dodgeState.bullets.length - 1; i >= 0; i--) {
         var b = dodgeState.bullets[i];
         b.x += b.vx; b.y += b.vy;
-        ctx.fillRect(b.x, b.y, b.size, b.size);
+        ctx.fillRect(b.x, b.y, b.w, b.h);
 
         if (b.x < bx - 10 || b.x > bx + bw + 10 || b.y < by - 10 || b.y > by + bh + 10) {
             dodgeState.bullets.splice(i, 1);
             continue;
         }
-
-        // Soul Collision Check
         if (dodgeState.invuln === 0 &&
-            dodgeState.soulX < b.x + b.size && dodgeState.soulX + 10 > b.x &&
-            dodgeState.soulY < b.y + b.size && dodgeState.soulY + 10 > b.y) {
+            dodgeState.soulX < b.x + b.w && dodgeState.soulX + 10 > b.x &&
+            dodgeState.soulY < b.y + b.h && dodgeState.soulY + 10 > b.y) {
             dodgeState.bullets.splice(i, 1);
-            dodgeState.invuln = 28;
-            var rawDmg = dodgeState.charging ? Math.round(activeBattle.atk * 1.4) : activeBattle.atk;
-            if (dodgeState.weakened) rawDmg = Math.round(rawDmg * 0.6);
-            var hitDmg = Math.max(2, rawDmg - rpgState.def);
-            rpgState.hp -= hitDmg;
-            updateRPGHud();
-
-            if (rpgState.hp <= 0) {
-                dodgeState.active = false;
-                activeBattle = null;
-                rpgState.mapId = "slums"; rpgState.px = 60; rpgState.py = 120;
-                rpgState.hp = rpgState.maxHp; rpgState.ram = rpgState.maxRam;
-                saveRPGLocal(); setExploreControls();
-                setRPGDialogue("* 💀 SYSTEM CRASHED! Emergency rebooted back at Sector 7 Slums.");
-                return;
-            }
+            damageSoulInDodge(activeBattle.atk);
+            if (!dodgeState.active) return;
         }
     }
 
@@ -433,13 +449,30 @@ function updateDodgeBox(ctx) {
     ctx.fillStyle = (dodgeState.invuln % 6 > 2) ? "#ff3344" : "#00ff88";
     ctx.fillRect(dodgeState.soulX, dodgeState.soulY, 10, 10);
 
-    // End Dodge Phase
+    // End Dodge Turn
     if (dodgeState.timer <= 0) {
         dodgeState.active = false;
         dodgeState.charging = false;
         dodgeState.weakened = false;
         renderBattleButtons();
         setRPGDialogue("* Your turn! Choose your next hack or attack.");
+    }
+}
+
+function damageSoulInDodge(rawAtk) {
+    dodgeState.invuln = 28;
+    if (dodgeState.weakened) rawAtk = Math.round(rawAtk * 0.6);
+    var hitDmg = Math.max(2, rawAtk - rpgState.def);
+    rpgState.hp -= hitDmg;
+    updateRPGHud();
+
+    if (rpgState.hp <= 0) {
+        dodgeState.active = false;
+        activeBattle = null;
+        rpgState.mapId = "slums"; rpgState.px = 60; rpgState.py = 120;
+        rpgState.hp = rpgState.maxHp; rpgState.ram = rpgState.maxRam;
+        saveRPGLocal(); setExploreControls();
+        setRPGDialogue("* 💀 SYSTEM CRASHED! Emergency rebooted back at Sector 7 Slums.");
     }
 }
 
@@ -614,7 +647,7 @@ function rpgMainLoop() {
         ctx.fillStyle = "#00ff88";
         ctx.font = "bold 12px monospace";
         var partyText = "YOU [LVL " + rpgState.lvl + "]" + (rpgState.hasByte ? "  +  🤖 BYTE [ONLINE]" : "");
-        ctx.fillText(partyText, 220, 198);
+        ctx.fillText(partyText, 220, 214);
     } else {
         // Overworld Exploration Screen
         ctx.fillStyle = map.bg;
