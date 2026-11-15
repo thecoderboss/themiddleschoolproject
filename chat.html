@@ -542,7 +542,7 @@ function checkChatHours() {
                     } else {
                         localStorage.setItem("sb_token", data.access_token);
                         localStorage.setItem("sb_user_email", data.user.email);
-                        
+                        leaveSent = false;
                         document.getElementById("auth-email").value = "";
                         document.getElementById("auth-password").value = "";
                         
@@ -571,8 +571,48 @@ function checkChatHours() {
         return false;
     }
 
-    
-        function handleLogout() {
+        var leaveSent = false;
+
+    function sendLeaveMessage() {
+        if (leaveSent) return;
+        var userEmail = localStorage.getItem("sb_user_email");
+        var token = localStorage.getItem("sb_token");
+        if (!userEmail || !token) return;
+
+        leaveSent = true;
+        var username = userEmail.split("@")[0];
+        var roomInput = document.getElementById("chat-room-input");
+        var passInput = document.getElementById("chat-room-password");
+        var roomId = roomInput ? (roomInput.value.trim() || "global") : "global";
+        var roomPassword = passInput ? (passInput.value.trim() || "") : "";
+
+        var payload = {
+            name: username,
+            message: username + " left the chat.",
+            role: "system",
+            room_id: roomId,
+            room_password: roomId === "global" ? "" : roomPassword
+        };
+
+        // keepalive: true ensures the message still sends even when closing the tab!
+        fetch(SUPABASE_URL + "/rest/v1/online_chat", {
+            method: "POST",
+            headers: {
+                "apikey": SUPABASE_KEY,
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload),
+            keepalive: true
+        }).catch(function() {});
+    }
+    window.addEventListener("pagehide", function() {
+        sendLeaveMessage();
+    });
+
+        
+    function handleLogout() {
+        sendLeaveMessage();
         localStorage.removeItem("sb_token");
         localStorage.removeItem("sb_user_email");
         localStorage.removeItem("sb_user_role");
