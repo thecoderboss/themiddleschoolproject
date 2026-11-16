@@ -567,7 +567,16 @@ function checkChatHours() {
                         }
                     }
 
-                    var bubbleClass = (senderRole === "owner") ? "msg-bubble msg-owner" : "msg-bubble";
+                    var bubbleClass = "msg-bubble";
+                    if (senderRole === "owner") {
+                        bubbleClass = "msg-bubble msg-owner";
+                    } else if (senderRole === "admin") {
+                        var sName = data[i].name.toLowerCase();
+                        if (sName === "idk") bubbleClass = "msg-bubble msg-admin-blue";
+                        else if (sName === "celiaseesall") bubbleClass = "msg-bubble msg-admin-pink";
+                        else if (sName === "shadow") bubbleClass = "msg-bubble msg-admin-shadow";
+                        else bubbleClass = "msg-bubble msg-admin";
+                    }
 
                     htmlBuffer += "<div class='" + bubbleClass + "'>" +
                         "<span class='msg-user'>" + escapeHtml(data[i].name) + roleTagHtml + "</span>: " +
