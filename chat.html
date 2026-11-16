@@ -640,9 +640,9 @@ function checkChatHours() {
         return false;
     }
 
-        var leaveSent = false;
+            var leaveSent = false;
 
-    function sendLeaveMessage() {
+    function sendLeaveMessage(isUnload) {
         if (leaveSent) return;
         var userEmail = localStorage.getItem("sb_user_email");
         var token = localStorage.getItem("sb_token");
@@ -655,15 +655,20 @@ function checkChatHours() {
         var roomId = roomInput ? (roomInput.value.trim() || "global") : "global";
         var roomPassword = passInput ? (passInput.value.trim() || "") : "";
 
+        // Save timestamp to sessionStorage (survives refresh, wiped on tab close)
+        if (isUnload) {
+            sessionStorage.setItem("chat_unload_ts", Date.now().toString());
+            sessionStorage.setItem("chat_unload_user", username);
+        }
+
         var payload = {
             name: username,
-            message: username + " left the chat.",
+            message: username + " has left the chat.",
             role: "system",
             room_id: roomId,
             room_password: roomId === "global" ? "" : roomPassword
         };
 
-        // keepalive: true ensures the message still sends even when closing the tab!
         fetch(SUPABASE_URL + "/rest/v1/online_chat", {
             method: "POST",
             headers: {
@@ -675,6 +680,38 @@ function checkChatHours() {
             keepalive: true
         }).catch(function() {});
     }
+
+    window.addEventListener("pagehide", function() {
+        sendLeaveMessage(true);
+    });
+
+        function cleanRefreshLeaveMessage() {
+        var ts = parseInt(sessionStorage.getItem("chat_unload_ts") || "0", 10);
+        var username = sessionStorage.getItem("chat_unload_user");
+        var token = localStorage.getItem("sb_token");
+
+        sessionStorage.removeItem("chat_unload_ts");
+        sessionStorage.removeItem("chat_unload_user");
+
+        // If the page came back within 8 seconds, it was a refresh—delete the leave message!
+        if (ts && username && token && (Date.now() - ts) < 8000) {
+            var leaveText = username + " has left the chat.";
+            var delUrl = SUPABASE_URL + "/rest/v1/online_chat?role=eq.system&message=eq." + encodeURIComponent(leaveText);
+
+            fetch(delUrl, {
+                method: "DELETE",
+                headers: {
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": "Bearer " + token
+                }
+            }).then(function() {
+                if (typeof fetchRequestMessages === "function") fetchRequestMessages();
+            }).catch(function() {});
+        }
+    }
+
+    cleanRefreshLeaveMessage();
+
 
         
     function handleLogout() {
