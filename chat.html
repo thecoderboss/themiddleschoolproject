@@ -675,9 +675,6 @@ function checkChatHours() {
             keepalive: true
         }).catch(function() {});
     }
-    window.addEventListener("pagehide", function() {
-        sendLeaveMessage();
-    });
 
         
     function handleLogout() {
