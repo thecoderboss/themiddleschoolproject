@@ -740,7 +740,7 @@ function checkChatHours() {
         queryUrl += "&room_password=eq." + encodeURIComponent(roomPassword);
     }
     
-    xhr.open("GET", queryUrl + "&select=*&order=created_at.desc&limit=15", true);
+    xhr.open("GET", queryUrl + "&select=*&order=created_at.desc&limit=30", true);
     xhr.setRequestHeader("apikey", SUPABASE_KEY);
     
     xhr.onreadystatechange = function() {
