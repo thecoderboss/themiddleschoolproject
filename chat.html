@@ -497,6 +497,17 @@
                 </div>
         </div>
         <button class="btn-arcade" style="background: #00f0ff; color: #000;" onclick="toggleCyberFlap()">🐦 Play/Stop Cyber-Flap</button>
+            <div id="flap-cabinet" class="hidden" style="background: #080d1a; border: 2px solid #00f0ff; padding: 10px; margin-top: 10px; border-radius: 6px; text-align: center;">
+                <div style="color: #00f0ff; font-weight: bold; font-size: 13px; margin-bottom: 6px;">
+                    🐦 CYBER-FLAP • SCORE: <span id="flap-score">0</span> | HIGH: <span id="flap-high">0</span>
+                </div>
+                <canvas id="flap-canvas" width="380" height="240" style="background: #040710; border: 1px solid #00f0ff; display: block; margin: 0 auto; cursor: pointer;"></canvas>
+                <div id="flap-status" style="color: #ffd700; font-size: 11px; margin: 6px 0;">Click canvas or press [Space / W / Up] to flap!</div>
+                <div class="arcade-controls">
+                    <button class="btn-arcade" onclick="startCyberFlap()">▶ Start / Restart</button>
+                    <button class="btn-arcade" onclick="postFlapScore()">🏆 Post Score to Chat</button>
+                </div>
+            </div>
         <!-- LIVE CONVERSATION STREAM FEED -->
         <div class="message-feed" id="chat-stream">
             Loading recent messages...
@@ -1569,5 +1580,6 @@ function executeBanRequest(targetEmail, jwtToken) {
 </script>
 <script src="cyber-breaker.js"></script>
 <script src="cyber-rpg.js"></script>
+<script src="cyber-flap.js"></script>
 </body>
 </html>
