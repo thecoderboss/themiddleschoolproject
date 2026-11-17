@@ -213,32 +213,56 @@
     19% { transform: translate(2px, 0) skewX(8deg); color: #ff66b8; text-shadow: 3px 0 0 #ff0055, -3px 0 0 #00e5ff; }
 }
 
-/* ================= SHADOW: STEALTH GHOST CLOAK ================= */
+/* ================= SHADOW: FULL-BUBBLE STEALTH & HIGH-CONTRAST HOVER ================= */
 .glow-admin-invisible {
-    color: #8888aa; font-weight: 900; font-size: 12px; text-transform: uppercase;
-    margin-left: 4px; letter-spacing: 1px; display: inline-block;
-    animation: smokeCloak 3.8s infinite ease-in-out;
+    color: #9e88cc;
+    font-weight: 900;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-left: 4px;
+    letter-spacing: 1px;
+    display: inline-block;
 }
+
 .msg-admin-shadow {
-    border-left: 3px dashed #666688;
-    background: rgba(25, 25, 40, 0.2);
-    opacity: 0.72;
-    transition: all 0.25s ease;
+    border-left: 3px dashed #7a66a8;
+    background: rgba(25, 20, 40, 0.25);
+    animation: smokeCloak 3.8s infinite ease-in-out;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
+
+.msg-admin-shadow .msg-user {
+    color: #b49ee0 !important;
+}
+
+/* Hover Reveal: Stops fading and makes everything super crisp and readable */
 .msg-admin-shadow:hover {
-    opacity: 1;
-    border-left: 3px solid #b19cd9;
-    background: rgba(177, 156, 217, 0.15);
-    box-shadow: 0 0 12px rgba(177, 156, 217, 0.3);
+    animation: none !important;
+    opacity: 1 !important;
+    filter: blur(0px) !important;
+    border-left: 3px solid #d8b4fe;
+    background: rgba(24, 16, 42, 0.88) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 14px rgba(192, 132, 252, 0.4);
 }
+
+.msg-admin-shadow:hover .msg-user,
 .msg-admin-shadow:hover .glow-admin-invisible {
-    animation: none; opacity: 1; filter: blur(0); color: #e2d4ff; text-shadow: 0 0 8px #b19cd9;
+    color: #f3e8ff !important;
+    text-shadow: 0 0 8px rgba(216, 180, 254, 0.7);
 }
+
 @keyframes smokeCloak {
-    0%, 100% { opacity: 0.9; filter: blur(0px); }
-    50% { opacity: 0.12; filter: blur(3px); letter-spacing: 2.2px; }
+    0%, 100% {
+        opacity: 0.92;
+        filter: blur(0px);
+    }
+    50% {
+        opacity: 0.28;
+        filter: blur(1.6px);
+    }
 }
-/* ================= OWNER BUBBLE GLASS-SHINE & GOLD NAME ================= */
+/* ================= OWNER GOLD NAME ================= */
 .msg-owner {
     position: relative;
     overflow: hidden;
