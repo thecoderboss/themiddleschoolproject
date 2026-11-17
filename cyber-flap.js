@@ -84,36 +84,45 @@ function gameLoopCyberFlap() {
     var ctx = canvas.getContext("2d");
     cfFrames++;
 
-    // Background & Cyber Grid
+    // Background & Cyber Grid (Grid speeds up with score!)
+    var speed = 2.6 + Math.min(2.8, cfScore * 0.08);
     ctx.fillStyle = "#040710";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = "rgba(0, 240, 255, 0.08)";
+    ctx.strokeStyle = cfScore >= 15 ? "rgba(255, 20, 100, 0.12)" : "rgba(0, 240, 255, 0.08)";
     ctx.lineWidth = 1;
-    var gridOffset = (cfFrames * 2) % 30;
+    var gridOffset = Math.floor(cfFrames * speed) % 30;
     for (var gx = -gridOffset; gx < canvas.width; gx += 30) {
         ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, canvas.height); ctx.stroke();
     }
 
     // Bird Physics
-    cfBird.vy += 0.24;
+    cfBird.vy += 0.25;
     cfBird.y += cfBird.vy;
 
-    // Spawn Laser Gates (Gap tightens slightly as score climbs)
-    var spawnEvery = Math.max(78, 105 - Math.floor(cfScore / 4) * 2);
+    // Spawn Laser Gates (Faster spawns, tighter gaps, & moving gates after Score 5)
+    var spawnEvery = Math.max(62, 100 - Math.floor(cfScore * 1.4));
     if (cfFrames % spawnEvery === 0) {
-        var gapH = Math.max(66, 86 - Math.floor(cfScore / 5) * 2);
-        var topH = 26 + Math.random() * (canvas.height - gapH - 52);
-        cfPipes.push({ x: canvas.width, topH: topH, gapH: gapH, w: 34, scored: false });
+        var gapH = Math.max(58, 86 - Math.floor(cfScore * 0.9));
+        var topH = 24 + Math.random() * (canvas.height - gapH - 48);
+        var moveDir = (cfScore >= 5 && Math.random() < Math.min(0.75, cfScore * 0.04)) ? (Math.random() < 0.5 ? 1 : -1) : 0;
+        var moveSpd = moveDir * (0.7 + Math.min(1.5, cfScore * 0.04));
+        var hasBonus = (cfScore >= 3 && Math.random() < 0.35);
+        cfPipes.push({ x: canvas.width, topH: topH, gapH: gapH, w: 34, scored: false, vy: moveSpd, bonus: hasBonus });
     }
 
     // Update & Draw Laser Gates
-    var speed = 2.4 + Math.min(1.6, cfScore * 0.05);
     for (var i = cfPipes.length - 1; i >= 0; i--) {
         var p = cfPipes[i];
         p.x -= speed;
 
-        // Neon Pink/Red Laser Pillars
-        ctx.fillStyle = "#ff1464";
+        // Oscillate Moving Gates Vertically
+        if (p.vy !== 0) {
+            p.topH += p.vy;
+            if (p.topH < 18 || p.topH + p.gapH > canvas.height - 18) p.vy *= -1;
+        }
+
+        // Neon Pink/Red Laser Pillars (Turn Electric Purple for Moving Gates)
+        ctx.fillStyle = p.vy !== 0 ? "#b026ff" : "#ff1464";
         ctx.fillRect(p.x, 0, p.w, p.topH);
         ctx.fillRect(p.x, p.topH + p.gapH, p.w, canvas.height - (p.topH + p.gapH));
 
@@ -121,6 +130,21 @@ function gameLoopCyberFlap() {
         ctx.lineWidth = 1.5;
         ctx.strokeRect(p.x, 0, p.w, p.topH);
         ctx.strokeRect(p.x, p.topH + p.gapH, p.w, canvas.height - (p.topH + p.gapH));
+
+        // Optional Gold Overclock Ring (+2 Bonus Points)
+        if (p.bonus) {
+            var bx = p.x + p.w / 2, by = p.topH + p.gapH / 2;
+            ctx.strokeStyle = "#ffd700";
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(bx, by, 7, 0, Math.PI * 2); ctx.stroke();
+
+            if (Math.hypot(cfBird.x - bx, cfBird.y - by) < cfBird.r + 7) {
+                p.bonus = false;
+                cfScore += 2;
+                setFlapStatus("⚡ OVERCLOCK BONUS! +2 PTS!", "#ffd700");
+                updateFlapHud();
+            }
+        }
 
         // Score Point
         if (!p.scored && p.x + p.w < cfBird.x) {
@@ -143,7 +167,7 @@ function gameLoopCyberFlap() {
         if (p.x + p.w < 0) cfPipes.splice(i, 1);
     }
 
-    // Thruster Particles
+    // Thruster Particles & Bird
     for (var j = cfParticles.length - 1; j >= 0; j--) {
         var pt = cfParticles[j];
         pt.x += pt.vx; pt.y += pt.vy; pt.life--;
@@ -152,20 +176,15 @@ function gameLoopCyberFlap() {
         if (pt.life <= 0) cfParticles.splice(j, 1);
     }
 
-    // Draw Cyber-Drone Bird
     ctx.fillStyle = "#00f0ff";
-    ctx.beginPath();
-    ctx.arc(cfBird.x, cfBird.y, cfBird.r, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(cfBird.x, cfBird.y, cfBird.r, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = "#ffd700";
     ctx.fillRect(cfBird.x + 4, cfBird.y - 3, 7, 5);
 
-    // Ceiling / Floor Crash Check
     if (cfBird.y + cfBird.r >= canvas.height || cfBird.y - cfBird.r <= 0) {
         endCyberFlap();
         return;
     }
-
     cfAnimId = requestAnimationFrame(gameLoopCyberFlap);
 }
 
