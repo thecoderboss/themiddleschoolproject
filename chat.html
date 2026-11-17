@@ -251,21 +251,7 @@
     font-weight: 900;
     text-shadow: 0 1px 2px #2e1f00, 0 0 8px rgba(255, 215, 0, 0.8);
 }
-.msg-owner::after {
-    content: "";
-    position: absolute;
-    top: 0; left: -120%;
-    width: 60%; height: 100%;
-    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-    transform: skewX(-20deg);
-    animation: ownerGlassSweep 4s infinite ease-in-out;
-    pointer-events: none;
-}
-@keyframes ownerGlassSweep {
-    0%, 65% { left: -120%; }
-    100% { left: 160%; }
-}
-
+        
 /* ================= ADMIN USERNAME GLOWS & ENHANCED BUBBLES ================= */
 .msg-admin .msg-user { color: #7dff8e !important; text-shadow: 0 0 6px rgba(0, 255, 34, 0.5); }
 
