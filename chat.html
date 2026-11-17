@@ -277,12 +277,32 @@
     border-left: 4px solid #ffd700 !important;
     box-shadow: 0 0 14px rgba(255, 215, 0, 0.35), inset 0 0 10px rgba(255, 255, 255, 0.25) !important;
 }
-.msg-owner .msg-user {
-    color: #fff4bd !important;
-    font-weight: 900;
-    text-shadow: 0 1px 2px #2e1f00, 0 0 8px rgba(255, 215, 0, 0.8);
+/* ================= OWNER BUBBLE: ROYAL AURA & HOVER LIFT ================= */
+.msg-owner {
+    position: relative;
+    background-color: #B19CD9 !important;
+    border: 1.5px solid #ffd700 !important;
+    border-left: 4px solid #ffd700 !important;
+    border-radius: 4px !important;
+    animation: ownerRoyalAura 3s infinite ease-in-out;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-        
+
+.msg-owner:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 18px rgba(255, 215, 0, 0.55), 0 0 12px rgba(0, 255, 255, 0.4) !important;
+}
+
+@keyframes ownerRoyalAura {
+    0%, 100% {
+        border-color: #ffd700;
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.35), inset 0 0 8px rgba(255, 255, 255, 0.2);
+    }
+    50% {
+        border-color: #00f0ff;
+        box-shadow: 0 0 16px rgba(0, 240, 255, 0.45), 0 0 8px rgba(255, 215, 0, 0.4), inset 0 0 12px rgba(255, 255, 255, 0.35);
+    }
+}        
 /* ================= ADMIN USERNAME GLOWS & ENHANCED BUBBLES ================= */
 .msg-admin .msg-user { color: #7dff8e !important; text-shadow: 0 0 6px rgba(0, 255, 34, 0.5); }
 
