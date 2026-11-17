@@ -238,6 +238,55 @@
     0%, 100% { opacity: 0.9; filter: blur(0px); }
     50% { opacity: 0.12; filter: blur(3px); letter-spacing: 2.2px; }
 }
+/* ================= OWNER BUBBLE GLASS-SHINE & GOLD NAME ================= */
+.msg-owner {
+    position: relative;
+    overflow: hidden;
+    border: 1.5px solid #ffd700 !important;
+    border-left: 4px solid #ffd700 !important;
+    box-shadow: 0 0 14px rgba(255, 215, 0, 0.35), inset 0 0 10px rgba(255, 255, 255, 0.25) !important;
+}
+.msg-owner .msg-user {
+    color: #fff4bd !important;
+    font-weight: 900;
+    text-shadow: 0 1px 2px #2e1f00, 0 0 8px rgba(255, 215, 0, 0.8);
+}
+.msg-owner::after {
+    content: "";
+    position: absolute;
+    top: 0; left: -120%;
+    width: 60%; height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: skewX(-20deg);
+    animation: ownerGlassSweep 4s infinite ease-in-out;
+    pointer-events: none;
+}
+@keyframes ownerGlassSweep {
+    0%, 65% { left: -120%; }
+    100% { left: 160%; }
+}
+
+/* ================= ADMIN USERNAME GLOWS & ENHANCED BUBBLES ================= */
+.msg-admin .msg-user { color: #7dff8e !important; text-shadow: 0 0 6px rgba(0, 255, 34, 0.5); }
+
+.msg-admin-blue .msg-user { color: #66e0ff !important; text-shadow: 0 0 8px rgba(0, 180, 255, 0.7); }
+.msg-admin-blue {
+    border-left: 4px solid #00ddff !important;
+    box-shadow: 0 0 10px rgba(0, 180, 255, 0.2);
+}
+
+.msg-admin-pink .msg-user { color: #ff80c8 !important; text-shadow: 0 0 8px rgba(255, 20, 147, 0.7); }
+.msg-admin-pink {
+    border-left: 4px solid #ff1493 !important;
+    animation: pinkAuraPulse 2.4s infinite ease-in-out;
+}
+@keyframes pinkAuraPulse {
+    0%, 100% { box-shadow: 0 0 6px rgba(255, 20, 147, 0.2); }
+    50% { box-shadow: -2px 0 12px rgba(255, 0, 85, 0.5), 2px 0 12px rgba(0, 229, 255, 0.4); }
+}
+
+.msg-admin-shadow .msg-user { color: #9999bb !important; transition: color 0.25s ease; }
+.msg-admin-shadow:hover .msg-user { color: #e2d4ff !important; text-shadow: 0 0 8px #b19cd9; }
 
         .system-msg {
             text-align: center;
