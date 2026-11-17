@@ -269,14 +269,6 @@
         filter: blur(4px);
     }
 }
-/* ================= OWNER GOLD NAME ================= */
-.msg-owner {
-    position: relative;
-    overflow: hidden;
-    border: 1.5px solid #ffd700 !important;
-    border-left: 4px solid #ffd700 !important;
-    box-shadow: 0 0 14px rgba(255, 215, 0, 0.35), inset 0 0 10px rgba(255, 255, 255, 0.25) !important;
-}
 /* ================= OWNER BUBBLE: ROYAL AURA & HOVER LIFT ================= */
 .msg-owner {
     position: relative;
@@ -335,6 +327,34 @@
             background: #f0f0f0;
             border: 1px dashed #000;
         }
+        /* ================= HIGH-SPECIFICITY GOLD/CYAN OWNER USERNAME ================= */
+.msg-bubble.msg-owner span.msg-user {
+    display: inline-block !important;
+    padding-bottom: 2px !important;
+    margin-bottom: 2px !important;
+    color: #fff4bd !important;
+    -webkit-text-fill-color: #fff4bd !important;
+    font-weight: 900 !important;
+    border-bottom: 2px solid #ffd700 !important;
+    text-shadow: 0 1px 2px #2e1f00, 0 0 8px rgba(255, 215, 0, 0.9) !important;
+    animation: ownerBorderPulse 3s infinite ease-in-out !important;
+}
+
+@keyframes ownerBorderPulse {
+    0%, 100% {
+        color: #fff4bd !important;
+        -webkit-text-fill-color: #fff4bd !important;
+        border-bottom-color: #ffd700 !important;
+        box-shadow: 0 3px 6px -2px rgba(255, 215, 0, 0.9);
+    }
+    50% {
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+        border-bottom-color: #00f0ff !important;
+        box-shadow: 0 4px 10px -2px rgba(0, 240, 255, 0.95);
+    }
+}
+
         /* Retro Space Invaders Arcade Cabinet */
 .arcade-box { border: 2px solid #000; background: #000; color: #0f0; padding: 10px; margin-bottom: 15px; text-align: center; }
 .arcade-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; margin-bottom: 6px; color: #fff; }
