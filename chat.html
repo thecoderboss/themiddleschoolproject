@@ -421,7 +421,15 @@
             <div style="font-size:12px; color: #bd0000; font-weight: bold; margin-top: 10px;">You have chat moderation access. You can delete any message below.</div>
         </div>
 
-        <!-- RETRO ARCADE TOGGLE & SPACE INVADERS CABINET -->
+        <!-- MASTER ARCADE DRAWER TOGGLE -->
+        <div style="margin-bottom: 12px;">
+            <button class="btn-submit" style="background: #111; color: #0f0; border: 2px solid #0f0; letter-spacing: 1px;" onclick="toggleArcadeDrawer()">🕹️ OPEN / CLOSE ARCADE (7 GAMES)</button>
+        </div>
+        
+        <!-- EVERYTHING INSIDE HERE STAYS HIDDEN UNTIL CLICKED -->
+        <div id="arcade-drawer" class="hidden" style="border: 2px dashed #000; padding: 10px; margin-bottom: 15px; background: #f4f4f4;">
+        <!--ALL THE GAMES ARE IN THIS DIV-->
+         <!-- RETRO ARCADE TOGGLE & SPACE INVADERS CABINET -->
         <div style="margin-bottom: 10px;">
             <button class="btn-submit" style="padding: 6px 0; font-size: 13px; background: #222;" onclick="toggleSpaceInvaders()">👾 Play/Stop Cyber Invaders!</button>
         </div>
@@ -510,7 +518,11 @@
                     <button class="btn-arcade" onclick="postFlapScore()">🏆 Post Score to Chat</button>
                 </div>
             </div>
-        <!-- LIVE CONVERSATION STREAM FEED -->
+            
+            <!--END OF GAMES-->
+         </div>
+
+               <!-- LIVE CONVERSATION STREAM FEED -->
         <div class="message-feed" id="chat-stream">
             Loading recent messages...
         </div>
@@ -1574,6 +1586,15 @@ function executeBanRequest(targetEmail, jwtToken) {
         msgBox.value = "👾 [Space Invaders] Score: " + siScore + " (Wave " + siWave + " | High: " + siHigh + ")";
         submitRequestMessage();
     }
+    function toggleArcadeDrawer() {
+    var drawer = document.getElementById("arcade-drawer");
+    drawer.classList.toggle("hidden");
+    
+    // If closing the arcade drawer, automatically pause the 3 new games so they don't run in the background
+    if (drawer.classList.contains("hidden")) {
+        activeArcadeGame = null;
+    }
+}
      checkChatHours();
     if (document.getElementById("auth-gate")) {
         checkCurrentSession();
