@@ -1000,3 +1000,86 @@ document.addEventListener("keydown", function(e) {
 document.addEventListener("keyup", function(e) {
     rpgKeys[e.key.toLowerCase()] = false;
 });
+// ================= ALL-IN-ONE ENGINE & STORY PATCH =================
+var CH1_STORY = CH1_STORY || { step: 0, cutsceneQueue: [], cutsceneIndex: 0 };
+
+function playStoryScene(lines) {
+    if (!lines || lines.length === 0) return;
+    rpgMode = "cutscene";
+    CH1_STORY.cutsceneQueue = lines;
+    CH1_STORY.cutsceneIndex = 0;
+    renderCurrentStoryLine();
+}
+
+function renderCurrentStoryLine() {
+    var item = CH1_STORY.cutsceneQueue[CH1_STORY.cutsceneIndex];
+    if (!item) {
+        rpgMode = "explore";
+        setExploreControls();
+        return;
+    }
+    var progress = " (" + (CH1_STORY.cutsceneIndex + 1) + "/" + CH1_STORY.cutsceneQueue.length + ")";
+    setRPGDialogue("[" + item.speaker + "]" + progress + ": " + item.line);
+
+    var bar = document.getElementById("rpg-action-bar");
+    if (bar) {
+        var btnText = (CH1_STORY.cutsceneIndex + 1 < CH1_STORY.cutsceneQueue.length) ? "▶ Next [Space / E]" : "✔ Finish Scene";
+        bar.innerHTML = '<button class="btn-arcade" style="background:#00f0ff; color:#000;" onclick="advanceStoryScene()">' + btnText + '</button>';
+    }
+}
+
+function ensureRPGDomNodes() {
+    var cab = document.getElementById("rpg-cabinet");
+    if (!cab) return;
+    if (!document.getElementById("rpg-dialogue")) {
+        var oldText = cab.querySelector("#rpg-text, #rpg-status, div[style*='min-height']");
+        if (oldText) oldText.id = "rpg-dialogue";
+        else {
+            var d = document.createElement("div");
+            d.id = "rpg-dialogue";
+            d.style.cssText = "color:#ffd700; font-size:12px; min-height:38px; margin:6px 0; padding:6px; background:#050811; border:1px solid #1f2d42; border-radius:4px;";
+            cab.appendChild(d);
+        }
+    }
+    if (!document.getElementById("rpg-action-bar")) {
+        var controls = cab.querySelector(".arcade-controls");
+        if (controls) controls.id = "rpg-action-bar";
+        else {
+            var bar = document.createElement("div");
+            bar.id = "rpg-action-bar";
+            bar.className = "arcade-controls";
+            cab.appendChild(bar);
+        }
+    }
+}
+
+var _origToggleRPG = toggleCyberRPG;
+toggleCyberRPG = function() {
+    ensureRPGDomNodes();
+    _origToggleRPG();
+};
+
+// Fix the activeBattle.xp null crash on battle victory
+var _origBattleTurn = battleTurn;
+battleTurn = function(action) {
+    var cachedXp = activeBattle ? activeBattle.xp : 0;
+    try {
+        _origBattleTurn(action);
+    } catch (err) {
+        if (activeBattle === null && rpgMode === "explore") {
+            setRPGDialogue("🏆 VICTORY! Earned +" + cachedXp + " XP!");
+            setExploreControls();
+        }
+    }
+};
+
+// Prevent Arrow keys & Spacebar from scrolling the webpage while playing
+window.addEventListener("keydown", function(e) {
+    var cab = document.getElementById("rpg-cabinet");
+    if (!cab || cab.classList.contains("hidden")) return;
+    if (document.activeElement && document.activeElement.tagName === "INPUT") return;
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space", " "].indexOf(e.key) !== -1 ||
+        ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].indexOf(e.code) !== -1) {
+        e.preventDefault();
+    }
+}, { passive: false });
