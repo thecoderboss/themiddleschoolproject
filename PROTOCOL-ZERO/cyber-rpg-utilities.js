@@ -1133,3 +1133,76 @@ setExploreControls = function() {
         '<button class="btn-arcade" onclick="postRPGProgress()">🏆 Post</button>' +
         '<button class="btn-arcade" style="background:#ffaaaa; color:#000;" onclick="resetRPGSave()">🔄 Reset</button>';
 };
+// ================= CUSTOM ANIMATED ENEMY BATTLE SPRITES =================
+function drawBattleEnemySprite(ctx, battle) {
+    var cx = 220, cy = 56 + Math.sin(Date.now() / 160) * 3;
+    var name = (battle.name || "").toLowerCase();
+
+    if (battle.isBoss) {
+        // Boss Core: Rotating Outer Shield Ring + Glowing Red Visor
+        ctx.strokeStyle = "#ff2244";
+        ctx.lineWidth = 2.5;
+        ctx.strokeRect(cx - 24, cy - 14, 48, 28);
+        ctx.strokeStyle = "#ffd700";
+        ctx.strokeRect(cx - 18, cy - 10, 36, 20);
+        ctx.fillStyle = "#ff2244";
+        ctx.fillRect(cx - 12, cy - 3, 24, 6);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(cx - 4, cy - 2, 8, 4);
+    } else if (name.indexOf("hound") !== -1) {
+        // Cyber-Hound: Sharp Angular Neon Head & Twin Eyes
+        ctx.fillStyle = "#b026ff";
+        ctx.fillRect(cx - 16, cy - 8, 32, 16);
+        ctx.fillStyle = "#00f0ff";
+        ctx.fillRect(cx - 10, cy - 3, 6, 5);
+        ctx.fillRect(cx + 4, cy - 3, 6, 5);
+    } else if (name.indexOf("turret") !== -1) {
+        // Riot Turret: Heavy Armor Base + Twin Cannon Barrels
+        ctx.fillStyle = "#ffaa00";
+        ctx.fillRect(cx - 18, cy - 6, 36, 16);
+        ctx.fillStyle = "#ff2244";
+        ctx.fillRect(cx - 12, cy + 8, 6, 8);
+        ctx.fillRect(cx + 6, cy + 8, 6, 8);
+    } else {
+        // Recon Drone: Hovering Rotors + Single Cyclops Eye
+        ctx.fillStyle = "#00f0ff";
+        ctx.fillRect(cx - 22, cy - 11, 14, 3);
+        ctx.fillRect(cx + 8, cy - 11, 14, 3);
+        ctx.fillStyle = "#1f2d42";
+        ctx.fillRect(cx - 14, cy - 7, 28, 16);
+        ctx.fillStyle = "#ff1464";
+        ctx.fillRect(cx - 4, cy - 2, 8, 6);
+    }
+}
+
+rpgMainLoop = function() {
+    var canvas = document.getElementById("rpg-canvas");
+    if (canvas) {
+        var ctx = canvas.getContext("2d");
+        if (rpgMode === "explore" || rpgMode === "cutscene") {
+            updateExploration(ctx);
+        } else if (rpgMode === "battle" && activeBattle) {
+            ctx.fillStyle = "#080412";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Enemy Name & HP Bar
+            ctx.fillStyle = activeBattle.isBoss ? "#ff2244" : "#ffaa00";
+            ctx.font = "bold 12px monospace";
+            ctx.fillText(activeBattle.name + " [" + Math.max(0, activeBattle.hp) + "/" + activeBattle.maxHp + "]", 95, 18);
+            ctx.fillStyle = "#221122";
+            ctx.fillRect(95, 24, 250, 8);
+            ctx.fillStyle = activeBattle.isBoss ? "#ff2244" : "#00ff88";
+            ctx.fillRect(95, 24, Math.max(0, (activeBattle.hp / activeBattle.maxHp) * 250), 8);
+
+            // Draw Custom Animated Enemy Sprite!
+            drawBattleEnemySprite(ctx, activeBattle);
+
+            updateDodgeBox(ctx);
+
+            ctx.fillStyle = "#00f0ff";
+            ctx.font = "bold 11px monospace";
+            ctx.fillText("UNIT-00 [LVL " + rpgState.lvl + "] • ALLY: " + (rpgState.activeAlly || "BYTE"), 115, 228);
+        }
+    }
+    rpgAnimId = requestAnimationFrame(rpgMainLoop);
+};
