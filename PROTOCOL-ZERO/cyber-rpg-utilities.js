@@ -1105,7 +1105,7 @@ function rpgInteract() { interactNearby(); }
 function rpgOpenShop() { openRPGShop("Cyber-Network Vendor", ["wpn_baton", "wpn_katana", "arm_vest", "arm_riot", "chip_ram", "chip_vamp"]); }
 function saveRPGToCloud(notify) {
     syncRPGToCloud();
-    if (notify) setRPGDialogue("☁️ Cloud Save synced to Supabase!");
+    if (notify) setRPGDialogue("☁️ Cloud Save synced to your chat account!");
 }
 function postRPGProgress() {
     var msgInput = document.getElementById("user-msg");
