@@ -1081,3 +1081,55 @@ window.addEventListener("keydown", function(e) {
         e.preventDefault();
     }
 }, { passive: false });
+// ================= EXACT HTML CONNECTOR FOR CHAT.HTML =================
+setRPGDialogue = function(text) {
+    var box = document.getElementById("rpg-dialogue-box");
+    if (box) box.innerText = text;
+};
+
+updateRPGHud = function() {
+    var setTxt = function(id, val) {
+        var el = document.getElementById(id);
+        if (el) el.innerText = val;
+    };
+    var mapObj = RPG_MAPS[rpgState.mapId];
+    setTxt("rpg-area-name", mapObj ? mapObj.name.toUpperCase() : rpgState.mapId.toUpperCase());
+    setTxt("rpg-lvl", rpgState.lvl);
+    setTxt("rpg-hp", rpgState.hp + "/" + getEffectiveMaxHp());
+    setTxt("rpg-ram", rpgState.ram + "/" + getEffectiveMaxRam());
+    setTxt("rpg-credits", rpgState.credits);
+};
+
+// Connect your HTML button functions directly to the new engine
+function rpgInteract() { interactNearby(); }
+function rpgOpenShop() { openRPGShop("Cyber-Network Vendor", ["wpn_baton", "wpn_katana", "arm_vest", "arm_riot", "chip_ram", "chip_vamp"]); }
+function saveRPGToCloud(notify) {
+    syncRPGToCloud();
+    if (notify) setRPGDialogue("☁️ Cloud Save synced to Supabase!");
+}
+function postRPGProgress() {
+    var msgInput = document.getElementById("user-msg");
+    if (!msgInput) return;
+    msgInput.value = "💻 [PROTOCOL ZERO] LVL " + rpgState.lvl + " | Logs: " + rpgState.logs.length + "/25 | Battles Won: " + rpgState.battlesWon + " | Credits: ₿" + rpgState.credits;
+    if (typeof submitRequestMessage === "function") submitRequestMessage();
+}
+function resetRPGSave() {
+    if (!confirm("Reset your PROTOCOL ZERO save back to Level 1?")) return;
+    localStorage.removeItem("pz_full_save_v2");
+    location.reload();
+}
+
+// Keep HUD area name & credits updated whenever switching maps
+var _origSetExploreControls = setExploreControls;
+setExploreControls = function() {
+    updateRPGHud();
+    var bar = document.getElementById("rpg-action-bar");
+    if (!bar) return;
+    bar.innerHTML =
+        '<button class="btn-arcade" onclick="rpgInteract()">💬 Talk / Inspect [Space]</button>' +
+        '<button class="btn-arcade" onclick="openInventoryMenu()">🎒 Gear & Items</button>' +
+        '<button class="btn-arcade" onclick="openLoreCodex()">📂 Codex (' + rpgState.logs.length + '/25)</button>' +
+        '<button class="btn-arcade" style="background:#00ff88; color:#000;" onclick="saveRPGToCloud(true)">☁️ Cloud Save</button>' +
+        '<button class="btn-arcade" onclick="postRPGProgress()">🏆 Post</button>' +
+        '<button class="btn-arcade" style="background:#ffaaaa; color:#000;" onclick="resetRPGSave()">🔄 Reset</button>';
+};
