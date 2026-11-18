@@ -86,25 +86,20 @@ function syncRPGToCloud() {
     var email = localStorage.getItem("sb_user_email");
     if (!token || !email) return;
 
-    fetch(SUPABASE_URL + "/rest/v1/rpg_saves?user_email=eq." + encodeURIComponent(email), {
-        method: "GET",
-        headers: { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + token }
-    })
-    .then(function(res) { return res.json(); })
-    .then(function(rows) {
-        var method = (rows && rows.length > 0) ? "PATCH" : "POST";
-        var url = SUPABASE_URL + "/rest/v1/rpg_saves" + (method === "PATCH" ? "?user_email=eq." + encodeURIComponent(email) : "");
-        fetch(url, {
-            method: method,
-            headers: {
-                "apikey": SUPABASE_KEY,
-                "Authorization": "Bearer " + token,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ user_email: email, save_data: rpgState })
-        }).catch(function() {});
-    })
-    .catch(function() {});
+    fetch(SUPABASE_URL + "/rest/v1/rpg_saves", {
+        method: "POST",
+        headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json",
+            "Prefer": "resolution=merge-duplicates"
+        },
+        body: JSON.stringify({
+            email: email,
+            save_data: rpgState,
+            updated_at: new Date().toISOString()
+        })
+    }).catch(function() {});
 }
 
 function loadRPGFromCloud() {
@@ -114,14 +109,17 @@ function loadRPGFromCloud() {
     var email = localStorage.getItem("sb_user_email");
     if (!token || !email) return;
 
-    fetch(SUPABASE_URL + "/rest/v1/rpg_saves?user_email=eq." + encodeURIComponent(email), {
+    fetch(SUPABASE_URL + "/rest/v1/rpg_saves?email=eq." + encodeURIComponent(email), {
         method: "GET",
-        headers: { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + token }
+        headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": "Bearer " + token
+        }
     })
     .then(function(res) { return res.json(); })
     .then(function(rows) {
-        if (rows && rows.length > 0 && rows[0].save_data) {
-            rpgState = Object.assign({}, rpgState, rows[0].save_data);
+        if (rows && rows.length > 0 && rows.save_data) {
+            rpgState = Object.assign({}, rpgState, rows.save_data);
             saveRPGLocal();
             if (typeof updateRPGHud === "function") updateRPGHud();
         }
