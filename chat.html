@@ -1059,7 +1059,7 @@ function handleBanSubmit() {
 
     var lastSentTime = 0;
 
-    function submitRequestMessage() {
+        function submitRequestMessage() {
         var now = Date.now();
         if (now - lastSentTime < 2000) {
             return alert("Slow down! Please wait 2 seconds between messages.");
@@ -1091,6 +1091,9 @@ function handleBanSubmit() {
                 if (xhr.status >= 200 && xhr.status <= 299) {
                     document.getElementById("user-msg").value = "";
                     fetchRequestMessages();
+                    
+                    // ✅ THIS WAS MISSING: Trigger the AI bot if mentioned!
+                    checkAndTriggerAI(msgInput, parsedUsername, roomId, roomPassword);
                 } else {
                     var err = JSON.parse(xhr.responseText || "{}");
                     alert("Transmission failure: " + (err.message || "Status code " + xhr.status));
@@ -1106,7 +1109,8 @@ function handleBanSubmit() {
             "room_password": roomPassword
         }));
     }
-                var AI_BOTS = {
+
+    var AI_BOTS = {
         "thecoderbossgpt": {
             name: "thecoderbossGPT",
             personality: "You are thecoderbossGPT, a purely logical, emotionless, coldly efficient AI. Answer the user's question directly with zero warmth, slang, emojis, or filler. Keep your reply under 40 words."
@@ -1126,49 +1130,41 @@ function handleBanSubmit() {
 
     };
 
-    async function askRealAI(systemPrompt, userPrompt, senderName) {
-        var fullUserText = senderName + " says: " + userPrompt;
+        async function askRealAI(systemPrompt, userPrompt, senderName) {
+        var fullPrompt = systemPrompt + "\n\nUser (" + senderName + "): " + userPrompt + "\nReply:";
 
-        // 1. Primary: Pollinations OpenAI-compatible free endpoint (no key needed)
+        // 1. Primary: Pollinations GET text endpoint (CORS-friendly, no key needed)
         try {
-            var res = await fetch("https://text.pollinations.ai/openai", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    model: "openai",
-                    messages: [
-                        { role: "system", content: systemPrompt },
-                        { role: "user", content: fullUserText }
-                    ]
-                })
-            });
+            var url = "https://pollinations.ai" + encodeURIComponent(fullPrompt) + "?model=openai&seed=" + Math.floor(Math.random() * 10000);
+            var res = await fetch(url);
             if (res.ok) {
-                var data = await res.json();
-                var text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
-                if (text) return text.trim();
+                var text = await res.text();
+                if (text && text.indexOf("IMPORTANT NOTICE") === -1) {
+                    return text.trim().slice(0, 195); // Keeps under your 200-char limit
+                }
             }
         } catch (e) {
-            console.warn("Primary AI endpoint unavailable, trying backup...", e);
+            console.warn("Primary AI failed:", e);
         }
 
-        // 2. Backup: mlvoca free TinyLlama endpoint (no key needed)
+        // 2. Backup: mlvoca TinyLlama endpoint
         try {
-            var res2 = await fetch("https://mlvoca.com/api/generate", {
+            var res2 = await fetch("https://mlvoca.com", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     model: "tinyllama",
                     system: systemPrompt,
-                    prompt: fullUserText,
+                    prompt: senderName + " says: " + userPrompt,
                     stream: false
                 })
             });
             if (res2.ok) {
                 var data2 = await res2.json();
-                if (data2.response) return data2.response.trim();
+                if (data2.response) return data2.response.trim().slice(0, 195);
             }
         } catch (e2) {
-            console.warn("Backup AI endpoint unavailable:", e2);
+            console.warn("Backup AI failed:", e2);
         }
 
         return null;
