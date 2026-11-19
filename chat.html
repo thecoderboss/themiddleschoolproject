@@ -464,7 +464,7 @@
 
         <!-- MASTER ARCADE DRAWER TOGGLE -->
         <div style="margin-bottom: 12px;">
-            <button class="btn-submit" style="background: #111; color: #0f0; border: 2px solid #0f0; letter-spacing: 1px;" onclick="toggleArcadeDrawer()">🕹️ OPEN / CLOSE ARCADE (7 GAMES)</button>
+            <button class="btn-submit" style="background: #111; color: #0f0; border: 2px solid #0f0; letter-spacing: 1px;" onclick="toggleArcadeDrawer()">🕹️ OPEN / CLOSE ARCADE (4 GAMES)</button>
         </div>
         
         <!-- EVERYTHING INSIDE HERE STAYS HIDDEN UNTIL CLICKED -->
@@ -744,12 +744,12 @@ function checkChatHours() {
         var toggleLink = document.getElementById("auth-toggle-link");
 
         if (isSignUpMode) {
-            title.innerText = "CREATE A NEW ACCOUNT";
-            button.innerText = "SIGN UP AND REGISTER";
+            title.innerText = "Create a new account";
+            button.innerText = "Sign up and register";
             toggleLink.innerText = "Already have an account? Log in here";
         } else {
-            title.innerText = "SIGN IN TO YOUR ACCOUNT";
-            button.innerText = "LOG IN";
+            title.innerText = "Sign in to your account";
+            button.innerText = "Log in";
             toggleLink.innerText = "Don't have an account? Sign up here";
         }
     }
