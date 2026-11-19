@@ -1130,53 +1130,50 @@ function handleBanSubmit() {
 
     };
 
-           async function askRealAI(systemPrompt, userPrompt, senderName) {
-        var combinedPrompt = systemPrompt + "\n\nUser (" + senderName + "): " + userPrompt + "\nReply in character (under 35 words):";
+              window.localAIGenerator = null;
 
-        // 1. Primary: Free No-Key Cloud AI (apifreellm.com)
+    async function loadBrowserAI() {
+        if (window.localAIGenerator) return window.localAIGenerator;
         try {
-            var res = await fetch("https://apifreellm.com", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: combinedPrompt })
-            });
-
-            if (res.ok) {
-                var data = await res.json();
-                if (data.response) {
-                    return data.response.trim().slice(0, 195);
-                }
-            } else {
-                console.warn("Primary Cloud AI returned status:", res.status);
-            }
-        } catch (e) {
-            console.warn("Primary Cloud AI failed (CORS or school filter), falling back to Browser AI...", e);
+            // esm.sh serves CORS-friendly ES modules for Transformers.js
+            var mod = await import("https://esm.sh");
+            window.localAIGenerator = await mod.pipeline(
+                "text-generation",
+                "HuggingFaceTB/SmolLM2-135M-Instruct",
+                { dtype: "q4" }
+            );
+            return window.localAIGenerator;
+        } catch (err) {
+            console.warn("Browser AI load failed:", err);
+            return null;
         }
+    }
 
-        // 2. Fallback: Real In-Browser Neural Network (Transformers.js + SmolLM2)
+    async function askRealAI(systemPrompt, userPrompt, senderName) {
+        // 1. Primary: Real In-Browser Neural Network (Zero API keys, zero CORS issues!)
         try {
-            if (typeof window.initBrowserAI === "function") {
-                var generator = await window.initBrowserAI();
+            var generator = await loadBrowserAI();
+            if (generator) {
                 var messages = [
                     { role: "system", content: systemPrompt },
                     { role: "user", content: senderName + " says: " + userPrompt }
                 ];
                 var output = await generator(messages, {
-                    max_new_tokens: 55,
+                    max_new_tokens: 50,
                     temperature: 0.8
                 });
-                var generated = output[0] && output[0].generated_text;
+                var generated = output && output.generated_text;
                 var reply = Array.isArray(generated) ? generated[generated.length - 1].content : String(generated || "");
                 if (reply) return reply.trim().slice(0, 195);
             }
-        } catch (e2) {
-            console.warn("Fallback Browser AI failed:", e2);
+        } catch (e) {
+            console.warn("Browser AI generation error:", e);
         }
 
         return null;
     }
 
-        async function checkAndTriggerAI(messageText, senderName, roomId, roomPassword) {
+    async function checkAndTriggerAI(messageText, senderName, roomId, roomPassword) {
         var lowerMsg = messageText.toLowerCase();
         var botConfig = null;
 
@@ -1188,11 +1185,19 @@ function handleBanSubmit() {
         }
         if (!botConfig) return;
 
+        var startTime = Date.now();
         var cleanPrompt = messageText.replace(/@?(thecoderbossgpt|idkgpt|celiaseesallgpt|shadowgpt)/gi, "").trim() || "Hello";
         var replyText = await askRealAI(botConfig.personality, cleanPrompt, senderName);
 
         if (!replyText) {
-            replyText = "[Signal lost — AI server unreachable]";
+            replyText = "[Signal lost — AI model could not load on this network]";
+        }
+
+        // ✅ FIX: Ensure at least 2.5 seconds have passed since the user's message
+        // so Supabase's "Wait 2 seconds between messages" trigger doesn't block the AI!
+        var elapsed = Date.now() - startTime;
+        if (elapsed < 2500) {
+            await new Promise(function(resolve) { setTimeout(resolve, 2500 - elapsed); });
         }
 
         var xhr = new XMLHttpRequest();
@@ -1217,7 +1222,6 @@ function handleBanSubmit() {
             "room_password": roomId === "global" ? "" : roomPassword
         }));
     }
-
 
     function banUserByEmail(targetEmail) {
     var jwtToken = localStorage.getItem("sb_token");
@@ -1465,14 +1469,15 @@ function executeBanRequest(targetEmail, jwtToken) {
         "10100101"
     ];
 
-    document.addEventListener("keydown", function(e) {
-        if (!siRunning) return;
+       document.addEventListener("keydown", function(e) {
+        if (!siRunning || !e.key) return;
         if (["ArrowLeft", "ArrowRight", "ArrowUp", " "].includes(e.key) && document.activeElement.tagName !== "INPUT") {
             e.preventDefault();
         }
         siKeys[e.key.toLowerCase()] = true;
     });
     document.addEventListener("keyup", function(e) {
+        if (!e.key) return;
         siKeys[e.key.toLowerCase()] = false;
     });
 
