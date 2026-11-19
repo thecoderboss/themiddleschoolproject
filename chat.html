@@ -895,6 +895,36 @@ function checkChatHours() {
         sessionStorage.removeItem("joined_announced");
         checkCurrentSession();
     }
+
+    function injectAdminLore(text) {
+    if (!text) return "";
+
+    var loreRules = [
+        {
+            regex: /\b(thecoderboss)\b(?!gpt)/gi,
+            replacement: '<span class="glow-owner" data-text="$1">$1</span> <span style="color:#b8860b; font-weight:bold; font-size:12px;">[who is hacking into the code to view your messages]</span>'
+        },
+        {
+            regex: /\b(idk)\b(?!gpt)/gi,
+            replacement: '<span class="glow-admin-blue">$1</span> <span style="color:#0077aa; font-weight:bold; font-size:12px;">[who is doing a laser scan on the code to see your messages]</span>'
+        },
+        {
+            regex: /\b(celiaseesall)\b(?!gpt)/gi,
+            replacement: '<span class="glow-admin-pink">$1</span> <span style="color:#ff1493; font-weight:bold; font-size:12px;">[who is glitching the code to see your messages]</span>'
+        },
+        {
+            regex: /\b(shadow)\b(?!gpt)/gi,
+            replacement: '<span class="glow-admin-invisible">$1</span> <span style="color:#9e88cc; font-weight:bold; font-size:12px;">[who is vanishing into the code to see your messages]</span>'
+        }
+    ];
+
+    var result = text;
+    for (var i = 0; i < loreRules.length; i++) {
+        result = result.replace(loreRules[i].regex, loreRules[i].replacement);
+    }
+    return result;
+}
+
     
     function fetchRequestMessages() {
     var feed = document.getElementById("chat-stream");
