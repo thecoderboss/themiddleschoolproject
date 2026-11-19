@@ -363,6 +363,43 @@
 .btn-arcade { background: #fff; color: #000; border: 2px solid #000; font-family: monospace; font-weight: bold; font-size: 12px; padding: 4px 10px; cursor: pointer; }
 .btn-arcade:active { background: #0f0; }
 
+        /* ================= AI BOT BUBBLES & BADGES ================= */
+.msg-ai-thecoderboss {
+    border-left: 4px solid #ffd700 !important;
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.14), #f9f9f9) !important;
+}
+.badge-ai-thecoderboss {
+    background: #000; color: #ffd700; font-weight: bold; font-size: 11px;
+    padding: 1px 5px; margin-left: 4px; border: 1px solid #ffd700;
+}
+
+.msg-ai-idk {
+    border-left: 4px solid #00ddff !important;
+    background: linear-gradient(90deg, rgba(0, 221, 255, 0.12), #f9f9f9) !important;
+}
+.badge-ai-idk {
+    background: #001f33; color: #00ddff; font-weight: bold; font-size: 11px;
+    padding: 1px 5px; margin-left: 4px; border: 1px solid #00ddff;
+}
+
+.msg-ai-celia {
+    border-left: 4px solid #ff1493 !important;
+    background: linear-gradient(90deg, rgba(255, 20, 147, 0.15), #1a000d) !important;
+    color: #ffb3d9 !important;
+}
+.badge-ai-celia {
+    background: #2b0016; color: #ff1493; font-weight: bold; font-size: 11px;
+    padding: 1px 5px; margin-left: 4px; border: 1px solid #ff1493;
+}
+
+.msg-ai-shadow {
+    border-left: 4px solid #ffea00 !important;
+    background: linear-gradient(90deg, rgba(255, 234, 0, 0.2), rgba(255, 105, 180, 0.15)) !important;
+}
+.badge-ai-shadow {
+    background: #ff69b4; color: #fff; font-weight: bold; font-size: 11px;
+    padding: 1px 5px; margin-left: 4px; border: 1px solid #000;
+}
     </style>
 </head>
 <body>
@@ -543,7 +580,7 @@
         
         <div class="input-row">
             <span class="input-label">&gt; Message:</span>
-            <input type="text" id="user-msg" class="field-box" placeholder="Hi! This is my first message!" maxlength="80" onkeydown="if(event.key==='Enter') submitRequestMessage()">
+            <input type="text" id="user-msg" class="field-box" placeholder="Hi! This is my first message!" maxlength="200" onkeydown="if(event.key==='Enter') submitRequestMessage()">
         </div>
 
         <button class="btn-submit" onclick="submitRequestMessage()">Send</button>
@@ -909,7 +946,18 @@ function checkChatHours() {
 
                     var senderRole = data[i].role || "user";
                     var roleTagHtml = "";
-                    if (senderRole === "owner") {
+                    if (senderRole === "ai") {
+                        var botName = data[i].name.toLowerCase();
+                        if (botName === "thecoderbossgpt") {
+                            roleTagHtml = " <span class='badge-ai-thecoderboss'>[AI]</span>";
+                        } else if (botName === "idkgpt") {
+                            roleTagHtml = " <span class='badge-ai-idk'>[AI]</span>";
+                        } else if (botName === "celiaseesallgpt") {
+                            roleTagHtml = " <span class='badge-ai-celia'>[AI]</span>";
+                        } else if (botName === "shadowgpt") {
+                            roleTagHtml = " <span class='badge-ai-shadow'>[AI]</span>";
+                        }
+                    } else if (senderRole === "owner") {
                         roleTagHtml = `<span class="glow-owner" data-text="[OWNER]">[OWNER]</span>`;
                     } else if (senderRole === "admin") {
                         var senderName = data[i].name.toLowerCase(); 
@@ -925,7 +973,13 @@ function checkChatHours() {
                     }
 
                     var bubbleClass = "msg-bubble";
-                    if (senderRole === "owner") {
+                    if (senderRole === "ai") {
+                        var bName = data[i].name.toLowerCase();
+                        if (bName === "thecoderbossgpt") bubbleClass = "msg-bubble msg-ai-thecoderboss";
+                        else if (bName === "idkgpt") bubbleClass = "msg-bubble msg-ai-idk";
+                        else if (bName === "celiaseesallgpt") bubbleClass = "msg-bubble msg-ai-celia";
+                        else if (bName === "shadowgpt") bubbleClass = "msg-bubble msg-ai-shadow";
+                    } else if (senderRole === "owner") {
                         bubbleClass = "msg-bubble msg-owner";
                     } else if (senderRole === "admin") {
                         var sName = data[i].name.toLowerCase();
@@ -1017,6 +1071,113 @@ function handleBanSubmit() {
             "room_password": roomPassword
         }));
     }
+            var AI_BOTS = {
+        "@thecoderbossgpt": {
+            name: "thecoderbossGPT",
+            personality: "You are thecoderbossGPT, a purely logical, emotionless, coldly efficient AI. Answer the user's question directly with zero warmth, slang, emojis, or filler. Keep your reply under 40 words."
+        },
+        "@idkgpt": {
+            name: "idkGPT",
+            personality: "You are idkGPT. You are super apathetic, bored, and barely care about answering. Use lowercase, sighs, 'idk', 'whatever', or 'ig', while still vaguely answering the user's question. Keep your reply under 40 words."
+        },
+        "@celiaseesallgpt": {
+            name: "celiaseesallGPT",
+            personality: "You are celiaseesallGPT. You are deeply unsettling, omniscient, and creepy. Answer the user while hinting that you are watching them through their screen or know what they are thinking. Keep it PG-13 spooky and under 40 words."
+        },
+        "@shadowgpt": {
+            name: "shadowGPT",
+            personality: "You are shadowGPT (ironically named, since you are blindingly, overwhelmingly, aggressively happy and cheerful!). Use exclamation marks, sparkles, and extreme positivity even about boring or bad things. Keep your reply under 40 words."
+        }
+    };
+
+    async function askRealAI(systemPrompt, userPrompt, senderName) {
+        var fullUserText = senderName + " says: " + userPrompt;
+
+        // 1. Primary: Pollinations OpenAI-compatible free endpoint (no key needed)
+        try {
+            var res = await fetch("https://text.pollinations.ai/openai", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    model: "openai",
+                    messages: [
+                        { role: "system", content: systemPrompt },
+                        { role: "user", content: fullUserText }
+                    ]
+                })
+            });
+            if (res.ok) {
+                var data = await res.json();
+                var text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+                if (text) return text.trim();
+            }
+        } catch (e) {
+            console.warn("Primary AI endpoint unavailable, trying backup...", e);
+        }
+
+        // 2. Backup: mlvoca free TinyLlama endpoint (no key needed)
+        try {
+            var res2 = await fetch("https://mlvoca.com/api/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    model: "tinyllama",
+                    system: systemPrompt,
+                    prompt: fullUserText,
+                    stream: false
+                })
+            });
+            if (res2.ok) {
+                var data2 = await res2.json();
+                if (data2.response) return data2.response.trim();
+            }
+        } catch (e2) {
+            console.warn("Backup AI endpoint unavailable:", e2);
+        }
+
+        return null;
+    }
+
+    async function checkAndTriggerAI(messageText, senderName, roomId, roomPassword) {
+        var lowerMsg = messageText.toLowerCase();
+        var botConfig = null;
+
+        for (var tag in AI_BOTS) {
+            if (lowerMsg.indexOf(tag) !== -1) {
+                botConfig = AI_BOTS[tag];
+                break;
+            }
+        }
+        if (!botConfig) return;
+
+        // Strip the @mention so the AI sees the clean question
+        var cleanPrompt = messageText.replace(/@\w+/gi, "").trim() || "Hello";
+
+        var replyText = await askRealAI(botConfig.personality, cleanPrompt, senderName);
+        if (!replyText) {
+            replyText = "[Signal lost — school filter may be blocking the AI server]";
+        }
+
+        // Post the real AI response to your Supabase chat feed
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", SUPABASE_URL + "/rest/v1/online_chat", true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("sb_token"));
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status <= 299) {
+                fetchRequestMessages();
+            }
+        };
+        xhr.send(JSON.stringify({
+            "name": botConfig.name,
+            "message": replyText,
+            "role": "ai",
+            "room_id": roomId,
+            "room_password": roomId === "global" ? "" : roomPassword
+        }));
+    }
+
 
     function banUserByEmail(targetEmail) {
     var jwtToken = localStorage.getItem("sb_token");
