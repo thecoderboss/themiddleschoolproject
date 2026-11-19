@@ -949,28 +949,63 @@ function rpgMainLoop() {
         if (rpgMode === "explore" || rpgMode === "cutscene") {
             updateExploration(ctx);
         } else if (rpgMode === "battle" && activeBattle) {
+            // Battle Arena Background & Grid
             ctx.fillStyle = "#080412";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = "rgba(255, 34, 68, 0.12)";
+            ctx.strokeRect(8, 8, canvas.width - 16, canvas.height - 16);
 
             // Enemy Name & HP Bar
             ctx.fillStyle = activeBattle.isBoss ? "#ff2244" : "#ffaa00";
             ctx.font = "bold 12px monospace";
-            ctx.fillText(activeBattle.name + " [" + Math.max(0, activeBattle.hp) + "/" + activeBattle.maxHp + "]", 95, 18);
+            ctx.fillText(activeBattle.name + " [" + Math.max(0, activeBattle.hp) + "/" + activeBattle.maxHp + "]", 95, 19);
             ctx.fillStyle = "#221122";
-            ctx.fillRect(95, 24, 250, 8);
+            ctx.fillRect(95, 25, 250, 7);
             ctx.fillStyle = activeBattle.isBoss ? "#ff2244" : "#00ff88";
-            ctx.fillRect(95, 24, Math.max(0, (activeBattle.hp / activeBattle.maxHp) * 250), 8);
+            ctx.fillRect(95, 25, Math.max(0, (activeBattle.hp / activeBattle.maxHp) * 250), 7);
 
-            // Draw Custom Animated Enemy Sprite
-            if (typeof drawBattleEnemySprite === "function") {
-                drawBattleEnemySprite(ctx, activeBattle);
+            // Animated Enemy Cyber-Sprite (Centered at x=220, y=54 above the Dodge Box)
+            var cx = 220, cy = 54 + Math.sin(Date.now() / 160) * 3;
+            if (activeBattle.isBoss) {
+                ctx.strokeStyle = "#ff2244";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(cx - 24, cy - 13, 48, 26);
+                ctx.strokeStyle = "#ffd700";
+                ctx.strokeRect(cx - 17, cy - 9, 34, 18);
+                ctx.fillStyle = "#ff2244";
+                ctx.fillRect(cx - 11, cy - 3, 22, 6);
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(cx - 4, cy - 2, 8, 4);
+            } else {
+                // Hovering Drone / Mech Chassis + Glowing Eyes
+                ctx.fillStyle = "#00f0ff";
+                ctx.fillRect(cx - 22, cy - 11, 14, 3);
+                ctx.fillRect(cx + 8, cy - 11, 14, 3);
+                ctx.fillStyle = "#233554";
+                ctx.fillRect(cx - 15, cy - 7, 30, 16);
+                ctx.strokeStyle = "#00f0ff";
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(cx - 15, cy - 7, 30, 16);
+                ctx.fillStyle = "#ff1464";
+                ctx.fillRect(cx - 8, cy - 2, 6, 5);
+                ctx.fillRect(cx + 2, cy - 2, 6, 5);
             }
 
-            updateDodgeBox(ctx);
+            // Draw Idle Dodge Box Frame on Player's Turn, or Active Bullets on Enemy's Turn
+            if (dodgeState.active) {
+                updateDodgeBox(ctx);
+            } else {
+                ctx.strokeStyle = "rgba(0, 255, 136, 0.35)";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(125, 78, 190, 104);
+                ctx.fillStyle = "#00ff88";
+                ctx.font = "11px monospace";
+                ctx.fillText("[ YOUR TURN — SELECT AN ACTION ]", 132, 134);
+            }
 
             ctx.fillStyle = "#00f0ff";
             ctx.font = "bold 11px monospace";
-            ctx.fillText("UNIT-00 [LVL " + rpgState.lvl + "] • ALLY: " + (rpgState.activeAlly || "BYTE"), 115, 228);
+            ctx.fillText("UNIT-00 [LVL " + rpgState.lvl + "] • ALLY: " + (rpgState.activeAlly || "BYTE"), 115, 226);
         }
     }
     rpgAnimId = requestAnimationFrame(rpgMainLoop);
