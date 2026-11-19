@@ -1130,47 +1130,53 @@ function handleBanSubmit() {
 
     };
 
-        async function askRealAI(systemPrompt, userPrompt, senderName) {
-        var fullPrompt = systemPrompt + "\n\nUser (" + senderName + "): " + userPrompt + "\nReply:";
+           async function askRealAI(systemPrompt, userPrompt, senderName) {
+        var combinedPrompt = systemPrompt + "\n\nUser (" + senderName + "): " + userPrompt + "\nReply in character (under 35 words):";
 
-        // 1. Primary: Pollinations GET text endpoint (CORS-friendly, no key needed)
+        // 1. Primary: Free No-Key Cloud AI (apifreellm.com)
         try {
-            var url = "https://pollinations.ai" + encodeURIComponent(fullPrompt) + "?model=openai&seed=" + Math.floor(Math.random() * 10000);
-            var res = await fetch(url);
-            if (res.ok) {
-                var text = await res.text();
-                if (text && text.indexOf("IMPORTANT NOTICE") === -1) {
-                    return text.trim().slice(0, 195); // Keeps under your 200-char limit
-                }
-            }
-        } catch (e) {
-            console.warn("Primary AI failed:", e);
-        }
-
-        // 2. Backup: mlvoca TinyLlama endpoint
-        try {
-            var res2 = await fetch("https://mlvoca.com", {
+            var res = await fetch("https://apifreellm.com", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    model: "tinyllama",
-                    system: systemPrompt,
-                    prompt: senderName + " says: " + userPrompt,
-                    stream: false
-                })
+                body: JSON.stringify({ message: combinedPrompt })
             });
-            if (res2.ok) {
-                var data2 = await res2.json();
-                if (data2.response) return data2.response.trim().slice(0, 195);
+
+            if (res.ok) {
+                var data = await res.json();
+                if (data.response) {
+                    return data.response.trim().slice(0, 195);
+                }
+            } else {
+                console.warn("Primary Cloud AI returned status:", res.status);
+            }
+        } catch (e) {
+            console.warn("Primary Cloud AI failed (CORS or school filter), falling back to Browser AI...", e);
+        }
+
+        // 2. Fallback: Real In-Browser Neural Network (Transformers.js + SmolLM2)
+        try {
+            if (typeof window.initBrowserAI === "function") {
+                var generator = await window.initBrowserAI();
+                var messages = [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: senderName + " says: " + userPrompt }
+                ];
+                var output = await generator(messages, {
+                    max_new_tokens: 55,
+                    temperature: 0.8
+                });
+                var generated = output[0] && output[0].generated_text;
+                var reply = Array.isArray(generated) ? generated[generated.length - 1].content : String(generated || "");
+                if (reply) return reply.trim().slice(0, 195);
             }
         } catch (e2) {
-            console.warn("Backup AI failed:", e2);
+            console.warn("Fallback Browser AI failed:", e2);
         }
 
         return null;
     }
 
-    async function checkAndTriggerAI(messageText, senderName, roomId, roomPassword) {
+        async function checkAndTriggerAI(messageText, senderName, roomId, roomPassword) {
         var lowerMsg = messageText.toLowerCase();
         var botConfig = null;
 
@@ -1182,24 +1188,25 @@ function handleBanSubmit() {
         }
         if (!botConfig) return;
 
-        // Removes "@thecoderbossGPT" OR "thecoderbossGPT" (case-insensitive) from the prompt
         var cleanPrompt = messageText.replace(/@?(thecoderbossgpt|idkgpt|celiaseesallgpt|shadowgpt)/gi, "").trim() || "Hello";
-
         var replyText = await askRealAI(botConfig.personality, cleanPrompt, senderName);
 
         if (!replyText) {
-            replyText = "[Signal lost — school filter may be blocking the AI server]";
+            replyText = "[Signal lost — AI server unreachable]";
         }
 
-        // Post the real AI response to your Supabase chat feed
         var xhr = new XMLHttpRequest();
         xhr.open("POST", SUPABASE_URL + "/rest/v1/online_chat", true);
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
         xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("sb_token"));
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status <= 299) {
-                fetchRequestMessages();
+            if (xhr.readyState === 4) {
+                if (xhr.status >= 200 && xhr.status <= 299) {
+                    fetchRequestMessages();
+                } else {
+                    console.error("Supabase AI post error (" + xhr.status + "):", xhr.responseText);
+                }
             }
         };
         xhr.send(JSON.stringify({
@@ -1794,6 +1801,23 @@ function executeBanRequest(targetEmail, jwtToken) {
         checkCurrentSession();
     }
     setInterval(checkChatHours, 10000);
+</script>
+<script type="module">
+    import { pipeline } from 'https://jsdelivr.net';
+
+    window.localAIGenerator = null;
+    window.initBrowserAI = async function() {
+        if (!window.localAIGenerator) {
+            console.log("Cloud AI blocked/unavailable — booting in-browser SmolLM2 AI...");
+            window.localAIGenerator = await pipeline(
+                'text-generation',
+                'HuggingFaceTB/SmolLM2-135M-Instruct',
+                { dtype: 'q4' }
+            );
+            console.log("In-browser AI ready!");
+        }
+        return window.localAIGenerator;
+    };
 </script>
 <script src="cyber-breaker.js"></script>
 <script src="cyber-flap.js"></script>
