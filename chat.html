@@ -1129,14 +1129,15 @@ function handleBanSubmit() {
         }
 
     };
-
-              window.localAIGenerator = null;
+   
+    window.localAIGenerator = null;
 
     async function loadBrowserAI() {
         if (window.localAIGenerator) return window.localAIGenerator;
         try {
-            // esm.sh serves CORS-friendly ES modules for Transformers.js
-            var mod = await import("https://esm.sh");
+            var at = String.fromCharCode(64);
+            var cdnUrl = "https://esm.sh" + at + "huggingface/transformers" + at + "3.4.0?bundle";
+            var mod = await import(cdnUrl);
             window.localAIGenerator = await mod.pipeline(
                 "text-generation",
                 "HuggingFaceTB/SmolLM2-135M-Instruct",
