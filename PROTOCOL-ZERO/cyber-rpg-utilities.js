@@ -1181,35 +1181,3 @@ function drawBattleEnemySprite(ctx, battle) {
         ctx.fillRect(cx - 4, cy - 2, 8, 6);
     }
 }
-
-rpgMainLoop = function() {
-    var canvas = document.getElementById("rpg-canvas");
-    if (canvas) {
-        var ctx = canvas.getContext("2d");
-        if (rpgMode === "explore" || rpgMode === "cutscene") {
-            updateExploration(ctx);
-        } else if (rpgMode === "battle" && activeBattle) {
-            ctx.fillStyle = "#080412";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Enemy Name & HP Bar
-            ctx.fillStyle = activeBattle.isBoss ? "#ff2244" : "#ffaa00";
-            ctx.font = "bold 12px monospace";
-            ctx.fillText(activeBattle.name + " [" + Math.max(0, activeBattle.hp) + "/" + activeBattle.maxHp + "]", 95, 18);
-            ctx.fillStyle = "#221122";
-            ctx.fillRect(95, 24, 250, 8);
-            ctx.fillStyle = activeBattle.isBoss ? "#ff2244" : "#00ff88";
-            ctx.fillRect(95, 24, Math.max(0, (activeBattle.hp / activeBattle.maxHp) * 250), 8);
-
-            // Draw Custom Animated Enemy Sprite!
-            drawBattleEnemySprite(ctx, activeBattle);
-
-            updateDodgeBox(ctx);
-
-            ctx.fillStyle = "#00f0ff";
-            ctx.font = "bold 11px monospace";
-            ctx.fillText("UNIT-00 [LVL " + rpgState.lvl + "] • ALLY: " + (rpgState.activeAlly || "BYTE"), 115, 228);
-        }
-    }
-    rpgAnimId = requestAnimationFrame(rpgMainLoop);
-};
