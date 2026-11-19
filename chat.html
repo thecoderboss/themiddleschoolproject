@@ -1071,23 +1071,24 @@ function handleBanSubmit() {
             "room_password": roomPassword
         }));
     }
-            var AI_BOTS = {
-        "@thecoderbossgpt": {
+                var AI_BOTS = {
+        "thecoderbossgpt": {
             name: "thecoderbossGPT",
             personality: "You are thecoderbossGPT, a purely logical, emotionless, coldly efficient AI. Answer the user's question directly with zero warmth, slang, emojis, or filler. Keep your reply under 40 words."
         },
-        "@idkgpt": {
+        "idkgpt": {
             name: "idkGPT",
             personality: "You are idkGPT. You are super apathetic, bored, and barely care about answering. Use lowercase, sighs, 'idk', 'whatever', or 'ig', while still vaguely answering the user's question. Keep your reply under 40 words."
         },
-        "@celiaseesallgpt": {
+        "celiaseesallgpt": {
             name: "celiaseesallGPT",
             personality: "You are celiaseesallGPT. You are deeply unsettling, omniscient, and creepy. Answer the user while hinting that you are watching them through their screen or know what they are thinking. Keep it PG-13 spooky and under 40 words."
         },
-        "@shadowgpt": {
+        "shadowgpt": {
             name: "shadowGPT",
-            personality: "You are shadowGPT (ironically named, since you are blindingly, overwhelmingly, aggressively happy and cheerful!). Use exclamation marks, sparkles, and extreme positivity even about boring or bad things. Keep your reply under 40 words."
+            personality: "You are shadowGPT (ironically named, since you are unnecessarily happy and upbeat about everything!). Speak in a warm, cheerful, overly optimistic tone, always finding a bright side even to boring or bad news. Use normal capitalization, at most one emoji per message, and keep your reply under 40 words."
         }
+
     };
 
     async function askRealAI(systemPrompt, userPrompt, senderName) {
@@ -1150,10 +1151,11 @@ function handleBanSubmit() {
         }
         if (!botConfig) return;
 
-        // Strip the @mention so the AI sees the clean question
-        var cleanPrompt = messageText.replace(/@\w+/gi, "").trim() || "Hello";
+        // Removes "@thecoderbossGPT" OR "thecoderbossGPT" (case-insensitive) from the prompt
+        var cleanPrompt = messageText.replace(/@?(thecoderbossgpt|idkgpt|celiaseesallgpt|shadowgpt)/gi, "").trim() || "Hello";
 
         var replyText = await askRealAI(botConfig.personality, cleanPrompt, senderName);
+
         if (!replyText) {
             replyText = "[Signal lost — school filter may be blocking the AI server]";
         }
