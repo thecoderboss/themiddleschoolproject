@@ -950,20 +950,27 @@ function rpgMainLoop() {
             updateExploration(ctx);
         } else if (rpgMode === "battle" && activeBattle) {
             ctx.fillStyle = "#080412";
-            ctx.fillRect(0, 0, 440, 240);
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Enemy Name & HP Bar
             ctx.fillStyle = activeBattle.isBoss ? "#ff2244" : "#ffaa00";
-            ctx.font = "bold 13px monospace";
-            ctx.fillText(activeBattle.name + "  [HP: " + Math.max(0, activeBattle.hp) + "/" + activeBattle.maxHp + "]", 110, 28);
+            ctx.font = "bold 12px monospace";
+            ctx.fillText(activeBattle.name + " [" + Math.max(0, activeBattle.hp) + "/" + activeBattle.maxHp + "]", 95, 18);
             ctx.fillStyle = "#221122";
-            ctx.fillRect(110, 36, 220, 10);
+            ctx.fillRect(95, 24, 250, 8);
             ctx.fillStyle = activeBattle.isBoss ? "#ff2244" : "#00ff88";
-            ctx.fillRect(110, 36, Math.max(0, (activeBattle.hp / activeBattle.maxHp) * 220), 10);
+            ctx.fillRect(95, 24, Math.max(0, (activeBattle.hp / activeBattle.maxHp) * 250), 8);
+
+            // Draw Custom Animated Enemy Sprite
+            if (typeof drawBattleEnemySprite === "function") {
+                drawBattleEnemySprite(ctx, activeBattle);
+            }
 
             updateDodgeBox(ctx);
 
             ctx.fillStyle = "#00f0ff";
             ctx.font = "bold 11px monospace";
-            ctx.fillText("UNIT-00 [LVL " + rpgState.lvl + "]  +  ALLY: " + (rpgState.activeAlly || "BYTE"), 115, 224);
+            ctx.fillText("UNIT-00 [LVL " + rpgState.lvl + "] • ALLY: " + (rpgState.activeAlly || "BYTE"), 115, 228);
         }
     }
     rpgAnimId = requestAnimationFrame(rpgMainLoop);
