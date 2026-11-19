@@ -400,6 +400,10 @@
     background: #ff69b4; color: #fff; font-weight: bold; font-size: 11px;
     padding: 1px 5px; margin-left: 4px; border: 1px solid #000;
 }
+.msg-ai-thecoderboss .msg-user { color: #b8860b !important; }
+.msg-ai-idk .msg-user { color: #0077aa !important; }
+.msg-ai-celia .msg-user { color: #ff66b8 !important; }
+.msg-ai-shadow .msg-user { color: #d63384 !important; }
     </style>
 </head>
 <body>
@@ -991,7 +995,8 @@ function checkChatHours() {
 
                     htmlBuffer += "<div class='" + bubbleClass + "'>" +
                         "<span class='msg-user'>" + escapeHtml(data[i].name) + roleTagHtml + "</span>: " +
-                        "<span>" + escapeHtml(data[i].message) + "</span>" +
+                        "<span>" + injectAdminLore(escapeHtml(data[i].message)) + "</span>" +
+
                         "<span class='msg-time'>" + timeStr + "</span>" +
                         moderationControlsHtml +
                         "</div>";
