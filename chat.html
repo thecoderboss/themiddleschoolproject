@@ -1146,46 +1146,7 @@ function handleBanSubmit() {
     function getAIWorker() {
         if (window.aiWorker) return window.aiWorker;
 
-        var at = String.fromCharCode(64);
-        var sl = String.fromCharCode(47);
-        var safeBaseDist = "https:" + sl + sl + "unpkg.com" + sl + at + "huggingface" + sl + "transformers" + at + "3.4.0" + sl + "dist" + sl;
-
-        var workerCode = `
-            let generator = null;
-            self.onmessage = async function(e) {
-                const { id, systemPrompt, userPrompt, senderName } = e.data;
-                try {
-                    if (!generator) {
-                        const baseDist = "${safeBaseDist}";
-                        const mod = await import(baseDist + "transformers.min.js");
-                        mod.env.backends.onnx.wasm.wasmPaths = baseDist;
-                        generator = await mod.pipeline(
-                            "text-generation",
-                            "HuggingFaceTB/SmolLM2-135M-Instruct",
-                            { dtype: "q4", device: "wasm" }
-                        );
-                    }
-                    const messages = [
-                        { role: "system", content: systemPrompt },
-                        { role: "user", content: senderName + " says: " + userPrompt }
-                    ];
-                    const output = await generator(messages, {
-                        max_new_tokens: 45,
-                        temperature: 0.8
-                    });
-                    const generated = output && output.generated_text;
-                    const reply = Array.isArray(generated)
-                        ? generated[generated.length - 1].content
-                        : String(generated || "");
-                    self.postMessage({ id, reply: reply.trim().slice(0, 195) });
-                } catch (err) {
-                    self.postMessage({ id, error: String(err) });
-                }
-            };
-        `;
-
-        var blob = new Blob([workerCode], { type: "application/javascript" });
-        window.aiWorker = new Worker(URL.createObjectURL(blob), { type: "module" });
+        window.aiWorker = new Worker("./ai-worker.js", { type: "module" });
 
         window.aiWorker.onmessage = function(e) {
             var data = e.data;
@@ -1194,6 +1155,10 @@ function handleBanSubmit() {
                 delete window.aiCallbacks[data.id];
                 cb(data.reply || null, data.error || null);
             }
+        };
+
+        window.aiWorker.onerror = function(err) {
+            console.error("AI Worker error:", err.message || err);
         };
 
         return window.aiWorker;
