@@ -979,8 +979,9 @@ function checkChatHours() {
                     }
 
                     var senderRole = data[i].role || "user";
+                    var isBot = data[i].name.toLowerCase().endsWith("gpt");
                     var roleTagHtml = "";
-                    if (senderRole === "ai") {
+                    if (isBot) {
                         var botName = data[i].name.toLowerCase();
                         if (botName === "thecoderbossgpt") {
                             roleTagHtml = " <span class='badge-ai-thecoderboss'>[AI]</span>";
@@ -1007,12 +1008,12 @@ function checkChatHours() {
                     }
 
                     var bubbleClass = "msg-bubble";
-                    if (senderRole === "ai") {
+                    if (isBot) {
                         var bName = data[i].name.toLowerCase();
-                        if (bName === "thecoderbossgpt") bubbleClass = "msg-bubble msg-ai-thecoderboss";
-                        else if (bName === "idkgpt") bubbleClass = "msg-bubble msg-ai-idk";
-                        else if (bName === "celiaseesallgpt") bubbleClass = "msg-bubble msg-ai-celia";
-                        else if (bName === "shadowgpt") bubbleClass = "msg-bubble msg-ai-shadow";
+                        if (botName === "thecoderbossgpt") bubbleClass = "msg-bubble msg-ai-thecoderboss";
+                        else if (botName === "idkgpt") bubbleClass = "msg-bubble msg-ai-idk";
+                        else if (botName === "celiaseesallgpt") bubbleClass = "msg-bubble msg-ai-celia";
+                        else if (botName === "shadowgpt") bubbleClass = "msg-bubble msg-ai-shadow";
                     } else if (senderRole === "owner") {
                         bubbleClass = "msg-bubble msg-owner";
                     } else if (senderRole === "admin") {
@@ -1136,7 +1137,7 @@ function handleBanSubmit() {
         if (window.localAIGenerator) return window.localAIGenerator;
         try {
             var at = String.fromCharCode(64);
-            var cdnUrl = "https://esm.sh" + at + "huggingface/transformers" + at + "3.4.0?bundle";
+            var cdnUrl = "https:" + slash + slash + "esm.sh" + slash + at + "huggingface" + slash + "transformers" + at + "3.4.0?bundle";
             var mod = await import(cdnUrl);
             window.localAIGenerator = await mod.pipeline(
                 "text-generation",
@@ -1807,23 +1808,6 @@ function executeBanRequest(targetEmail, jwtToken) {
         checkCurrentSession();
     }
     setInterval(checkChatHours, 10000);
-</script>
-<script type="module">
-    import { pipeline } from 'https://jsdelivr.net';
-
-    window.localAIGenerator = null;
-    window.initBrowserAI = async function() {
-        if (!window.localAIGenerator) {
-            console.log("Cloud AI blocked/unavailable — booting in-browser SmolLM2 AI...");
-            window.localAIGenerator = await pipeline(
-                'text-generation',
-                'HuggingFaceTB/SmolLM2-135M-Instruct',
-                { dtype: 'q4' }
-            );
-            console.log("In-browser AI ready!");
-        }
-        return window.localAIGenerator;
-    };
 </script>
 <script src="cyber-breaker.js"></script>
 <script src="cyber-flap.js"></script>
