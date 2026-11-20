@@ -978,11 +978,19 @@ function checkChatHours() {
                         moderationControlsHtml += " <span class='btn-delete' style='cursor:pointer;color:gray;' onclick='deleteChatMessage(" + data[i].id + ")'>[Delete]</span>";
                     }
 
-                    var senderRole = data[i].role || "user";
-                    var isBot = data[i].name.toLowerCase().endsWith("gpt");
+                                        var senderRole = data[i].role || "user";
+                    var displayName = data[i].name;
+                    var displayMessage = data[i].message || "";
+                    var botMatch = displayMessage.match(/^\[BOT:(thecoderbossGPT|idkGPT|celiaseesallGPT|shadowGPT)\]\s*/i);
+                    if (botMatch) {
+                        senderRole = "ai";
+                        displayName = botMatch[1];
+                        displayMessage = displayMessage.replace(botMatch[0], "");
+                    }
+
                     var roleTagHtml = "";
-                    if (isBot) {
-                        var botName = data[i].name.toLowerCase();
+                    if (senderRole === "ai") {
+                        var botName = displayName.toLowerCase();
                         if (botName === "thecoderbossgpt") {
                             roleTagHtml = " <span class='badge-ai-thecoderboss'>[AI]</span>";
                         } else if (botName === "idkgpt") {
@@ -995,7 +1003,7 @@ function checkChatHours() {
                     } else if (senderRole === "owner") {
                         roleTagHtml = `<span class="glow-owner" data-text="[OWNER]">[OWNER]</span>`;
                     } else if (senderRole === "admin") {
-                        var senderName = data[i].name.toLowerCase(); 
+                        var senderName = displayName.toLowerCase(); 
                         if (senderName === "idk") {
                             roleTagHtml = " <span class='glow-admin-blue'>[Admin]</span>";
                         } else if (senderName === "celiaseesall") {
@@ -1008,16 +1016,16 @@ function checkChatHours() {
                     }
 
                     var bubbleClass = "msg-bubble";
-                    if (isBot) {
-                        var bName = data[i].name.toLowerCase();
-                        if (botName === "thecoderbossgpt") bubbleClass = "msg-bubble msg-ai-thecoderboss";
-                        else if (botName === "idkgpt") bubbleClass = "msg-bubble msg-ai-idk";
-                        else if (botName === "celiaseesallgpt") bubbleClass = "msg-bubble msg-ai-celia";
-                        else if (botName === "shadowgpt") bubbleClass = "msg-bubble msg-ai-shadow";
+                    if (senderRole === "ai") {
+                        var bName = displayName.toLowerCase();
+                        if (bName === "thecoderbossgpt") bubbleClass = "msg-bubble msg-ai-thecoderboss";
+                        else if (bName === "idkgpt") bubbleClass = "msg-bubble msg-ai-idk";
+                        else if (bName === "celiaseesallgpt") bubbleClass = "msg-bubble msg-ai-celia";
+                        else if (bName === "shadowgpt") bubbleClass = "msg-bubble msg-ai-shadow";
                     } else if (senderRole === "owner") {
                         bubbleClass = "msg-bubble msg-owner";
                     } else if (senderRole === "admin") {
-                        var sName = data[i].name.toLowerCase();
+                        var sName = displayName.toLowerCase();
                         if (sName === "idk") bubbleClass = "msg-bubble msg-admin-blue";
                         else if (sName === "celiaseesall") bubbleClass = "msg-bubble msg-admin-pink";
                         else if (sName === "shadow") bubbleClass = "msg-bubble msg-admin-shadow";
@@ -1025,9 +1033,8 @@ function checkChatHours() {
                     }
 
                     htmlBuffer += "<div class='" + bubbleClass + "'>" +
-                        "<span class='msg-user'>" + escapeHtml(data[i].name) + roleTagHtml + "</span>: " +
-                        "<span>" + injectAdminLore(escapeHtml(data[i].message)) + "</span>" +
-
+                        "<span class='msg-user'>" + escapeHtml(displayName) + roleTagHtml + "</span>: " +
+                        "<span>" + injectAdminLore(escapeHtml(displayMessage)) + "</span>" +
                         "<span class='msg-time'>" + timeStr + "</span>" +
                         moderationControlsHtml +
                         "</div>";
@@ -1133,10 +1140,11 @@ function handleBanSubmit() {
    
     window.localAIGenerator = null;
 
-    async function loadBrowserAI() {
+       async function loadBrowserAI() {
         if (window.localAIGenerator) return window.localAIGenerator;
         try {
             var at = String.fromCharCode(64);
+            var slash = String.fromCharCode(47);
             var cdnUrl = "https:" + slash + slash + "esm.sh" + slash + at + "huggingface" + slash + "transformers" + at + "3.4.0?bundle";
             var mod = await import(cdnUrl);
             window.localAIGenerator = await mod.pipeline(
@@ -1216,14 +1224,13 @@ function handleBanSubmit() {
                 }
             }
         };
-        xhr.send(JSON.stringify({
+         xhr.send(JSON.stringify({
             "name": botConfig.name,
-            "message": replyText,
+            "message": "[BOT:" + botConfig.name + "] " + replyText,
             "role": "ai",
             "room_id": roomId,
             "room_password": roomId === "global" ? "" : roomPassword
         }));
-    }
 
     function banUserByEmail(targetEmail) {
     var jwtToken = localStorage.getItem("sb_token");
