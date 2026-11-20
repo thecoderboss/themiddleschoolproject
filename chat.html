@@ -1139,13 +1139,14 @@ function handleBanSubmit() {
     };
 
     window.localAIGenerator = null;
-       
+
     async function loadBrowserAI() {
         if (window.localAIGenerator) return window.localAIGenerator;
         var at = String.fromCharCode(64);
+        var sl = String.fromCharCode(47);
         var urls = [
-            "https://unpkg.com" + at + "huggingface/transformers" + at + "3.4.0/dist/transformers.min.js",
-            "https://esm.run" + at + "huggingface/transformers" + at + "3.4.0"
+            "https:" + sl + sl + "unpkg.com" + sl + at + "huggingface" + sl + "transformers" + at + "3.4.0" + sl + "dist" + sl + "transformers.min.js",
+            "https:" + sl + sl + "esm.run" + sl + at + "huggingface" + sl + "transformers" + at + "3.4.0"
         ];
         for (var i = 0; i < urls.length; i++) {
             try {
