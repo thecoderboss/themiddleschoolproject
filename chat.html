@@ -1139,51 +1139,32 @@ function handleBanSubmit() {
 
     };
 
-    window.aiWorker = null;
-    window.aiCallbacks = {};
-    window.aiReqId = 0;
-
-    function getAIWorker() {
-        if (window.aiWorker) return window.aiWorker;
-
-        window.aiWorker = new Worker("./ai-worker.js", { type: "module" });
-
-        window.aiWorker.onmessage = function(e) {
-            var data = e.data;
-            var cb = window.aiCallbacks[data.id];
-            if (cb) {
-                delete window.aiCallbacks[data.id];
-                cb(data.reply || null, data.error || null);
-            }
-        };
-
-        window.aiWorker.onerror = function(err) {
-            console.error("AI Worker error:", err.message || err);
-        };
-
-        return window.aiWorker;
-    }
-
-    function askRealAI(systemPrompt, userPrompt, senderName) {
-        return new Promise(function(resolve) {
-            try {
-                var worker = getAIWorker();
-                var id = ++window.aiReqId;
-                window.aiCallbacks[id] = function(reply, err) {
-                    if (err) console.warn("Worker AI error:", err);
-                    resolve(reply);
-                };
-                worker.postMessage({
-                    id: id,
+        async function askRealAI(systemPrompt, userPrompt, senderName) {
+        try {
+            var res = await fetch(SUPABASE_URL + "/functions/v1/chat-ai", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": "Bearer " + localStorage.getItem("sb_token")
+                },
+                body: JSON.stringify({
                     systemPrompt: systemPrompt,
                     userPrompt: userPrompt,
                     senderName: senderName
-                });
-            } catch (e) {
-                console.warn("Failed to start AI Worker:", e);
-                resolve(null);
+                })
+            });
+            if (res.ok) {
+                var data = await res.json();
+                if (data.reply) return data.reply.slice(0, 195);
+                if (data.rawError) console.warn("HF API message:", data.rawError);
+            } else {
+                console.warn("Edge function status:", res.status);
             }
-        });
+        } catch (e) {
+            console.warn("Supabase AI function error:", e);
+        }
+        return null;
     }
 
     async function checkAndTriggerAI(messageText, senderName, roomId, roomPassword) {
