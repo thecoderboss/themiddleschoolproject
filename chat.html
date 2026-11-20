@@ -580,6 +580,7 @@
                     <input type="hidden" id="chat-room-password" value="">
             </div>
 
+        <div id="ai-typing-indicator" style="font-size:12px; font-style:italic; color:#555; text-align:left; margin-bottom:4px; height:16px;"></div>
 
         
         <div class="input-row">
@@ -1145,13 +1146,17 @@ function handleBanSubmit() {
     function getAIWorker() {
         if (window.aiWorker) return window.aiWorker;
 
+        var at = String.fromCharCode(64);
+        var sl = String.fromCharCode(47);
+        var safeBaseDist = "https:" + sl + sl + "unpkg.com" + sl + at + "huggingface" + sl + "transformers" + at + "3.4.0" + sl + "dist" + sl;
+
         var workerCode = `
             let generator = null;
             self.onmessage = async function(e) {
                 const { id, systemPrompt, userPrompt, senderName } = e.data;
                 try {
                     if (!generator) {
-                        const baseDist = "https://unpkg.com";
+                        const baseDist = "${safeBaseDist}";
                         const mod = await import(baseDist + "transformers.min.js");
                         mod.env.backends.onnx.wasm.wasmPaths = baseDist;
                         generator = await mod.pipeline(
@@ -1230,7 +1235,12 @@ function handleBanSubmit() {
 
         var startTime = Date.now();
         var cleanPrompt = messageText.replace(/@?(thecoderbossgpt|idkgpt|celiaseesallgpt|shadowgpt)/gi, "").trim() || "Hello";
+        var indicator = document.getElementById("ai-typing-indicator");
+        if (indicator) indicator.innerText = "🤖 " + botConfig.name + " is thinking...";
+
         var replyText = await askRealAI(botConfig.personality, cleanPrompt, senderName);
+
+        if (indicator) indicator.innerText = "";
 
         if (!replyText) {
             replyText = "[Signal lost — AI model could not load on this network]";
