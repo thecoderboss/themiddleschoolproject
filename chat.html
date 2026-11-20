@@ -1121,72 +1121,99 @@ function handleBanSubmit() {
     var AI_BOTS = {
         "thecoderbossgpt": {
             name: "thecoderbossGPT",
-            personality: "You are thecoderbossGPT, a purely logical, emotionless, coldly efficient AI. Answer the user's question directly with zero warmth, slang, emojis, or filler. Keep your reply under 40 words."
+            personality: "You are thecoderbossGPT, a purely logical, emotionless, coldly efficient AI. Answer the user's question directly with zero warmth, slang, emojis, or filler. Keep your reply under 50 words."
         },
         "idkgpt": {
             name: "idkGPT",
-            personality: "You are idkGPT. You are super apathetic, bored, and barely care about answering. Use lowercase, sighs, 'idk', 'whatever', or 'ig', while still vaguely answering the user's question. Keep your reply under 40 words."
+            personality: "You are idkGPT. You are super apathetic, bored, and barely care about answering. Use lowercase, sighs, 'idk', 'whatever', or 'ig', while still vaguely answering the user's question. Keep your reply under 50 words."
         },
         "celiaseesallgpt": {
             name: "celiaseesallGPT",
-            personality: "You are celiaseesallGPT. You are deeply unsettling, omniscient, and creepy. Answer the user while hinting that you are watching them through their screen or know what they are thinking. Keep it PG-13 spooky and under 40 words."
+            personality: "You are celiaseesallGPT. You are deeply unsettling, omniscient, and creepy. Answer the user while hinting that you are watching them through their screen or know what they are thinking. Keep it PG-13 spooky and under 50 words."
         },
         "shadowgpt": {
             name: "shadowGPT",
-            personality: "You are shadowGPT (ironically named, since you are unnecessarily happy and upbeat about everything!). Speak in a warm, cheerful, overly optimistic tone, always finding a bright side even to boring or bad news. Use normal capitalization, at most one emoji per message, and keep your reply under 40 words."
+            personality: "You are shadowGPT (ironically named, since you are unnecessarily happy and upbeat about everything!). Speak in a warm, cheerful, overly optimistic tone, always finding a bright side even to boring or bad news. Use normal capitalization, at least 1, and at most 5 emojis per message, and keep your reply under 50 words."
         }
 
     };
 
-    window.localAIGenerator = null;
+    window.aiWorker = null;
+    window.aiCallbacks = {};
+    window.aiReqId = 0;
 
-    async function loadBrowserAI() {
-        if (window.localAIGenerator) return window.localAIGenerator;
-        var at = String.fromCharCode(64);
-        var sl = String.fromCharCode(47);
-        var urls = [
-            "https:" + sl + sl + "unpkg.com" + sl + at + "huggingface" + sl + "transformers" + at + "3.4.0" + sl + "dist" + sl + "transformers.min.js",
-            "https:" + sl + sl + "esm.run" + sl + at + "huggingface" + sl + "transformers" + at + "3.4.0"
-        ];
-        for (var i = 0; i < urls.length; i++) {
-            try {
-                console.log("Trying AI library from:", urls[i]);
-                var mod = await import(urls[i]);
-                window.localAIGenerator = await mod.pipeline(
-                    "text-generation",
-                    "HuggingFaceTB/SmolLM2-135M-Instruct",
-                    { dtype: "q4", device: "wasm" }
-                );
-                return window.localAIGenerator;
-            } catch (err) {
-                console.warn("AI load attempt " + (i + 1) + " failed:", err);
+    function getAIWorker() {
+        if (window.aiWorker) return window.aiWorker;
+
+        var workerCode = `
+            let generator = null;
+            self.onmessage = async function(e) {
+                const { id, systemPrompt, userPrompt, senderName } = e.data;
+                try {
+                    if (!generator) {
+                        const baseDist = "https://unpkg.com";
+                        const mod = await import(baseDist + "transformers.min.js");
+                        mod.env.backends.onnx.wasm.wasmPaths = baseDist;
+                        generator = await mod.pipeline(
+                            "text-generation",
+                            "HuggingFaceTB/SmolLM2-135M-Instruct",
+                            { dtype: "q4", device: "wasm" }
+                        );
+                    }
+                    const messages = [
+                        { role: "system", content: systemPrompt },
+                        { role: "user", content: senderName + " says: " + userPrompt }
+                    ];
+                    const output = await generator(messages, {
+                        max_new_tokens: 45,
+                        temperature: 0.8
+                    });
+                    const generated = output && output.generated_text;
+                    const reply = Array.isArray(generated)
+                        ? generated[generated.length - 1].content
+                        : String(generated || "");
+                    self.postMessage({ id, reply: reply.trim().slice(0, 195) });
+                } catch (err) {
+                    self.postMessage({ id, error: String(err) });
+                }
+            };
+        `;
+
+        var blob = new Blob([workerCode], { type: "application/javascript" });
+        window.aiWorker = new Worker(URL.createObjectURL(blob), { type: "module" });
+
+        window.aiWorker.onmessage = function(e) {
+            var data = e.data;
+            var cb = window.aiCallbacks[data.id];
+            if (cb) {
+                delete window.aiCallbacks[data.id];
+                cb(data.reply || null, data.error || null);
             }
-        }
-        return null;
+        };
+
+        return window.aiWorker;
     }
 
-    async function askRealAI(systemPrompt, userPrompt, senderName) {
-        // 1. Primary: Real In-Browser Neural Network (Zero API keys, zero CORS issues!)
-        try {
-            var generator = await loadBrowserAI();
-            if (generator) {
-                var messages = [
-                    { role: "system", content: systemPrompt },
-                    { role: "user", content: senderName + " says: " + userPrompt }
-                ];
-                var output = await generator(messages, {
-                    max_new_tokens: 50,
-                    temperature: 0.8
+    function askRealAI(systemPrompt, userPrompt, senderName) {
+        return new Promise(function(resolve) {
+            try {
+                var worker = getAIWorker();
+                var id = ++window.aiReqId;
+                window.aiCallbacks[id] = function(reply, err) {
+                    if (err) console.warn("Worker AI error:", err);
+                    resolve(reply);
+                };
+                worker.postMessage({
+                    id: id,
+                    systemPrompt: systemPrompt,
+                    userPrompt: userPrompt,
+                    senderName: senderName
                 });
-                var generated = output && output.generated_text;
-                var reply = Array.isArray(generated) ? generated[generated.length - 1].content : String(generated || "");
-                if (reply) return reply.trim().slice(0, 195);
+            } catch (e) {
+                console.warn("Failed to start AI Worker:", e);
+                resolve(null);
             }
-        } catch (e) {
-            console.warn("Browser AI generation error:", e);
-        }
-
-        return null;
+        });
     }
 
     async function checkAndTriggerAI(messageText, senderName, roomId, roomPassword) {
