@@ -1137,26 +1137,31 @@ function handleBanSubmit() {
         }
 
     };
-   
-    window.localAIGenerator = null;
 
-       async function loadBrowserAI() {
+    window.localAIGenerator = null;
+       
+    async function loadBrowserAI() {
         if (window.localAIGenerator) return window.localAIGenerator;
-        try {
-            var at = String.fromCharCode(64);
-            var slash = String.fromCharCode(47);
-            var cdnUrl = "https:" + slash + slash + "esm.sh" + slash + at + "huggingface" + slash + "transformers" + at + "3.4.0?bundle";
-            var mod = await import(cdnUrl);
-            window.localAIGenerator = await mod.pipeline(
-                "text-generation",
-                "HuggingFaceTB/SmolLM2-135M-Instruct",
-                { dtype: "q4" }
-            );
-            return window.localAIGenerator;
-        } catch (err) {
-            console.warn("Browser AI load failed:", err);
-            return null;
+        var at = String.fromCharCode(64);
+        var urls = [
+            "https://unpkg.com" + at + "huggingface/transformers" + at + "3.4.0/dist/transformers.min.js",
+            "https://esm.run" + at + "huggingface/transformers" + at + "3.4.0"
+        ];
+        for (var i = 0; i < urls.length; i++) {
+            try {
+                console.log("Trying AI library from:", urls[i]);
+                var mod = await import(urls[i]);
+                window.localAIGenerator = await mod.pipeline(
+                    "text-generation",
+                    "HuggingFaceTB/SmolLM2-135M-Instruct",
+                    { dtype: "q4", device: "wasm" }
+                );
+                return window.localAIGenerator;
+            } catch (err) {
+                console.warn("AI load attempt " + (i + 1) + " failed:", err);
+            }
         }
+        return null;
     }
 
     async function askRealAI(systemPrompt, userPrompt, senderName) {
