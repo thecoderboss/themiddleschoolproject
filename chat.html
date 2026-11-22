@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Chat with Auth!</title>
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://googleapis.com/css2?family=Cinzel+Decorative:wght@900&family=Orbitron:wght@700;900&family=Press+Start+2P&family=Rubik+Glitch&family=Share+Tech+Mono&family=UnifrakturMaguntia&display=swap">
     <style>
         body { font-family: monospace, Courier, serif; background-color: #fff; color: #000; margin: 4%; font-size: 16px; line-height: 1.4; }
         .board-container { max-width: 500px; margin: 0 auto; text-align: center; }
@@ -404,8 +407,45 @@
 .msg-ai-idk .msg-user { color: #0077aa !important; }
 .msg-ai-celia .msg-user { color: #ff66b8 !important; }
 .msg-ai-shadow .msg-user { color: #d63384 !important; }
+/* Cyberpunk terminal font for the main chat feed, header & input */
+body, input, button, select {
+    font-family: 'Share Tech Mono', monospace;
+}
+
+/* 1. thecoderboss (Gold 3D Owner) -> Engraved royal boss font */
+.glow-owner {
+    font-family: 'Cinzel Decorative', serif;
+    letter-spacing: 1.5px;
+}
+
+/* 2. idk (Cyber Blue Laser Scan) -> Futuristic sci-fi HUD font */
+.glow-admin-blue {
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 1px;
+}
+
+/* 3. celiaseesall (Pink Chromatic RGB Glitch) -> True corrupted glitch font */
+.glow-admin-pink {
+    font-family: 'Rubik Glitch', system-ui;
+    font-weight: normal;
+}
+
+/* 4. shadow (Stealth Vanish) -> Sharp gothic shadow script */
+.glow-admin-invisible {
+    font-family: 'UnifrakturMaguntia', cursive;
+    font-size: 16px;
+}
+
+/* 8-bit arcade pixel font for all four [AI] badges */
+.badge-ai-thecoderboss,
+.badge-ai-idk,
+.badge-ai-celia,
+.badge-ai-shadow {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+}
     </style>
-</head>
+    </head>
 <body>
 
 <div class="board-container">
