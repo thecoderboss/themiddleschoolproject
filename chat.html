@@ -1073,9 +1073,11 @@ function checkChatHours() {
                         else bubbleClass = "msg-bubble msg-admin";
                     }
 
+                    var formattedMsg = senderRole === "ai" ? escapeHtml(displayMessage) : injectAdminLore(escapeHtml(displayMessage));
+
                     htmlBuffer += "<div class='" + bubbleClass + "'>" +
                         "<span class='msg-user'>" + escapeHtml(displayName) + roleTagHtml + "</span>: " +
-                        "<span>" + injectAdminLore(escapeHtml(displayMessage)) + "</span>" +
+                        "<span>" + formattedMsg + "</span>" +
                         "<span class='msg-time'>" + timeStr + "</span>" +
                         moderationControlsHtml +
                         "</div>";
