@@ -1158,7 +1158,7 @@ function handleBanSubmit() {
             });
             if (res.ok) {
                 var data = await res.json();
-                if (data.reply) return data.reply.slice(0, 195);
+                if (data.reply) return data.reply;
                 if (data.rawError) console.warn("HF API message:", data.rawError);
             } else {
                 console.warn("Edge function status:", res.status);
