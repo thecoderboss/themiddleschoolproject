@@ -623,7 +623,7 @@ function checkChatHours() {
 
     const currentMinutes = (now.getHours() * 60) + now.getMinutes();
     const lockStart = 545; // 9:05 AM
-    const lockEnd = 900;   // 3:20 PM //SWITCH TO 920 AFTER TESTING!!
+    const lockEnd = 920;   // 3:20 PM //SWITCH TO 920 AFTER TESTING!!
 
     if (currentMinutes >= lockStart && currentMinutes < lockEnd) {
         if (pollIntervalId) {
